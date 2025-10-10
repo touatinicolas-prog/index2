@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>Mon Index Biblique</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg-primary: #1a1a1a;
+            --bg-secondary: #2d2d2d;
+            --bg-tertiary: #3a3a3a;
+            --text-primary: #e8e8e8;
+            --text-secondary: #b8b8b8;
+            --accent: #4a90e2;
+            --border: #4a4a4a;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+        .header {
+            background: var(--bg-secondary);
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .header h1 { font-size: 22px; font-weight: 600; }
+        .mode-toggle {
+            padding: 8px 16px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .search-input {
+            width: 100%;
+            padding: 10px 15px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 16px;
+            margin-bottom: 12px;
+        }
+        .controls { display: flex; gap: 8px; flex-wrap: wrap; }
+        .controls.hidden { display: none; }
+        .btn {
+            padding: 10px 16px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            flex: 1;
+            min-width: 100px;
+        }
+        .btn-primary { background: var(--accent); color: white; }
+        .btn-success { background: #2d7d46; color: white; }
+        .btn-info { background: #357abd; color: white; }
+        .btn-secondary { background: var(--bg-tertiary); color: var(--text-primary); }
+        .container { padding-bottom: 40px; }
+        .category-card { background: var(--bg-secondary); border-bottom: 1px solid var(--border); }
+        .category-card.dragging { opacity: 0.5; }
+        .category-header {
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+        .category-title-wrapper { display: flex; align-items: center; gap: 12px; flex: 1; }
+        .drag-handle { font-size: 18px; color: var(--text-secondary); padding: 4px; }
+        .drag-handle.hidden { display: none; }
+        .category-title { font-size: 18px; font-weight: 600; }
+        .icon-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 20px;
+            padding: 4px 8px;
+        }
+        .icon-btn.hidden { display: none; }
+        .chevron { color: var(--text-secondary); font-size: 14px; }
+        .category-content { display: none; background: var(--bg-primary); }
+        .category-content.expanded { display: block; }
+        .subcategory { padding: 16px 20px 16px 40px; border-bottom: 1px solid var(--border); }
+        .subcategory.level-2 { padding-left: 60px; }
+        .subcategory.dragging { opacity: 0.5; }
+        .subcategory-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            cursor: pointer;
+        }
+        .subcategory-title-wrapper { display: flex; align-items: center; gap: 10px; flex: 1; }
+        .subcategory-title { font-size: 16px; font-weight: 500; color: var(--accent); }
+        .subcategory-content { display: none; margin-top: 8px; }
+        .subcategory-content.expanded { display: block; }
+        .verse-item {
+            background: var(--bg-tertiary);
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+        .verse-item.dragging { opacity: 0.5; }
+        .verse-content-wrapper { display: flex; align-items: flex-start; gap: 10px; flex: 1; }
+        .verse-content { flex: 1; }
+        .verse-ref {
+            color: var(--accent);
+            font-weight: 500;
+            text-decoration: none;
+            display: block;
+            margin-bottom: 6px;
+            font-size: 15px;
+        }
+        .verse-note { color: var(--text-secondary); font-size: 14px; line-height: 1.5; }
+        .highlight { background-color: #7a5d00; color: #fff; padding: 2px 4px; border-radius: 2px; }
+        .context-menu {
+            position: fixed;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+            padding: 8px 0;
+            z-index: 1000;
+            min-width: 200px;
+        }
+        .context-menu-item { padding: 12px 16px; cursor: pointer; color: var(--text-primary); font-size: 15px; }
+        .context-menu-item:active { background: var(--bg-tertiary); }
+        .context-menu-item.danger { color: #e74c3c; }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            padding: 20px;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal.show { display: flex; }
+        .modal-content {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 24px;
+            max-width: 500px;
+            width: 100%;
+            border: 1px solid var(--border);
+        }
+        .modal-title { font-size: 20px; font-weight: 600; margin-bottom: 20px; }
+        .form-group { margin-bottom: 16px; }
+        .form-label { display: block; margin-bottom: 8px; color: var(--text-secondary); font-size: 14px; }
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text-primary);
+            font-size: 16px;
+        }
+        .form-input:focus { outline: none; border-color: var(--accent); }
+        .modal-buttons { display: flex; gap: 10px; margin-top: 24px; }
+        .empty-state { text-align: center; padding: 60px 20px; color: var(--text-secondary); }
+        .splash {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--bg-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            opacity: 1;
+            transition: opacity 0.3s;
+        }
+        .splash.hide { opacity: 0; pointer-events: none; }
+        .splash-icon {
+            width: 120px;
+            height: 120px;
+            background-image: url('icon.png');
+            background-size: cover;
+            border-radius: 27px;
+        }
+    </style>
+</head>
+<body>
+    <div class="splash" id="splash">
+        <div class="splash-icon"></div>
+    </div>
+    
+    <div class="header">
+        <div class="header-top">
+            <h1>Mon Index Biblique</h1>
+            <button class="mode-toggle" onclick="toggleMode()" id="modeBtn">Mode Lecture</button>
+        </div>
+        <input type="text" class="search-input" id="searchInput" placeholder="Rechercher...">
+        <div class="controls" id="controls">
+            <button class="btn btn-primary" onclick="openModal('addCategoryModal')">+ Catégorie</button>
+            <button class="btn btn-success" onclick="exportData()">Exporter</button>
+            <button class="btn btn-info" onclick="document.getElementById('importFile').click()">Importer</button>
+            <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
+        </div>
+    </div>
+    
+    <div class="container">
+        <div id="categoriesContainer"></div>
+        <div class="empty-state" id="emptyState" style="display:none;">
+            <h2>Aucune catégorie</h2>
+        </div>
+    </div>
+
+    <div id="contextMenu"></div>
+    
+    <div class="modal" id="addCategoryModal">
+        <div class="modal-content">
+            <div class="modal-title">Nouvelle Catégorie</div>
+            <div class="form-group">
+                <label class="form-label">Nom</label>
+                <input type="text" class="form-input" id="categoryName">
+            </div>
+            <div class="modal-buttons">
+                <button class="btn btn-primary" onclick="addCategory()">Ajouter</button>
+                <button class="btn btn-secondary" onclick="closeModal('addCategoryModal')">Annuler</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="editCategoryModal">
+        <div class="modal-content">
+            <div class="modal-title">Modifier la catégorie</div>
+            <div class="form-group">
+                <label class="form-label">Nom</label>
+                <input type="text" class="form-input" id="editCategoryName">
+            </div>
+            <div class="modal-buttons">
+                <button class="btn btn-primary" onclick="saveEditCategory()">Enregistrer</button>
+                <button class="btn btn-secondary" onclick="closeModal('editCategoryModal')">Annuler</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="addSubcategoryModal">
+        <div class="modal-content">
+            <div class="modal-title" id="subModalTitle">Nouvelle Sous-catégorie</div>
+            <div class="form-group">
+                <label class="form-label">Nom</label>
+                <input type="text" class="form-input" id="subcategoryName">
+            </div>
+            <div class="modal-buttons">
+                <button class="btn btn-primary" onclick="addSubcategory()">Ajouter</button>
+                <button class="btn btn-secondary" onclick="closeModal('addSubcategoryModal')">Annuler</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="editSubcategoryModal">
+        <div class="modal-content">
+            <div class="modal-title">Modifier</div>
+            <div class="form-group">
+                <label class="form-label">Nom</label>
+                <input type="text" class="form-input" id="editSubcategoryName">
+            </div>
+            <div class="modal-buttons">
+                <button class="btn btn-primary" onclick="saveEditSubcategory()">Enregistrer</button>
+                <button class="btn btn-secondary" onclick="closeModal('editSubcategoryModal')">Annuler</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="addVerseModal">
+        <div class="modal-content">
+            <div class="modal-title">Nouveau Verset</div>
+            <div class="form-group">
+                <label class="form-label">Référence</label>
+                <input type="text" class="form-input" id="verseRef">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Note</label>
+                <input type="text" class="form-input" id="verseNote">
+            </div>
+            <div class="modal-buttons">
+                <button class="btn btn-primary" onclick="addVerse()">Ajouter</button>
+                <button class="btn btn-secondary" onclick="closeModal('addVerseModal')">Annuler</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="editVerseModal">
+        <div class="modal-content">
+            <div class="modal-title">Modifier le verset</div>
+            <div class="form-group">
+                <label class="form-label">Référence</label>
+                <input type="text" class="form-input" id="editVerseRef">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Note</label>
+                <input type="text" class="form-input" id="editVerseNote">
+            </div>
+            <div class="modal-buttons">
+                <button class="btn btn-primary" onclick="saveEditVerse()">Enregistrer</button>
+                <button class="btn btn-secondary" onclick="closeModal('editVerseModal')">Annuler</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let data = {categories: [{id: 1, name: 'Foi et Confiance', expanded: true, subcategories: [{id: 11, name: 'Renforcer sa foi', expanded: true, verses: [{id: 111, ref: 'Hébreux 11:1', note: 'Définition de la foi'}], subcategories: []}]}]};
+        let currentCat = null, currentSub = null, editItem = null, searchQuery = '', readOnlyMode = false;
+        let dragMode = false, draggedItem = null;
+
+        function save() { try { localStorage.setItem('bibleIndex', JSON.stringify(data)); } catch (e) {} }
+        function load() { try { const s = localStorage.getItem('bibleIndex'); if (s) data = JSON.parse(s); } catch (e) {} }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            load();
+            render();
+            
+            setTimeout(() => {
+                document.getElementById('splash').classList.add('hide');
+            }, 2000);
+            
+            let timeout;
+            document.getElementById('searchInput').addEventListener('input', (e) => {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => {
+                    searchQuery = e.target.value.toLowerCase().trim();
+                    render();
+                }, 300);
+            });
+            document.addEventListener('click', () => document.getElementById('contextMenu').innerHTML = '');
+        });
+
+        function toggleMode() {
+            readOnlyMode = !readOnlyMode;
+            document.getElementById('modeBtn').textContent = readOnlyMode ? 'Mode Édition' : 'Mode Lecture';
+            document.getElementById('controls').classList.toggle('hidden', readOnlyMode);
+            if (readOnlyMode) dragMode = false;
+            render();
+        }
+
+        function toggleDragMode() {
+            dragMode = !dragMode;
+            document.getElementById('contextMenu').innerHTML = '';
+            render();
+        }
+
+        function showMenu(e, items) {
+            e.preventDefault();
+            e.stopPropagation();
+            const menu = document.getElementById('contextMenu');
+            menu.innerHTML = '';
+            const div = document.createElement('div');
+            div.className = 'context-menu';
+            
+            items.forEach(item => {
+                const itm = document.createElement('div');
+                itm.className = 'context-menu-item' + (item.danger ? ' danger' : '');
+                itm.textContent = item.label;
+                itm.onclick = (ev) => {
+    ev.stopPropagation();
+    item.action();
+    menu.innerHTML = '';
+    document.querySelector('.context-menu')?.remove();
+};
+
+            
+            menu.appendChild(div);
+            document.body.appendChild(div);
+            
+            setTimeout(() => {
+                const rect = div.getBoundingClientRect();
+                const viewportHeight = window.innerHeight;
+                const viewportWidth = window.innerWidth;
+                
+                let x = e.pageX || (e.touches && e.touches[0].pageX) || 0;
+                let y = e.pageY || (e.touches && e.touches[0].pageY) || 0;
+                
+                let finalX = x;
+                let finalY = y;
+                
+                if (x + rect.width > viewportWidth - 10) {
+                    finalX = viewportWidth - rect.width - 10;
+                }
+                
+                if (finalX < 10) {
+                    finalX = 10;
+                }
+                
+                if (y + rect.height > viewportHeight - 10) {
+                    finalY = y - rect.height - 10;
+                }
+                
+                if (finalY < 10) {
+                    finalY = 10;
+                }
+                
+                div.style.left = finalX + 'px';
+                div.style.top = finalY + 'px';
+            }, 10);
+        }
+
+        function highlight(text) {
+            if (!searchQuery || !text) return text;
+            const regex = new RegExp(`(${searchQuery.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+            return text.replace(regex, '<span class="highlight">$1</span>');
+        }
+
+        function matches(text) {
+            if (!text) return !searchQuery;
+            return !searchQuery || text.toLowerCase().includes(searchQuery);
+        }
+
+        function findSub(catId, subId, parentSubs = null) {
+            const cat = data.categories.find(c => c.id === catId);
+            if (!cat) return null;
+            const subs = parentSubs || cat.subcategories;
+            for (let sub of subs) {
+                if (sub.id === subId) return sub;
+                if (sub.subcategories?.length > 0) {
+                    const found = findSub(catId, subId, sub.subcategories);
+                    if (found) return found;
+                }
+            }
+            return null;
+        }
+
+        function toggleCat(catId) {
+            const cat = data.categories.find(c => c.id === catId);
+            if (cat) { cat.expanded = !cat.expanded; save(); render(); }
+        }
+
+        function toggleSub(catId, subId) {
+            const sub = findSub(catId, subId);
+            if (sub) { sub.expanded = !sub.expanded; save(); render(); }
+        }
+
+        function renderSubs(subs, catId, level = 1) {
+            return subs.map((sub, idx) => {
+                const hasMatch = matches(sub.name) || sub.verses.some(v => matches(v.ref) || matches(v.note || ''));
+                if (!hasMatch && searchQuery) return '';
+                return `<div class="subcategory ${level === 2 ? 'level-2' : ''}" draggable="${dragMode}" data-cat-id="${catId}" data-sub-id="${sub.id}" data-sub-index="${idx}">
+                    <div class="subcategory-header" onclick="if(!dragMode)toggleSub(${catId}, ${sub.id})">
+                        <div class="subcategory-title-wrapper">
+                            <div class="subcategory-title">${dragMode ? '☰ ' : ''}${highlight(sub.name)}</div>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:12px;">
+                            <button class="icon-btn ${readOnlyMode ? 'hidden' : ''}" onclick="event.stopPropagation(); showSubMenu(event, ${catId}, ${sub.id}, ${level})">⋮</button>
+                            <span class="chevron">${sub.expanded ? '▼' : '▶'}</span>
+                        </div>
+                    </div>
+                    <div class="subcategory-content ${sub.expanded ? 'expanded' : ''}">
+                        ${sub.subcategories?.length > 0 ? renderSubs(sub.subcategories, catId, level + 1) : ''}
+                        ${sub.verses.map((v, vIdx) => {
+                            const vm = matches(v.ref) || matches(v.note || '');
+                            if (!vm && searchQuery) return '';
+                            return `<div class="verse-item" draggable="${dragMode}" data-cat-id="${catId}" data-sub-id="${sub.id}" data-verse-id="${v.id}" data-verse-index="${vIdx}">
+                                <div class="verse-content">
+                                    <a href="https://wol.jw.org/fr/wol/binav/r30/lp-f?q=${encodeURIComponent(v.ref)}" class="verse-ref" target="_blank" onclick="if(dragMode){event.preventDefault();return false;}">${dragMode ? '☰ ' : ''}${highlight(v.ref)}</a>
+                                    ${v.note ? `<div class="verse-note">${highlight(v.note)}</div>` : ''}
+                                </div>
+                                <button class="icon-btn ${readOnlyMode ? 'hidden' : ''}" onclick="event.stopPropagation(); showVerseMenu(event, ${catId}, ${sub.id}, ${v.id})">⋮</button>
+                            </div>`;
+                        }).join('')}
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function showCatMenu(e, catId) {
+            showMenu(e, [
+                { label: dragMode ? '✓ Réorganiser' : 'Réorganiser', action: () => toggleDragMode() },
+                { label: '+ Sous-catégorie', action: () => openAddSubModal(catId) },
+                { label: 'Modifier', action: () => openEditCatModal(catId) },
+                { label: 'Supprimer', action: () => deleteCat(catId), danger: true }
+            ]);
+        }
+
+        function showSubMenu(e, catId, subId, level) {
+            const items = [{ label: dragMode ? '✓ Réorganiser' : 'Réorganiser', action: () => toggleDragMode() }];
+            if (level < 2) items.push({ label: '+ Sous-sous-catégorie', action: () => openAddSubModal(catId, subId) });
+            items.push(
+                { label: '+ Verset', action: () => openAddVerseModal(catId, subId) },
+                { label: 'Modifier', action: () => openEditSubModal(catId, subId) },
+                { label: 'Supprimer', action: () => deleteSub(catId, subId), danger: true }
+            );
+            showMenu(e, items);
+        }
+
+        function showVerseMenu(e, catId, subId, verseId) {
+            showMenu(e, [
+                { label: dragMode ? '✓ Réorganiser' : 'Réorganiser', action: () => toggleDragMode() },
+                { label: 'Modifier', action: () => openEditVerseModal(catId, subId, verseId) },
+                { label: 'Supprimer', action: () => deleteVerse(catId, subId, verseId), danger: true }
+            ]);
+        }
+
+        function render() {
+            const container = document.getElementById('categoriesContainer');
+            if (data.categories.length === 0) {
+                container.innerHTML = '';
+                document.getElementById('emptyState').style.display = 'block';
+                return;
+            }
+            document.getElementById('emptyState').style.display = 'none';
+            container.innerHTML = data.categories.map((cat, idx) => {
+                const hasMatch = matches(cat.name) || cat.subcategories.some(s => matches(s.name) || s.verses.some(v => matches(v.ref) || matches(v.note || '')));
+                if (!hasMatch && searchQuery) return '';
+                return `<div class="category-card" draggable="${dragMode}" data-cat-index="${idx}">
+                    <div class="category-header" onclick="if(!dragMode)toggleCat(${cat.id})">
+                        <div class="category-title-wrapper">
+                            <div class="category-title">${dragMode ? '☰ ' : ''}${highlight(cat.name)}</div>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:12px;">
+                            <button class="icon-btn ${readOnlyMode ? 'hidden' : ''}" onclick="event.stopPropagation(); showCatMenu(event, ${cat.id})">⋮</button>
+                            <span class="chevron">${cat.expanded ? '▼' : '▶'}</span>
+                        </div>
+                    </div>
+                    <div class="category-content ${cat.expanded ? 'expanded' : ''}">
+                        ${renderSubs(cat.subcategories, cat.id)}
+                    </div>
+                </div>`;
+            }).join('');
+            
+            if (dragMode) setupDragDrop();
+        }
+
+        function openModal(id) { document.getElementById(id).classList.add('show'); }
+        function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+
+        function setupDragDrop() {
+            const cats = document.querySelectorAll('.category-card[draggable="true"]');
+            cats.forEach(cat => {
+                cat.addEventListener('dragstart', (e) => {
+                    console.log('Drag start category');
+                    const idx = parseInt(cat.dataset.catIndex);
+                    draggedItem = { type: 'category', index: idx };
+                    cat.classList.add('dragging');
+                    e.dataTransfer.effectAllowed = 'move';
+                });
+                cat.addEventListener('dragend', () => {
+                    cat.classList.remove('dragging');
+                });
+                cat.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    e.dataTransfer.dropEffect = 'move';
+                });
+                cat.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (draggedItem?.type === 'category') {
+                        const toIndex = parseInt(cat.dataset.catIndex);
+                        if (draggedItem.index !== toIndex) {
+                            const [moved] = data.categories.splice(draggedItem.index, 1);
+                            data.categories.splice(toIndex, 0, moved);
+                            save();
+                            render();
+                        }
+                    }
+                });
+            });
+
+            const subs = document.querySelectorAll('.subcategory[draggable="true"]');
+            subs.forEach(sub => {
+                sub.addEventListener('dragstart', (e) => {
+                    e.stopPropagation();
+                    draggedItem = {
+                        type: 'subcategory',
+                        catId: parseInt(sub.dataset.catId),
+                        subId: parseInt(sub.dataset.subId),
+                        index: parseInt(sub.dataset.subIndex)
+                    };
+                    sub.classList.add('dragging');
+                    e.dataTransfer.effectAllowed = 'move';
+                });
+                sub.addEventListener('dragend', () => {
+                    sub.classList.remove('dragging');
+                });
+                sub.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    e.dataTransfer.dropEffect = 'move';
+                });
+                sub.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (draggedItem?.type === 'subcategory') {
+                        const toCatId = parseInt(sub.dataset.catId);
+                        const toIndex = parseInt(sub.dataset.subIndex);
+                        if (draggedItem.catId === toCatId && draggedItem.index !== toIndex) {
+                            const cat = data.categories.find(c => c.id === toCatId);
+                            if (cat) {
+                                const [moved] = cat.subcategories.splice(draggedItem.index, 1);
+                                cat.subcategories.splice(toIndex, 0, moved);
+                                save();
+                                render();
+                            }
+                        }
+                    }
+                });
+            });
+
+            const verses = document.querySelectorAll('.verse-item[draggable="true"]');
+            verses.forEach(verse => {
+                verse.addEventListener('dragstart', (e) => {
+                    e.stopPropagation();
+                    draggedItem = {
+                        type: 'verse',
+                        catId: parseInt(verse.dataset.catId),
+                        subId: parseInt(verse.dataset.subId),
+                        verseId: parseInt(verse.dataset.verseId),
+                        index: parseInt(verse.dataset.verseIndex)
+                    };
+                    verse.classList.add('dragging');
+                    e.dataTransfer.effectAllowed = 'move';
+                });
+                verse.addEventListener('dragend', () => {
+                    verse.classList.remove('dragging');
+                });
+                verse.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    e.dataTransfer.dropEffect = 'move';
+                });
+                verse.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (draggedItem?.type === 'verse') {
+                        const toCatId = parseInt(verse.dataset.catId);
+                        const toSubId = parseInt(verse.dataset.subId);
+                        const toIndex = parseInt(verse.dataset.verseIndex);
+                        if (draggedItem.catId === toCatId && draggedItem.subId === toSubId && draggedItem.index !== toIndex) {
+                            const sub = findSub(toCatId, toSubId);
+                            if (sub) {
+                                const [moved] = sub.verses.splice(draggedItem.index, 1);
+                                sub.verses.splice(toIndex, 0, moved);
+                                save();
+                                render();
+                            }
+                        }
+                    }
+                });
+            });
+        }
+
+        function addCategory() {
+            const name = document.getElementById('categoryName').value.trim();
+            if (!name) return;
+            data.categories.push({ id: Date.now(), name, expanded: true, subcategories: [] });
+            save(); render(); closeModal('addCategoryModal');
+        }
+
+        function openEditCatModal(catId) {
+            editItem = { type: 'cat', id: catId };
+            const cat = data.categories.find(c => c.id === catId);
+            document.getElementById('editCategoryName').value = cat.name;
+            openModal('editCategoryModal');
+        }
+
+        function saveEditCategory() {
+            const cat = data.categories.find(c => c.id === editItem.id);
+            if (cat) { cat.name = document.getElementById('editCategoryName').value.trim(); save(); render(); }
+            closeModal('editCategoryModal');
+        }
+
+        function openAddSubModal(catId, parentSubId = null) {
+            currentCat = catId; currentSub = parentSubId;
+            document.getElementById('subcategoryName').value = '';
+            document.getElementById('subModalTitle').textContent = parentSubId ? 'Nouvelle Sous-sous-catégorie' : 'Nouvelle Sous-catégorie';
+            openModal('addSubcategoryModal');
+        }
+
+        function addSubcategory() {
+            const name = document.getElementById('subcategoryName').value.trim();
+            if (!name) return;
+            if (currentSub) {
+                const parentSub = findSub(currentCat, currentSub);
+                if (parentSub) {
+                    if (!parentSub.subcategories) parentSub.subcategories = [];
+                    parentSub.subcategories.push({ id: Date.now(), name, expanded: true, verses: [], subcategories: [] });
+                }
+            } else {
+                const cat = data.categories.find(c => c.id === currentCat);
+                if (cat) cat.subcategories.push({ id: Date.now(), name, expanded: true, verses: [], subcategories: [] });
+            }
+            save(); render(); closeModal('addSubcategoryModal');
+        }
+
+        function openEditSubModal(catId, subId) {
+            editItem = { type: 'sub', catId, id: subId };
+            const sub = findSub(catId, subId);
+            if (sub) {
+                document.getElementById('editSubcategoryName').value = sub.name;
+                openModal('editSubcategoryModal');
+            }
+        }
+
+        function saveEditSubcategory() {
+            const sub = findSub(editItem.catId, editItem.id);
+            if (sub) { sub.name = document.getElementById('editSubcategoryName').value.trim(); save(); render(); }
+            closeModal('editSubcategoryModal');
+        }
+
+        function openAddVerseModal(catId, subId) {
+            currentCat = catId; currentSub = subId;
+            document.getElementById('verseRef').value = '';
+            document.getElementById('verseNote').value = '';
+            openModal('addVerseModal');
+        }
+
+        function addVerse() {
+            const ref = document.getElementById('verseRef').value.trim();
+            const note = document.getElementById('verseNote').value.trim();
+            if (!ref) return;
+            const sub = findSub(currentCat, currentSub);
+            if (sub) { sub.verses.push({ id: Date.now(), ref, note }); save(); render(); }
+            closeModal('addVerseModal');
+        }
+
+        function openEditVerseModal(catId, subId, verseId) {
+            editItem = { type: 'verse', catId, subId, id: verseId };
+            const sub = findSub(catId, subId);
+            if (sub) {
+                const verse = sub.verses.find(v => v.id === verseId);
+                if (verse) {
+                    document.getElementById('editVerseRef').value = verse.ref;
+                    document.getElementById('editVerseNote').value = verse.note || '';
+                    openModal('editVerseModal');
+                }
+            }
+        }
+
+        function saveEditVerse() {
+            const sub = findSub(editItem.catId, editItem.subId);
+            if (sub) {
+                const verse = sub.verses.find(v => v.id === editItem.id);
+                if (verse) {
+                    verse.ref = document.getElementById('editVerseRef').value.trim();
+                    verse.note = document.getElementById('editVerseNote').value.trim();
+                    save(); render();
+                }
+            }
+            closeModal('editVerseModal');
+        }
+
+        function deleteCat(catId) {
+            if (confirm('Supprimer cette catégorie ?')) {
+                data.categories = data.categories.filter(c => c.id !== catId);
+                save(); render();
+            }
+        }
+
+        function deleteSubRec(subs, subId) {
+            for (let i = 0; i < subs.length; i++) {
+                if (subs[i].id === subId) { subs.splice(i, 1); return true; }
+                if (subs[i].subcategories?.length > 0 && deleteSubRec(subs[i].subcategories, subId)) return true;
+            }
+            return false;
+        }
+
+        function deleteSub(catId, subId) {
+            if (confirm('Supprimer cette sous-catégorie ?')) {
+                const cat = data.categories.find(c => c.id === catId);
+                if (cat) { deleteSubRec(cat.subcategories, subId); save(); render(); }
+            }
+        }
+
+        function deleteVerse(catId, subId, verseId) {
+            const sub = findSub(catId, subId);
+            if (sub) { sub.verses = sub.verses.filter(v => v.id !== verseId); save(); render(); }
+        }
+
+        function exportData() {
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `index-biblique-${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+        }
+
+        function importData(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    try { data = JSON.parse(ev.target.result); save(); render(); alert('Importé !'); }
+                    catch (err) { alert('Erreur'); }
+                };
+                reader.readAsText(file);
+            }
+        }
+    </script>
+</body>
+</html>
