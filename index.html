@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#1a1a1a">
+    <link rel="manifest" href="manifest.json">
     <title>Mon Index Biblique</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -78,8 +81,6 @@
             cursor: pointer;
         }
         .category-title-wrapper { display: flex; align-items: center; gap: 12px; flex: 1; }
-        .drag-handle { font-size: 18px; color: var(--text-secondary); padding: 4px; }
-        .drag-handle.hidden { display: none; }
         .category-title { font-size: 18px; font-weight: 600; }
         .icon-btn {
             background: transparent;
@@ -187,6 +188,7 @@
             bottom: 0;
             background: var(--bg-primary);
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
             z-index: 9999;
@@ -197,15 +199,31 @@
         .splash-icon {
             width: 120px;
             height: 120px;
-            background-image: url('icon.png');
-            background-size: cover;
+            background: var(--accent);
             border-radius: 27px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+        .storage-notice {
+            background: #7a5d00;
+            padding: 12px 20px;
+            text-align: center;
+            font-size: 14px;
+            border-bottom: 1px solid var(--border);
         }
     </style>
 </head>
 <body>
     <div class="splash" id="splash">
-        <div class="splash-icon"></div>
+        <div class="splash-icon">📖</div>
+        <div style="color: var(--text-secondary);">Mon Index Biblique</div>
+    </div>
+    
+    <div class="storage-notice">
+        💡 Pensez à exporter régulièrement vos données (les données ne sont pas sauvegardées automatiquement)
     </div>
     
     <div class="header">
@@ -226,6 +244,7 @@
         <div id="categoriesContainer"></div>
         <div class="empty-state" id="emptyState" style="display:none;">
             <h2>Aucune catégorie</h2>
+            <p style="margin-top: 10px;">Cliquez sur "+ Catégorie" pour commencer</p>
         </div>
     </div>
 
@@ -324,20 +343,14 @@
     </div>
 
     <script>
+        // Stockage en mémoire (pas de localStorage)
         let data = {categories: [{id: 1, name: 'Foi et Confiance', expanded: true, subcategories: [{id: 11, name: 'Renforcer sa foi', expanded: true, verses: [{id: 111, ref: 'Hébreux 11:1', note: 'Définition de la foi'}], subcategories: []}]}]};
         let currentCat = null, currentSub = null, editItem = null, searchQuery = '', readOnlyMode = false;
         let dragMode = false, draggedItem = null;
 
-        function save() { try { localStorage.setItem('bibleIndex', JSON.stringify(data)); } catch (e) {} }
-        function load() { try { const s = localStorage.getItem('bibleIndex'); if (s) data = JSON.parse(s); } catch (e) {} }
-
         window.addEventListener('DOMContentLoaded', () => {
-            load();
             render();
-            
-            setTimeout(() => {
-                document.getElementById('splash').classList.add('hide');
-            }, 2000);
+            setTimeout(() => document.getElementById('splash').classList.add('hide'), 1500);
             
             let timeout;
             document.getElementById('searchInput').addEventListener('input', (e) => {
@@ -377,12 +390,13 @@
                 itm.className = 'context-menu-item' + (item.danger ? ' danger' : '');
                 itm.textContent = item.label;
                 itm.onclick = (ev) => {
-    ev.stopPropagation();
-    item.action();
-    menu.innerHTML = '';
-    document.querySelector('.context-menu')?.remove();
-};
-
+                    ev.stopPropagation();
+                    item.action();
+                    menu.innerHTML = '';
+                    document.querySelector('.context-menu')?.remove();
+                };
+                div.appendChild(itm);
+            });
             
             menu.appendChild(div);
             document.body.appendChild(div);
@@ -395,24 +409,9 @@
                 let x = e.pageX || (e.touches && e.touches[0].pageX) || 0;
                 let y = e.pageY || (e.touches && e.touches[0].pageY) || 0;
                 
-                let finalX = x;
-                let finalY = y;
-                
-                if (x + rect.width > viewportWidth - 10) {
-                    finalX = viewportWidth - rect.width - 10;
-                }
-                
-                if (finalX < 10) {
-                    finalX = 10;
-                }
-                
-                if (y + rect.height > viewportHeight - 10) {
-                    finalY = y - rect.height - 10;
-                }
-                
-                if (finalY < 10) {
-                    finalY = 10;
-                }
+                let finalX = Math.max(10, Math.min(x, viewportWidth - rect.width - 10));
+                let finalY = y + rect.height > viewportHeight - 10 ? y - rect.height - 10 : y;
+                finalY = Math.max(10, finalY);
                 
                 div.style.left = finalX + 'px';
                 div.style.top = finalY + 'px';
@@ -446,12 +445,12 @@
 
         function toggleCat(catId) {
             const cat = data.categories.find(c => c.id === catId);
-            if (cat) { cat.expanded = !cat.expanded; save(); render(); }
+            if (cat) { cat.expanded = !cat.expanded; render(); }
         }
 
         function toggleSub(catId, subId) {
             const sub = findSub(catId, subId);
-            if (sub) { sub.expanded = !sub.expanded; save(); render(); }
+            if (sub) { sub.expanded = !sub.expanded; render(); }
         }
 
         function renderSubs(subs, catId, level = 1) {
@@ -551,19 +550,12 @@
             const cats = document.querySelectorAll('.category-card[draggable="true"]');
             cats.forEach(cat => {
                 cat.addEventListener('dragstart', (e) => {
-                    console.log('Drag start category');
-                    const idx = parseInt(cat.dataset.catIndex);
-                    draggedItem = { type: 'category', index: idx };
+                    draggedItem = { type: 'category', index: parseInt(cat.dataset.catIndex) };
                     cat.classList.add('dragging');
                     e.dataTransfer.effectAllowed = 'move';
                 });
-                cat.addEventListener('dragend', () => {
-                    cat.classList.remove('dragging');
-                });
-                cat.addEventListener('dragover', (e) => {
-                    e.preventDefault();
-                    e.dataTransfer.dropEffect = 'move';
-                });
+                cat.addEventListener('dragend', () => cat.classList.remove('dragging'));
+                cat.addEventListener('dragover', (e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; });
                 cat.addEventListener('drop', (e) => {
                     e.preventDefault();
                     e.stopPropagation();
@@ -572,7 +564,6 @@
                         if (draggedItem.index !== toIndex) {
                             const [moved] = data.categories.splice(draggedItem.index, 1);
                             data.categories.splice(toIndex, 0, moved);
-                            save();
                             render();
                         }
                     }
@@ -590,16 +581,9 @@
                         index: parseInt(sub.dataset.subIndex)
                     };
                     sub.classList.add('dragging');
-                    e.dataTransfer.effectAllowed = 'move';
                 });
-                sub.addEventListener('dragend', () => {
-                    sub.classList.remove('dragging');
-                });
-                sub.addEventListener('dragover', (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    e.dataTransfer.dropEffect = 'move';
-                });
+                sub.addEventListener('dragend', () => sub.classList.remove('dragging'));
+                sub.addEventListener('dragover', (e) => { e.preventDefault(); e.stopPropagation(); });
                 sub.addEventListener('drop', (e) => {
                     e.preventDefault();
                     e.stopPropagation();
@@ -611,7 +595,6 @@
                             if (cat) {
                                 const [moved] = cat.subcategories.splice(draggedItem.index, 1);
                                 cat.subcategories.splice(toIndex, 0, moved);
-                                save();
                                 render();
                             }
                         }
@@ -631,16 +614,9 @@
                         index: parseInt(verse.dataset.verseIndex)
                     };
                     verse.classList.add('dragging');
-                    e.dataTransfer.effectAllowed = 'move';
                 });
-                verse.addEventListener('dragend', () => {
-                    verse.classList.remove('dragging');
-                });
-                verse.addEventListener('dragover', (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    e.dataTransfer.dropEffect = 'move';
-                });
+                verse.addEventListener('dragend', () => verse.classList.remove('dragging'));
+                verse.addEventListener('dragover', (e) => { e.preventDefault(); e.stopPropagation(); });
                 verse.addEventListener('drop', (e) => {
                     e.preventDefault();
                     e.stopPropagation();
@@ -653,7 +629,6 @@
                             if (sub) {
                                 const [moved] = sub.verses.splice(draggedItem.index, 1);
                                 sub.verses.splice(toIndex, 0, moved);
-                                save();
                                 render();
                             }
                         }
@@ -666,7 +641,9 @@
             const name = document.getElementById('categoryName').value.trim();
             if (!name) return;
             data.categories.push({ id: Date.now(), name, expanded: true, subcategories: [] });
-            save(); render(); closeModal('addCategoryModal');
+            render();
+            closeModal('addCategoryModal');
+            document.getElementById('categoryName').value = '';
         }
 
         function openEditCatModal(catId) {
@@ -678,12 +655,13 @@
 
         function saveEditCategory() {
             const cat = data.categories.find(c => c.id === editItem.id);
-            if (cat) { cat.name = document.getElementById('editCategoryName').value.trim(); save(); render(); }
+            if (cat) { cat.name = document.getElementById('editCategoryName').value.trim(); render(); }
             closeModal('editCategoryModal');
         }
 
         function openAddSubModal(catId, parentSubId = null) {
-            currentCat = catId; currentSub = parentSubId;
+            currentCat = catId;
+            currentSub = parentSubId;
             document.getElementById('subcategoryName').value = '';
             document.getElementById('subModalTitle').textContent = parentSubId ? 'Nouvelle Sous-sous-catégorie' : 'Nouvelle Sous-catégorie';
             openModal('addSubcategoryModal');
@@ -702,7 +680,8 @@
                 const cat = data.categories.find(c => c.id === currentCat);
                 if (cat) cat.subcategories.push({ id: Date.now(), name, expanded: true, verses: [], subcategories: [] });
             }
-            save(); render(); closeModal('addSubcategoryModal');
+            render();
+            closeModal('addSubcategoryModal');
         }
 
         function openEditSubModal(catId, subId) {
@@ -716,12 +695,13 @@
 
         function saveEditSubcategory() {
             const sub = findSub(editItem.catId, editItem.id);
-            if (sub) { sub.name = document.getElementById('editSubcategoryName').value.trim(); save(); render(); }
+            if (sub) { sub.name = document.getElementById('editSubcategoryName').value.trim(); render(); }
             closeModal('editSubcategoryModal');
         }
 
         function openAddVerseModal(catId, subId) {
-            currentCat = catId; currentSub = subId;
+            currentCat = catId;
+            currentSub = subId;
             document.getElementById('verseRef').value = '';
             document.getElementById('verseNote').value = '';
             openModal('addVerseModal');
@@ -732,7 +712,7 @@
             const note = document.getElementById('verseNote').value.trim();
             if (!ref) return;
             const sub = findSub(currentCat, currentSub);
-            if (sub) { sub.verses.push({ id: Date.now(), ref, note }); save(); render(); }
+            if (sub) { sub.verses.push({ id: Date.now(), ref, note }); render(); }
             closeModal('addVerseModal');
         }
 
@@ -756,7 +736,7 @@
                 if (verse) {
                     verse.ref = document.getElementById('editVerseRef').value.trim();
                     verse.note = document.getElementById('editVerseNote').value.trim();
-                    save(); render();
+                    render();
                 }
             }
             closeModal('editVerseModal');
@@ -765,7 +745,7 @@
         function deleteCat(catId) {
             if (confirm('Supprimer cette catégorie ?')) {
                 data.categories = data.categories.filter(c => c.id !== catId);
-                save(); render();
+                render();
             }
         }
 
@@ -780,13 +760,13 @@
         function deleteSub(catId, subId) {
             if (confirm('Supprimer cette sous-catégorie ?')) {
                 const cat = data.categories.find(c => c.id === catId);
-                if (cat) { deleteSubRec(cat.subcategories, subId); save(); render(); }
+                if (cat) { deleteSubRec(cat.subcategories, subId); render(); }
             }
         }
 
         function deleteVerse(catId, subId, verseId) {
             const sub = findSub(catId, subId);
-            if (sub) { sub.verses = sub.verses.filter(v => v.id !== verseId); save(); render(); }
+            if (sub) { sub.verses = sub.verses.filter(v => v.id !== verseId); render(); }
         }
 
         function exportData() {
@@ -802,11 +782,24 @@
             if (file) {
                 const reader = new FileReader();
                 reader.onload = (ev) => {
-                    try { data = JSON.parse(ev.target.result); save(); render(); alert('Importé !'); }
-                    catch (err) { alert('Erreur'); }
+                    try {
+                        data = JSON.parse(ev.target.result);
+                        render();
+                        alert('✅ Données importées avec succès !');
+                    } catch (err) {
+                        alert('❌ Erreur lors de l\'import');
+                    }
                 };
                 reader.readAsText(file);
             }
+        }
+
+        // Service Worker pour PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('data:text/javascript;base64,c2VsZi5hZGRFdmVudExpc3RlbmVyKCdpbnN0YWxsJywgZnVuY3Rpb24oZXZlbnQpIHsKICBzZWxmLnNraXBXYWl0aW5nKCk7Cn0pOwoKc2VsZi5hZGRFdmVudExpc3RlbmVyKCdhY3RpdmF0ZScsIGZ1bmN0aW9uKGV2ZW50KSB7CiAgcmV0dXJuIHNlbGYuY2xpZW50cy5jbGFpbSgpOwp9KTsKCnNlbGYuYWRkRXZlbnRMaXN0ZW5lcignZmV0Y2gnLCBmdW5jdGlvbihldmVudCkgewogIGV2ZW50LnJlc3BvbmRXaXRoKAogICAgZmV0Y2goZXZlbnQucmVxdWVzdCkKICApOwp9KTs=')
+                    .catch(() => {});
+            });
         }
     </script>
 </body>
