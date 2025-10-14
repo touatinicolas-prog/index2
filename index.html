@@ -81,6 +81,13 @@
         }
         .category-title-wrapper { display: flex; align-items: center; gap: 12px; flex: 1; }
         .category-title { font-size: 18px; font-weight: 600; }
+        .drag-handle {
+            cursor: grab;
+            padding: 4px 8px;
+            user-select: none;
+            font-size: 18px;
+        }
+        .drag-handle:active { cursor: grabbing; }
         .icon-btn {
             background: transparent;
             border: none;
@@ -93,9 +100,14 @@
         .chevron { color: var(--text-secondary); font-size: 14px; }
         .category-content { display: none; background: var(--bg-primary); }
         .category-content.expanded { display: block; }
-        .subcategory { padding: 16px 20px 16px 40px; border-bottom: 1px solid var(--border); }
+        .subcategory { 
+            padding: 16px 20px 16px 40px; 
+            border-bottom: 1px solid var(--border);
+            position: relative;
+        }
         .subcategory.level-2 { padding-left: 60px; }
         .subcategory.dragging { opacity: 0.5; }
+        .subcategory.drag-over { border-top: 3px solid var(--accent); }
         .subcategory-header {
             display: flex;
             justify-content: space-between;
@@ -117,7 +129,8 @@
             align-items: flex-start;
         }
         .verse-item.dragging { opacity: 0.5; }
-        .verse-content { flex: 1; }
+        .verse-item.drag-over { border-top: 2px solid var(--accent); }
+        .verse-content { flex: 1; display: flex; align-items: flex-start; gap: 8px; }
         .verse-ref {
             color: var(--accent);
             font-weight: 500;
@@ -205,23 +218,12 @@
             font-size: 48px;
             margin-bottom: 20px;
         }
-        .storage-notice {
-            background: #7a5d00;
-            padding: 12px 20px;
-            text-align: center;
-            font-size: 14px;
-            border-bottom: 1px solid var(--border);
-        }
     </style>
 </head>
 <body>
     <div class="splash" id="splash">
         <div class="splash-icon">📖</div>
         <div style="color: var(--text-secondary);">Mon Index Biblique</div>
-    </div>
-    
-    <div class="storage-notice">
-        💡 Vos données sont sauvegardées automatiquement
     </div>
     
     <div class="header">
@@ -475,14 +477,16 @@
             if (sub) { sub.expanded = !sub.expanded; render(); }
         }
 
-        function renderSubs(subs, catId, level = 1) {
+        function renderSubs(subs, catId, level = 1, parentPath = '') {
             return subs.map((sub, idx) => {
                 const hasMatch = matches(sub.name) || sub.verses.some(v => matches(v.ref) || matches(v.note || ''));
                 if (!hasMatch && searchQuery) return '';
-                return `<div class="subcategory ${level === 2 ? 'level-2' : ''}" draggable="${dragMode}" data-cat-id="${catId}" data-sub-id="${sub.id}" data-sub-index="${idx}">
+                const currentPath = parentPath ? `${parentPath}-${idx}` : `${idx}`;
+                return `<div class="subcategory ${level === 2 ? 'level-2' : ''}" data-cat-id="${catId}" data-sub-id="${sub.id}" data-sub-path="${currentPath}" data-level="${level}">
                     <div class="subcategory-header" onclick="if(!dragMode)toggleSub(${catId}, ${sub.id})">
                         <div class="subcategory-title-wrapper">
-                            <div class="subcategory-title">${dragMode ? '☰ ' : ''}${highlight(sub.name)}</div>
+                            ${dragMode ? '<span class="drag-handle" draggable="true">☰</span>' : ''}
+                            <div class="subcategory-title">${highlight(sub.name)}</div>
                         </div>
                         <div style="display:flex;align-items:center;gap:12px;">
                             <button class="icon-btn ${readOnlyMode ? 'hidden' : ''}" onclick="event.stopPropagation(); showSubMenu(event, ${catId}, ${sub.id}, ${level})">⋮</button>
@@ -490,14 +494,17 @@
                         </div>
                     </div>
                     <div class="subcategory-content ${sub.expanded ? 'expanded' : ''}">
-                        ${sub.subcategories?.length > 0 ? renderSubs(sub.subcategories, catId, level + 1) : ''}
+                        ${sub.subcategories?.length > 0 ? renderSubs(sub.subcategories, catId, level + 1, currentPath) : ''}
                         ${sub.verses.map((v, vIdx) => {
                             const vm = matches(v.ref) || matches(v.note || '');
                             if (!vm && searchQuery) return '';
-                            return `<div class="verse-item" draggable="${dragMode}" data-cat-id="${catId}" data-sub-id="${sub.id}" data-verse-id="${v.id}" data-verse-index="${vIdx}">
+                            return `<div class="verse-item" data-cat-id="${catId}" data-sub-id="${sub.id}" data-verse-id="${v.id}" data-verse-index="${vIdx}">
                                 <div class="verse-content">
-                                    <a href="https://wol.jw.org/fr/wol/binav/r30/lp-f?q=${encodeURIComponent(v.ref)}" class="verse-ref" target="_blank" onclick="if(dragMode){event.preventDefault();return false;}">${dragMode ? '☰ ' : ''}${highlight(v.ref)}</a>
-                                    ${v.note ? `<div class="verse-note">${highlight(v.note)}</div>` : ''}
+                                    ${dragMode ? '<span class="drag-handle" draggable="true">☰</span>' : ''}
+                                    <div style="flex:1;">
+                                        <a href="https://wol.jw.org/fr/wol/binav/r30/lp-f?q=${encodeURIComponent(v.ref)}" class="verse-ref" target="_blank" onclick="if(dragMode){event.preventDefault();return false;}">${highlight(v.ref)}</a>
+                                        ${v.note ? `<div class="verse-note">${highlight(v.note)}</div>` : ''}
+                                    </div>
                                 </div>
                                 <button class="icon-btn ${readOnlyMode ? 'hidden' : ''}" onclick="event.stopPropagation(); showVerseMenu(event, ${catId}, ${sub.id}, ${v.id})">⋮</button>
                             </div>`;
@@ -546,10 +553,11 @@
             container.innerHTML = data.categories.map((cat, idx) => {
                 const hasMatch = matches(cat.name) || cat.subcategories.some(s => matches(s.name) || s.verses.some(v => matches(v.ref) || matches(v.note || '')));
                 if (!hasMatch && searchQuery) return '';
-                return `<div class="category-card" draggable="${dragMode}" data-cat-index="${idx}">
+                return `<div class="category-card" data-cat-index="${idx}" data-cat-id="${cat.id}">
                     <div class="category-header" onclick="if(!dragMode)toggleCat(${cat.id})">
                         <div class="category-title-wrapper">
-                            <div class="category-title">${dragMode ? '☰ ' : ''}${highlight(cat.name)}</div>
+                            ${dragMode ? '<span class="drag-handle" draggable="true">☰</span>' : ''}
+                            <div class="category-title">${highlight(cat.name)}</div>
                         </div>
                         <div style="display:flex;align-items:center;gap:12px;">
                             <button class="icon-btn ${readOnlyMode ? 'hidden' : ''}" onclick="event.stopPropagation(); showCatMenu(event, ${cat.id})">⋮</button>
@@ -568,40 +576,63 @@
         function openModal(id) { document.getElementById(id).classList.add('show'); }
         function closeModal(id) { document.getElementById(id).classList.remove('show'); }
 
+        function getSubcategoryByPath(catId, path) {
+            const cat = data.categories.find(c => c.id === catId);
+            if (!cat) return null;
+            
+            const indices = path.split('-').map(n => parseInt(n));
+            let current = cat.subcategories;
+            let parent = cat.subcategories;
+            
+            for (let i = 0; i < indices.length; i++) {
+                const idx = indices[i];
+                if (!current[idx]) return null;
+                
+                if (i === indices.length - 1) {
+                    return { parent: parent, index: idx, item: current[idx] };
+                } else {
+                    parent = current[idx].subcategories;
+                    current = current[idx].subcategories;
+                }
+            }
+            return null;
+        }
+
         function setupDragDrop() {
-            const cats = document.querySelectorAll('.category-card[draggable="true"]');
-            cats.forEach(cat => {
-                cat.addEventListener('dragstart', (e) => {
-                    draggedItem = { type: 'category', index: parseInt(cat.dataset.catIndex) };
-                    cat.classList.add('dragging');
-                    e.dataTransfer.effectAllowed = 'move';
-                    e.dataTransfer.setData('text/plain', 'category');
+            // Catégories
+            const catHandles = document.querySelectorAll('.category-card > .category-header .drag-handle');
+            catHandles.forEach(handle => {
+                const card = handle.closest('.category-card');
+                
+                handle.addEventListener('dragstart', (e) => {
+                    draggedItem = { 
+                        type: 'category', 
+                        index: parseInt(card.dataset.catIndex)
+                    };
+                    setTimeout(() => card.classList.add('dragging'), 0);
                 });
-                cat.addEventListener('dragend', () => {
-                    cat.classList.remove('dragging');
+                
+                handle.addEventListener('dragend', () => {
+                    card.classList.remove('dragging');
                     draggedItem = null;
                 });
-                cat.addEventListener('dragover', (e) => { 
-                    e.preventDefault(); 
-                    e.dataTransfer.dropEffect = 'move';
-                });
-                cat.addEventListener('dragenter', (e) => {
-                    e.preventDefault();
+            });
+            
+            const cats = document.querySelectorAll('.category-card');
+            cats.forEach(card => {
+                card.addEventListener('dragover', (e) => {
                     if (draggedItem?.type === 'category') {
-                        cat.style.borderTop = '3px solid var(--accent)';
+                        e.preventDefault();
                     }
                 });
-                cat.addEventListener('dragleave', (e) => {
-                    cat.style.borderTop = '';
-                });
-                cat.addEventListener('drop', (e) => {
+                
+                card.addEventListener('drop', (e) => {
                     e.preventDefault();
-                    e.stopPropagation();
-                    cat.style.borderTop = '';
                     if (draggedItem?.type === 'category') {
-                        const toIndex = parseInt(cat.dataset.catIndex);
-                        if (draggedItem.index !== toIndex) {
-                            const [moved] = data.categories.splice(draggedItem.index, 1);
+                        const toIndex = parseInt(card.dataset.catIndex);
+                        const fromIndex = draggedItem.index;
+                        if (fromIndex !== toIndex) {
+                            const [moved] = data.categories.splice(fromIndex, 1);
                             data.categories.splice(toIndex, 0, moved);
                             saveData();
                             render();
@@ -610,31 +641,62 @@
                 });
             });
 
-            const subs = document.querySelectorAll('.subcategory[draggable="true"]');
-            subs.forEach(sub => {
-                sub.addEventListener('dragstart', (e) => {
-                    e.stopPropagation();
-                    draggedItem = {
-                        type: 'subcategory',
-                        catId: parseInt(sub.dataset.catId),
-                        subId: parseInt(sub.dataset.subId),
-                        index: parseInt(sub.dataset.subIndex)
+            // Sous-catégories
+            const subHandles = document.querySelectorAll('.subcategory > .subcategory-header .drag-handle');
+            subHandles.forEach(handle => {
+                const subDiv = handle.closest('.subcategory');
+                
+                handle.addEventListener('dragstart', (e) => {
+                    draggedItem = { 
+                        type: 'subcategory', 
+                        catId: parseInt(subDiv.dataset.catId),
+                        path: subDiv.dataset.subPath,
+                        level: parseInt(subDiv.dataset.level)
                     };
-                    sub.classList.add('dragging');
+                    setTimeout(() => subDiv.classList.add('dragging'), 0);
                 });
-                sub.addEventListener('dragend', () => sub.classList.remove('dragging'));
-                sub.addEventListener('dragover', (e) => { e.preventDefault(); e.stopPropagation(); });
-                sub.addEventListener('drop', (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
+                
+                handle.addEventListener('dragend', () => {
+                    subDiv.classList.remove('dragging');
+                    document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+                    draggedItem = null;
+                });
+            });
+            
+            const subs = document.querySelectorAll('.subcategory');
+            subs.forEach(subDiv => {
+                subDiv.addEventListener('dragover', (e) => {
                     if (draggedItem?.type === 'subcategory') {
-                        const toCatId = parseInt(sub.dataset.catId);
-                        const toIndex = parseInt(sub.dataset.subIndex);
-                        if (draggedItem.catId === toCatId && draggedItem.index !== toIndex) {
-                            const cat = data.categories.find(c => c.id === toCatId);
-                            if (cat) {
-                                const [moved] = cat.subcategories.splice(draggedItem.index, 1);
-                                cat.subcategories.splice(toIndex, 0, moved);
+                        const targetCatId = parseInt(subDiv.dataset.catId);
+                        const targetLevel = parseInt(subDiv.dataset.level);
+                        if (draggedItem.catId === targetCatId && draggedItem.level === targetLevel) {
+                            e.preventDefault();
+                            subDiv.classList.add('drag-over');
+                        }
+                    }
+                });
+                
+                subDiv.addEventListener('dragleave', () => {
+                    subDiv.classList.remove('drag-over');
+                });
+                
+                subDiv.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    subDiv.classList.remove('drag-over');
+                    
+                    if (draggedItem?.type === 'subcategory') {
+                        const toCatId = parseInt(subDiv.dataset.catId);
+                        const toPath = subDiv.dataset.subPath;
+                        const toLevel = parseInt(subDiv.dataset.level);
+                        
+                        if (draggedItem.catId === toCatId && draggedItem.level === toLevel && draggedItem.path !== toPath) {
+                            const fromData = getSubcategoryByPath(draggedItem.catId, draggedItem.path);
+                            const toData = getSubcategoryByPath(toCatId, toPath);
+                            
+                            if (fromData && toData && fromData.parent === toData.parent) {
+                                const [moved] = fromData.parent.splice(fromData.index, 1);
+                                const adjustedIndex = fromData.index < toData.index ? toData.index : toData.index;
+                                fromData.parent.splice(adjustedIndex, 0, moved);
                                 saveData();
                                 render();
                             }
@@ -643,28 +705,55 @@
                 });
             });
 
-            const verses = document.querySelectorAll('.verse-item[draggable="true"]');
-            verses.forEach(verse => {
-                verse.addEventListener('dragstart', (e) => {
-                    e.stopPropagation();
+            // Versets
+            const verseHandles = document.querySelectorAll('.verse-item .drag-handle');
+            verseHandles.forEach(handle => {
+                const verseDiv = handle.closest('.verse-item');
+                
+                handle.addEventListener('dragstart', (e) => {
                     draggedItem = {
                         type: 'verse',
-                        catId: parseInt(verse.dataset.catId),
-                        subId: parseInt(verse.dataset.subId),
-                        verseId: parseInt(verse.dataset.verseId),
-                        index: parseInt(verse.dataset.verseIndex)
+                        catId: parseInt(verseDiv.dataset.catId),
+                        subId: parseInt(verseDiv.dataset.subId),
+                        verseId: parseInt(verseDiv.dataset.verseId),
+                        index: parseInt(verseDiv.dataset.verseIndex)
                     };
-                    verse.classList.add('dragging');
+                    setTimeout(() => verseDiv.classList.add('dragging'), 0);
                 });
-                verse.addEventListener('dragend', () => verse.classList.remove('dragging'));
-                verse.addEventListener('dragover', (e) => { e.preventDefault(); e.stopPropagation(); });
-                verse.addEventListener('drop', (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
+                
+                handle.addEventListener('dragend', () => {
+                    verseDiv.classList.remove('dragging');
+                    document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+                    draggedItem = null;
+                });
+            });
+            
+            const verses = document.querySelectorAll('.verse-item');
+            verses.forEach(verseDiv => {
+                verseDiv.addEventListener('dragover', (e) => {
                     if (draggedItem?.type === 'verse') {
-                        const toCatId = parseInt(verse.dataset.catId);
-                        const toSubId = parseInt(verse.dataset.subId);
-                        const toIndex = parseInt(verse.dataset.verseIndex);
+                        const targetCatId = parseInt(verseDiv.dataset.catId);
+                        const targetSubId = parseInt(verseDiv.dataset.subId);
+                        if (draggedItem.catId === targetCatId && draggedItem.subId === targetSubId) {
+                            e.preventDefault();
+                            verseDiv.classList.add('drag-over');
+                        }
+                    }
+                });
+                
+                verseDiv.addEventListener('dragleave', () => {
+                    verseDiv.classList.remove('drag-over');
+                });
+                
+                verseDiv.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    verseDiv.classList.remove('drag-over');
+                    
+                    if (draggedItem?.type === 'verse') {
+                        const toCatId = parseInt(verseDiv.dataset.catId);
+                        const toSubId = parseInt(verseDiv.dataset.subId);
+                        const toIndex = parseInt(verseDiv.dataset.verseIndex);
+                        
                         if (draggedItem.catId === toCatId && draggedItem.subId === toSubId && draggedItem.index !== toIndex) {
                             const sub = findSub(toCatId, toSubId);
                             if (sub) {
