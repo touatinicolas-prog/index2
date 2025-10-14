@@ -6,7 +6,6 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#1a1a1a">
-    <link rel="manifest" href="manifest.json">
     <title>Mon Index Biblique</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -118,7 +117,6 @@
             align-items: flex-start;
         }
         .verse-item.dragging { opacity: 0.5; }
-        .verse-content-wrapper { display: flex; align-items: flex-start; gap: 10px; flex: 1; }
         .verse-content { flex: 1; }
         .verse-ref {
             color: var(--accent);
@@ -223,7 +221,7 @@
     </div>
     
     <div class="storage-notice">
-        💡 Pensez à exporter régulièrement vos données (les données ne sont pas sauvegardées automatiquement)
+        💡 Pensez à exporter régulièrement vos données
     </div>
     
     <div class="header">
@@ -363,12 +361,8 @@
         });
 
         function closeContextMenu() {
-            const menuContainer = document.getElementById('contextMenu');
-            menuContainer.innerHTML = '';
-            const existingMenu = document.querySelector('.context-menu');
-            if (existingMenu) {
-                existingMenu.remove();
-            }
+            const existingMenus = document.querySelectorAll('.context-menu');
+            existingMenus.forEach(menu => menu.remove());
         }
 
         function toggleMode() {
@@ -391,7 +385,6 @@
             
             closeContextMenu();
             
-            const menu = document.getElementById('contextMenu');
             const div = document.createElement('div');
             div.className = 'context-menu';
             
@@ -402,7 +395,7 @@
                 itm.onclick = (ev) => {
                     ev.stopPropagation();
                     closeContextMenu();
-                    item.action();
+                    setTimeout(() => item.action(), 50);
                 };
                 div.appendChild(itm);
             });
@@ -569,7 +562,178 @@
                     e.stopPropagation();
                     if (draggedItem?.type === 'category') {
                         const toIndex = parseInt(cat.dataset.catIndex);
-                        if (draggedItem.index !== toIndex) {
+                        if (draggedItem.catId === toCatId && draggedItem.subId === toSubId && draggedItem.index !== toIndex) {
+                            const sub = findSub(toCatId, toSubId);
+                            if (sub) {
+                                const [moved] = sub.verses.splice(draggedItem.index, 1);
+                                sub.verses.splice(toIndex, 0, moved);
+                                render();
+                            }
+                        }
+                    }
+                });
+            });
+        }
+
+        function addCategory() {
+            const name = document.getElementById('categoryName').value.trim();
+            if (!name) return;
+            data.categories.push({ id: Date.now(), name, expanded: true, subcategories: [] });
+            render();
+            closeModal('addCategoryModal');
+            document.getElementById('categoryName').value = '';
+        }
+
+        function openEditCatModal(catId) {
+            editItem = { type: 'cat', id: catId };
+            const cat = data.categories.find(c => c.id === catId);
+            document.getElementById('editCategoryName').value = cat.name;
+            openModal('editCategoryModal');
+        }
+
+        function saveEditCategory() {
+            const cat = data.categories.find(c => c.id === editItem.id);
+            if (cat) { cat.name = document.getElementById('editCategoryName').value.trim(); render(); }
+            closeModal('editCategoryModal');
+        }
+
+        function openAddSubModal(catId, parentSubId = null) {
+            currentCat = catId;
+            currentSub = parentSubId;
+            document.getElementById('subcategoryName').value = '';
+            document.getElementById('subModalTitle').textContent = parentSubId ? 'Nouvelle Sous-sous-catégorie' : 'Nouvelle Sous-catégorie';
+            openModal('addSubcategoryModal');
+        }
+
+        function addSubcategory() {
+            const name = document.getElementById('subcategoryName').value.trim();
+            if (!name) return;
+            if (currentSub) {
+                const parentSub = findSub(currentCat, currentSub);
+                if (parentSub) {
+                    if (!parentSub.subcategories) parentSub.subcategories = [];
+                    parentSub.subcategories.push({ id: Date.now(), name, expanded: true, verses: [], subcategories: [] });
+                }
+            } else {
+                const cat = data.categories.find(c => c.id === currentCat);
+                if (cat) cat.subcategories.push({ id: Date.now(), name, expanded: true, verses: [], subcategories: [] });
+            }
+            render();
+            closeModal('addSubcategoryModal');
+        }
+
+        function openEditSubModal(catId, subId) {
+            editItem = { type: 'sub', catId, id: subId };
+            const sub = findSub(catId, subId);
+            if (sub) {
+                document.getElementById('editSubcategoryName').value = sub.name;
+                openModal('editSubcategoryModal');
+            }
+        }
+
+        function saveEditSubcategory() {
+            const sub = findSub(editItem.catId, editItem.id);
+            if (sub) { sub.name = document.getElementById('editSubcategoryName').value.trim(); render(); }
+            closeModal('editSubcategoryModal');
+        }
+
+        function openAddVerseModal(catId, subId) {
+            currentCat = catId;
+            currentSub = subId;
+            document.getElementById('verseRef').value = '';
+            document.getElementById('verseNote').value = '';
+            openModal('addVerseModal');
+        }
+
+        function addVerse() {
+            const ref = document.getElementById('verseRef').value.trim();
+            const note = document.getElementById('verseNote').value.trim();
+            if (!ref) return;
+            const sub = findSub(currentCat, currentSub);
+            if (sub) { sub.verses.push({ id: Date.now(), ref, note }); render(); }
+            closeModal('addVerseModal');
+        }
+
+        function openEditVerseModal(catId, subId, verseId) {
+            editItem = { type: 'verse', catId, subId, id: verseId };
+            const sub = findSub(catId, subId);
+            if (sub) {
+                const verse = sub.verses.find(v => v.id === verseId);
+                if (verse) {
+                    document.getElementById('editVerseRef').value = verse.ref;
+                    document.getElementById('editVerseNote').value = verse.note || '';
+                    openModal('editVerseModal');
+                }
+            }
+        }
+
+        function saveEditVerse() {
+            const sub = findSub(editItem.catId, editItem.subId);
+            if (sub) {
+                const verse = sub.verses.find(v => v.id === editItem.id);
+                if (verse) {
+                    verse.ref = document.getElementById('editVerseRef').value.trim();
+                    verse.note = document.getElementById('editVerseNote').value.trim();
+                    render();
+                }
+            }
+            closeModal('editVerseModal');
+        }
+
+        function deleteCat(catId) {
+            if (confirm('Supprimer cette catégorie ?')) {
+                data.categories = data.categories.filter(c => c.id !== catId);
+                render();
+            }
+        }
+
+        function deleteSubRec(subs, subId) {
+            for (let i = 0; i < subs.length; i++) {
+                if (subs[i].id === subId) { subs.splice(i, 1); return true; }
+                if (subs[i].subcategories?.length > 0 && deleteSubRec(subs[i].subcategories, subId)) return true;
+            }
+            return false;
+        }
+
+        function deleteSub(catId, subId) {
+            if (confirm('Supprimer cette sous-catégorie ?')) {
+                const cat = data.categories.find(c => c.id === catId);
+                if (cat) { deleteSubRec(cat.subcategories, subId); render(); }
+            }
+        }
+
+        function deleteVerse(catId, subId, verseId) {
+            const sub = findSub(catId, subId);
+            if (sub) { sub.verses = sub.verses.filter(v => v.id !== verseId); render(); }
+        }
+
+        function exportData() {
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `index-biblique-${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+        }
+
+        function importData(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    try {
+                        data = JSON.parse(ev.target.result);
+                        render();
+                        alert('✅ Données importées avec succès !');
+                    } catch (err) {
+                        alert('❌ Erreur lors de l\'import');
+                    }
+                };
+                reader.readAsText(file);
+            }
+        }
+    </script>
+</body>
+</html>index !== toIndex) {
                             const [moved] = data.categories.splice(draggedItem.index, 1);
                             data.categories.splice(toIndex, 0, moved);
                             render();
@@ -623,4 +787,13 @@
                     };
                     verse.classList.add('dragging');
                 });
-                verse.addEventListener('dragen
+                verse.addEventListener('dragend', () => verse.classList.remove('dragging'));
+                verse.addEventListener('dragover', (e) => { e.preventDefault(); e.stopPropagation(); });
+                verse.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (draggedItem?.type === 'verse') {
+                        const toCatId = parseInt(verse.dataset.catId);
+                        const toSubId = parseInt(verse.dataset.subId);
+                        const toIndex = parseInt(verse.dataset.verseIndex);
+                        if (draggedItem.
