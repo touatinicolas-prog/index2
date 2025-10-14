@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Versets pour la Vie Chrétienne</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Georgia, serif;
+            background-color: #1a1a1a;
+            color: #e8e6e3;
+            min-height: 100vh;
+        }
+        
+        .header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background-color: #2a2a2a;
+            border-bottom: 1px solid #3a3a3a;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+        
+        .header-content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 16px;
+        }
+        
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        
+        h1 {
+            font-size: 24px;
+            color: #d4af37;
+            font-weight: normal;
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            background-color: #3a3a3a;
+            border: none;
+            border-radius: 8px;
+            color: #e8e6e3;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .btn:active {
+            background-color: #4a4a4a;
+        }
+        
+        .btn-primary {
+            background-color: #d4af37;
+            color: #1a1a1a;
+            font-weight: 600;
+            width: 100%;
+            justify-content: center;
+        }
+        
+        .btn-danger {
+            background-color: #5a2a2a;
+        }
+        
+        .search-container {
+            position: relative;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 12px 40px;
+            background-color: #1a1a1a;
+            border: 1px solid #3a3a3a;
+            border-radius: 8px;
+            color: #e8e6e3;
+            font-size: 16px;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: #d4af37;
+        }
+        
+        .search-icon, .clear-icon {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #888;
+            pointer-events: none;
+        }
+        
+        .search-icon {
+            left: 12px;
+        }
+        
+        .clear-icon {
+            right: 12px;
+            cursor: pointer;
+            display: none;
+            pointer-events: auto;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 24px 16px;
+        }
+        
+        .category {
+            margin-bottom: 24px;
+            background-color: #2a2a2a;
+            border-radius: 8px;
+            border: 1px solid #3a3a3a;
+            overflow: hidden;
+        }
+        
+        .category-header {
+            background-color: #333;
+            border-bottom: 1px solid #3a3a3a;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .category-title {
+            flex: 1;
+            font-size: 18px;
+            font-weight: 600;
+            color: #d4af37;
+            cursor: pointer;
+        }
+        
+        .category-title-input {
+            flex: 1;
+            background-color: #2a2a2a;
+            border: 1px solid #4a4a4a;
+            border-radius: 4px;
+            padding: 8px 12px;
+            font-size: 18px;
+            font-weight: 600;
+            color: #d4af37;
+            font-family: Georgia, serif;
+        }
+        
+        .category-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .btn-icon {
+            padding: 8px;
+            background-color: #4a4a4a;
+            border: none;
+            border-radius: 6px;
+            color: #e8e6e3;
+            cursor: pointer;
+            font-size: 18px;
+        }
+        
+        .expand-btn {
+            background: none;
+            border: none;
+            color: #888;
+            cursor: pointer;
+            font-size: 16px;
+            padding: 4px 8px;
+        }
+        
+        .verses-container {
+            padding: 16px;
+            display: none;
+        }
+        
+        .verses-container.active {
+            display: block;
+        }
+        
+        .verse {
+            background-color: #1a1a1a;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+            border: 1px solid #3a3a3a;
+        }
+        
+        .verse-reference {
+            font-size: 14px;
+            font-weight: 600;
+            color: #d4af37;
+            margin-bottom: 8px;
+        }
+        
+        .verse-text {
+            color: #e8e6e3;
+            line-height: 1.6;
+            margin-bottom: 8px;
+        }
+        
+        .verse-note {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #3a3a3a;
+            font-size: 14px;
+            color: #aaa;
+            font-style: italic;
+        }
+        
+        .verse-input, .verse-textarea {
+            width: 100%;
+            background-color: #2a2a2a;
+            border: 1px solid #4a4a4a;
+            border-radius: 4px;
+            padding: 8px 12px;
+            color: #e8e6e3;
+            margin-bottom: 8px;
+            font-family: Georgia, serif;
+        }
+        
+        .verse-input:focus, .verse-textarea:focus {
+            outline: none;
+            border-color: #d4af37;
+        }
+        
+        .verse-input {
+            font-size: 14px;
+            font-weight: 600;
+            color: #d4af37;
+        }
+        
+        .verse-textarea {
+            min-height: 80px;
+            resize: vertical;
+            font-size: 16px;
+        }
+        
+        .verse-note-input {
+            min-height: 60px;
+            font-size: 14px;
+            color: #aaa;
+            font-style: italic;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 32px 16px;
+            color: #666;
+            font-style: italic;
+        }
+        
+        .no-results {
+            text-align: center;
+            padding: 48px 16px;
+            display: none;
+        }
+        
+        .no-results-text {
+            color: #888;
+            font-size: 18px;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div class="header-top">
+                <h1>Versets pour la Vie Chrétienne</h1>
+                <button class="btn" id="toggleModeBtn">
+                    <span id="modeIcon">✏️</span>
+                    <span id="modeText">Édition</span>
+                </button>
+            </div>
+            <div class="search-container">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="searchInput" class="search-input" placeholder="Rechercher dans les versets et notes...">
+                <span class="clear-icon" id="clearSearch">✕</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <button class="btn btn-primary hidden" id="addCategoryBtn">
+            ➕ Ajouter une Catégorie
+        </button>
+        <div id="categoriesContainer"></div>
+        <div id="noResults" class="no-results">
+            <p class="no-results-text">Aucun résultat trouvé</p>
+        </div>
+    </div>
+
+    <script>
+        var isEditMode = false;
+        var searchQuery = '';
+        var categories = [
+            {
+                id: 1,
+                title: "Foi et Confiance en Dieu",
+                expanded: false,
+                verses: [
+                    { id: 1, reference: "Proverbes 3:5-6", text: "Fais confiance à Jéhovah de tout ton cœur et ne t'appuie pas sur ta propre intelligence.", note: "" },
+                    { id: 2, reference: "Psaume 37:5", text: "Remets ton chemin à Jéhovah ; compte sur lui, et lui-même agira.", note: "" }
+                ]
+            },
+            {
+                id: 2,
+                title: "Prière",
+                expanded: false,
+                verses: [
+                    { id: 3, reference: "Philippiens 4:6-7", text: "Ne vous inquiétez de rien, mais en tout, par la prière et la supplication avec des remerciements, faites connaître vos demandes à Dieu.", note: "" },
+                    { id: 4, reference: "1 Jean 5:14", text: "Voici l'assurance que nous avons envers lui : quoi que nous demandions selon sa volonté, il nous entend.", note: "" }
+                ]
+            },
+            {
+                id: 3,
+                title: "Qualités Chrétiennes",
+                expanded: false,
+                verses: [
+                    { id: 5, reference: "Galates 5:22-23", text: "Le fruit de l'esprit, c'est l'amour, la joie, la paix, la patience, la bonté, la bienveillance, la foi, la douceur, la maîtrise de soi.", note: "" },
+                    { id: 6, reference: "Colossiens 3:12", text: "Revêtez-vous de tendre compassion, de bonté, d'humilité, de douceur et de patience.", note: "" }
+                ]
+            }
+        ];
+
+        function escapeHtml(text) {
+            var div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function toggleEditMode() {
+            isEditMode = !isEditMode;
+            document.getElementById('modeIcon').textContent = isEditMode ? '📖' : '✏️';
+            document.getElementById('modeText').textContent = isEditMode ? 'Lecture' : 'Édition';
+            if (isEditMode) {
+                document.getElementById('addCategoryBtn').classList.remove('hidden');
+            } else {
+                document.getElementById('addCategoryBtn').classList.add('hidden');
+            }
+            render();
+        }
+
+        function handleSearch() {
+            searchQuery = document.getElementById('searchInput').value;
+            if (searchQuery) {
+                document.getElementById('clearSearch').style.display = 'block';
+            } else {
+                document.getElementById('clearSearch').style.display = 'none';
+            }
+            render();
+        }
+
+        function clearSearchFunc() {
+            searchQuery = '';
+            document.getElementById('searchInput').value = '';
+            document.getElementById('clearSearch').style.display = 'none';
+            render();
+        }
+
+        function addCategory() {
+            var newCategory = {
+                id: Date.now(),
+                title: "Nouvelle Catégorie",
+                expanded: true,
+                verses: []
+            };
+            categories.push(newCategory);
+            render();
+        }
+
+        function deleteCategory(categoryId) {
+            if (confirm('Êtes-vous sûr de vouloir supprimer cette catégorie ?')) {
+                categories = categories.filter(function(cat) { return cat.id !== categoryId; });
+                render();
+            }
+        }
+
+        function updateCategoryTitle(categoryId, newTitle) {
+            for (var i = 0; i < categories.length; i++) {
+                if (categories[i].id === categoryId) {
+                    categories[i].title = newTitle;
+                    break;
+                }
+            }
+        }
+
+        function toggleCategory(categoryId) {
+            for (var i = 0; i < categories.length; i++) {
+                if (categories[i].id === categoryId) {
+                    categories[i].expanded = !categories[i].expanded;
+                    render();
+                    break;
+                }
+            }
+        }
+
+        function addVerse(categoryId) {
+            for (var i = 0; i < categories.length; i++) {
+                if (categories[i].id === categoryId) {
+                    var newVerse = {
+                        id: Date.now(),
+                        reference: "Nouvelle Référence",
+                        text: "Texte du verset...",
+                        note: ""
+                    };
+                    categories[i].verses.push(newVerse);
+                    render();
+                    break;
+                }
+            }
+        }
+
+        function deleteVerse(categoryId, verseId) {
+            if (confirm('Êtes-vous sûr de vouloir supprimer ce verset ?')) {
+                for (var i = 0; i < categories.length; i++) {
+                    if (categories[i].id === categoryId) {
+                        categories[i].verses = categories[i].verses.filter(function(v) { return v.id !== verseId; });
+                        render();
+                        break;
+                    }
+                }
+            }
+        }
+
+        function updateVerse(categoryId, verseId, field, value) {
+            for (var i = 0; i < categories.length; i++) {
+                if (categories[i].id === categoryId) {
+                    for (var j = 0; j < categories[i].verses.length; j++) {
+                        if (categories[i].verses[j].id === verseId) {
+                            categories[i].verses[j][field] = value;
+                            break;
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+
+        function filterCategories() {
+            if (!searchQuery) return categories;
+            
+            var filtered = [];
+            for (var i = 0; i < categories.length; i++) {
+                var cat = categories[i];
+                var filteredVerses = [];
+                
+                for (var j = 0; j < cat.verses.length; j++) {
+                    var verse = cat.verses[j];
+                    var lowerQuery = searchQuery.toLowerCase();
+                    
+                    if (verse.reference.toLowerCase().indexOf(lowerQuery) !== -1 ||
+                        verse.text.toLowerCase().indexOf(lowerQuery) !== -1 ||
+                        verse.note.toLowerCase().indexOf(lowerQuery) !== -1) {
+                        filteredVerses.push(verse);
+                    }
+                }
+                
+                if (filteredVerses.length > 0) {
+                    filtered.push({
+                        id: cat.id,
+                        title: cat.title,
+                        expanded: cat.expanded,
+                        verses: filteredVerses
+                    });
+                }
+            }
+            
+            return filtered;
+        }
+
+        function render() {
+            var filteredCategories = filterCategories();
+            var container = document.getElementById('categoriesContainer');
+            var noResults = document.getElementById('noResults');
+
+            if (filteredCategories.length === 0 && searchQuery) {
+                container.innerHTML = '';
+                noResults.style.display = 'block';
+                return;
+            }
+
+            noResults.style.display = 'none';
+            
+            var html = '';
+            
+            for (var i = 0; i < filteredCategories.length; i++) {
+                var category = filteredCategories[i];
+                
+                html += '<div class="category">';
+                html += '<div class="category-header">';
+                
+                if (isEditMode) {
+                    html += '<input type="text" class="category-title-input" value="' + escapeHtml(category.title) + '" onchange="updateCategoryTitle(' + category.id + ', this.value)">';
+                } else {
+                    html += '<div class="category-title" onclick="toggleCategory(' + category.id + ')">' + escapeHtml(category.title) + '</div>';
+                }
+                
+                html += '<div class="category-actions">';
+                if (isEditMode) {
+                    html += '<button class="btn-icon" onclick="addVerse(' + category.id + ')">➕</button>';
+                    html += '<button class="btn-icon btn-danger" onclick="deleteCategory(' + category.id + ')">🗑️</button>';
+                } else {
+                    html += '<button class="expand-btn" onclick="toggleCategory(' + category.id + ')">' + (category.expanded ? '▼' : '▶') + '</button>';
+                }
+                html += '</div></div>';
+                
+                html += '<div class="verses-container ' + (isEditMode || category.expanded ? 'active' : '') + '">';
+                
+                if (category.verses.length === 0) {
+                    html += '<div class="empty-state">Aucun verset dans cette catégorie</div>';
+                } else {
+                    for (var j = 0; j < category.verses.length; j++) {
+                        var verse = category.verses[j];
+                        html += '<div class="verse">';
+                        
+                        if (isEditMode) {
+                            html += '<input type="text" class="verse-input" value="' + escapeHtml(verse.reference) + '" onchange="updateVerse(' + category.id + ', ' + verse.id + ', \'reference\', this.value)" placeholder="Référence">';
+                            html += '<textarea class="verse-textarea" onchange="updateVerse(' + category.id + ', ' + verse.id + ', \'text\', this.value)" placeholder="Texte du verset">' + escapeHtml(verse.text) + '</textarea>';
+                            html += '<textarea class="verse-textarea verse-note-input" onchange="updateVerse(' + category.id + ', ' + verse.id + ', \'note\', this.value)" placeholder="Note personnelle (optionnel)">' + escapeHtml(verse.note) + '</textarea>';
+                            html += '<button class="btn btn-danger" style="font-size: 14px;" onclick="deleteVerse(' + category.id + ', ' + verse.id + ')">🗑️ Supprimer ce verset</button>';
+                        } else {
+                            html += '<div class="verse-reference">' + escapeHtml(verse.reference) + '</div>';
+                            html += '<div class="verse-text">' + escapeHtml(verse.text) + '</div>';
+                            if (verse.note) {
+                                html += '<div class="verse-note">📝 ' + escapeHtml(verse.note) + '</div>';
+                            }
+                        }
+                        
+                        html += '</div>';
+                    }
+                }
+                
+                html += '</div></div>';
+            }
+            
+            container.innerHTML = html;
+        }
+
+        function saveData() {
+            try {
+                var data = JSON.stringify(categories);
+                document.cookie = 'bibleVerses=' + encodeURIComponent(data) + '; max-age=31536000; path=/';
+            } catch (e) {
+                console.log('Sauvegarde non disponible');
+            }
+        }
+
+        function loadData() {
+            try {
+                var cookies = document.cookie.split(';');
+                for (var i = 0; i < cookies.length; i++) {
+                    var cookie = cookies[i].trim();
+                    if (cookie.indexOf('bibleVerses=') === 0) {
+                        var data = decodeURIComponent(cookie.substring(12));
+                        categories = JSON.parse(data);
+                        return;
+                    }
+                }
+            } catch (e) {
+                console.log('Chargement non disponible');
+            }
+        }
+
+        document.getElementById('toggleModeBtn').addEventListener('click', toggleEditMode);
+        document.getElementById('searchInput').addEventListener('input', handleSearch);
+        document.getElementById('clearSearch').addEventListener('click', clearSearchFunc);
+        document.getElementById('addCategoryBtn').addEventListener('click', addCategory);
+
+        setInterval(saveData, 2000);
+
+        loadData();
+        render();
+    </script>
+</body>
+</html>
