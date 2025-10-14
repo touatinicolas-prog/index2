@@ -343,7 +343,6 @@
     </div>
 
     <script>
-        // Stockage en mémoire (pas de localStorage)
         let data = {categories: [{id: 1, name: 'Foi et Confiance', expanded: true, subcategories: [{id: 11, name: 'Renforcer sa foi', expanded: true, verses: [{id: 111, ref: 'Hébreux 11:1', note: 'Définition de la foi'}], subcategories: []}]}]};
         let currentCat = null, currentSub = null, editItem = null, searchQuery = '', readOnlyMode = false;
         let dragMode = false, draggedItem = null;
@@ -360,8 +359,17 @@
                     render();
                 }, 300);
             });
-            document.addEventListener('click', () => document.getElementById('contextMenu').innerHTML = '');
+            document.addEventListener('click', closeContextMenu);
         });
+
+        function closeContextMenu() {
+            const menuContainer = document.getElementById('contextMenu');
+            menuContainer.innerHTML = '';
+            const existingMenu = document.querySelector('.context-menu');
+            if (existingMenu) {
+                existingMenu.remove();
+            }
+        }
 
         function toggleMode() {
             readOnlyMode = !readOnlyMode;
@@ -373,15 +381,17 @@
 
         function toggleDragMode() {
             dragMode = !dragMode;
-            document.getElementById('contextMenu').innerHTML = '';
+            closeContextMenu();
             render();
         }
 
         function showMenu(e, items) {
             e.preventDefault();
             e.stopPropagation();
+            
+            closeContextMenu();
+            
             const menu = document.getElementById('contextMenu');
-            menu.innerHTML = '';
             const div = document.createElement('div');
             div.className = 'context-menu';
             
@@ -391,14 +401,12 @@
                 itm.textContent = item.label;
                 itm.onclick = (ev) => {
                     ev.stopPropagation();
+                    closeContextMenu();
                     item.action();
-                    menu.innerHTML = '';
-                    document.querySelector('.context-menu')?.remove();
                 };
                 div.appendChild(itm);
             });
             
-            menu.appendChild(div);
             document.body.appendChild(div);
             
             setTimeout(() => {
@@ -615,192 +623,4 @@
                     };
                     verse.classList.add('dragging');
                 });
-                verse.addEventListener('dragend', () => verse.classList.remove('dragging'));
-                verse.addEventListener('dragover', (e) => { e.preventDefault(); e.stopPropagation(); });
-                verse.addEventListener('drop', (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    if (draggedItem?.type === 'verse') {
-                        const toCatId = parseInt(verse.dataset.catId);
-                        const toSubId = parseInt(verse.dataset.subId);
-                        const toIndex = parseInt(verse.dataset.verseIndex);
-                        if (draggedItem.catId === toCatId && draggedItem.subId === toSubId && draggedItem.index !== toIndex) {
-                            const sub = findSub(toCatId, toSubId);
-                            if (sub) {
-                                const [moved] = sub.verses.splice(draggedItem.index, 1);
-                                sub.verses.splice(toIndex, 0, moved);
-                                render();
-                            }
-                        }
-                    }
-                });
-            });
-        }
-
-        function addCategory() {
-            const name = document.getElementById('categoryName').value.trim();
-            if (!name) return;
-            data.categories.push({ id: Date.now(), name, expanded: true, subcategories: [] });
-            render();
-            closeModal('addCategoryModal');
-            document.getElementById('categoryName').value = '';
-        }
-
-        function openEditCatModal(catId) {
-            editItem = { type: 'cat', id: catId };
-            const cat = data.categories.find(c => c.id === catId);
-            document.getElementById('editCategoryName').value = cat.name;
-            openModal('editCategoryModal');
-        }
-
-        function saveEditCategory() {
-            const cat = data.categories.find(c => c.id === editItem.id);
-            if (cat) { cat.name = document.getElementById('editCategoryName').value.trim(); render(); }
-            closeModal('editCategoryModal');
-        }
-
-        function openAddSubModal(catId, parentSubId = null) {
-            currentCat = catId;
-            currentSub = parentSubId;
-            document.getElementById('subcategoryName').value = '';
-            document.getElementById('subModalTitle').textContent = parentSubId ? 'Nouvelle Sous-sous-catégorie' : 'Nouvelle Sous-catégorie';
-            openModal('addSubcategoryModal');
-        }
-
-        function addSubcategory() {
-            const name = document.getElementById('subcategoryName').value.trim();
-            if (!name) return;
-            if (currentSub) {
-                const parentSub = findSub(currentCat, currentSub);
-                if (parentSub) {
-                    if (!parentSub.subcategories) parentSub.subcategories = [];
-                    parentSub.subcategories.push({ id: Date.now(), name, expanded: true, verses: [], subcategories: [] });
-                }
-            } else {
-                const cat = data.categories.find(c => c.id === currentCat);
-                if (cat) cat.subcategories.push({ id: Date.now(), name, expanded: true, verses: [], subcategories: [] });
-            }
-            render();
-            closeModal('addSubcategoryModal');
-        }
-
-        function openEditSubModal(catId, subId) {
-            editItem = { type: 'sub', catId, id: subId };
-            const sub = findSub(catId, subId);
-            if (sub) {
-                document.getElementById('editSubcategoryName').value = sub.name;
-                openModal('editSubcategoryModal');
-            }
-        }
-
-        function saveEditSubcategory() {
-            const sub = findSub(editItem.catId, editItem.id);
-            if (sub) { sub.name = document.getElementById('editSubcategoryName').value.trim(); render(); }
-            closeModal('editSubcategoryModal');
-        }
-
-        function openAddVerseModal(catId, subId) {
-            currentCat = catId;
-            currentSub = subId;
-            document.getElementById('verseRef').value = '';
-            document.getElementById('verseNote').value = '';
-            openModal('addVerseModal');
-        }
-
-        function addVerse() {
-            const ref = document.getElementById('verseRef').value.trim();
-            const note = document.getElementById('verseNote').value.trim();
-            if (!ref) return;
-            const sub = findSub(currentCat, currentSub);
-            if (sub) { sub.verses.push({ id: Date.now(), ref, note }); render(); }
-            closeModal('addVerseModal');
-        }
-
-        function openEditVerseModal(catId, subId, verseId) {
-            editItem = { type: 'verse', catId, subId, id: verseId };
-            const sub = findSub(catId, subId);
-            if (sub) {
-                const verse = sub.verses.find(v => v.id === verseId);
-                if (verse) {
-                    document.getElementById('editVerseRef').value = verse.ref;
-                    document.getElementById('editVerseNote').value = verse.note || '';
-                    openModal('editVerseModal');
-                }
-            }
-        }
-
-        function saveEditVerse() {
-            const sub = findSub(editItem.catId, editItem.subId);
-            if (sub) {
-                const verse = sub.verses.find(v => v.id === editItem.id);
-                if (verse) {
-                    verse.ref = document.getElementById('editVerseRef').value.trim();
-                    verse.note = document.getElementById('editVerseNote').value.trim();
-                    render();
-                }
-            }
-            closeModal('editVerseModal');
-        }
-
-        function deleteCat(catId) {
-            if (confirm('Supprimer cette catégorie ?')) {
-                data.categories = data.categories.filter(c => c.id !== catId);
-                render();
-            }
-        }
-
-        function deleteSubRec(subs, subId) {
-            for (let i = 0; i < subs.length; i++) {
-                if (subs[i].id === subId) { subs.splice(i, 1); return true; }
-                if (subs[i].subcategories?.length > 0 && deleteSubRec(subs[i].subcategories, subId)) return true;
-            }
-            return false;
-        }
-
-        function deleteSub(catId, subId) {
-            if (confirm('Supprimer cette sous-catégorie ?')) {
-                const cat = data.categories.find(c => c.id === catId);
-                if (cat) { deleteSubRec(cat.subcategories, subId); render(); }
-            }
-        }
-
-        function deleteVerse(catId, subId, verseId) {
-            const sub = findSub(catId, subId);
-            if (sub) { sub.verses = sub.verses.filter(v => v.id !== verseId); render(); }
-        }
-
-        function exportData() {
-            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
-            a.download = `index-biblique-${new Date().toISOString().split('T')[0]}.json`;
-            a.click();
-        }
-
-        function importData(e) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (ev) => {
-                    try {
-                        data = JSON.parse(ev.target.result);
-                        render();
-                        alert('✅ Données importées avec succès !');
-                    } catch (err) {
-                        alert('❌ Erreur lors de l\'import');
-                    }
-                };
-                reader.readAsText(file);
-            }
-        }
-
-        // Service Worker pour PWA
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('data:text/javascript;base64,c2VsZi5hZGRFdmVudExpc3RlbmVyKCdpbnN0YWxsJywgZnVuY3Rpb24oZXZlbnQpIHsKICBzZWxmLnNraXBXYWl0aW5nKCk7Cn0pOwoKc2VsZi5hZGRFdmVudExpc3RlbmVyKCdhY3RpdmF0ZScsIGZ1bmN0aW9uKGV2ZW50KSB7CiAgcmV0dXJuIHNlbGYuY2xpZW50cy5jbGFpbSgpOwp9KTsKCnNlbGYuYWRkRXZlbnRMaXN0ZW5lcignZmV0Y2gnLCBmdW5jdGlvbihldmVudCkgewogIGV2ZW50LnJlc3BvbmRXaXRoKAogICAgZmV0Y2goZXZlbnQucmVxdWVzdCkKICApOwp9KTs=')
-                    .catch(() => {});
-            });
-        }
-    </script>
-</body>
-</html>
+                verse.addEventListener('dragen
