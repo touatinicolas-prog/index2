@@ -562,6 +562,69 @@
                     e.stopPropagation();
                     if (draggedItem?.type === 'category') {
                         const toIndex = parseInt(cat.dataset.catIndex);
+                        if (draggedItem.index !== toIndex) {
+                            const [moved] = data.categories.splice(draggedItem.index, 1);
+                            data.categories.splice(toIndex, 0, moved);
+                            render();
+                        }
+                    }
+                });
+            });
+
+            const subs = document.querySelectorAll('.subcategory[draggable="true"]');
+            subs.forEach(sub => {
+                sub.addEventListener('dragstart', (e) => {
+                    e.stopPropagation();
+                    draggedItem = {
+                        type: 'subcategory',
+                        catId: parseInt(sub.dataset.catId),
+                        subId: parseInt(sub.dataset.subId),
+                        index: parseInt(sub.dataset.subIndex)
+                    };
+                    sub.classList.add('dragging');
+                });
+                sub.addEventListener('dragend', () => sub.classList.remove('dragging'));
+                sub.addEventListener('dragover', (e) => { e.preventDefault(); e.stopPropagation(); });
+                sub.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (draggedItem?.type === 'subcategory') {
+                        const toCatId = parseInt(sub.dataset.catId);
+                        const toIndex = parseInt(sub.dataset.subIndex);
+                        if (draggedItem.catId === toCatId && draggedItem.index !== toIndex) {
+                            const cat = data.categories.find(c => c.id === toCatId);
+                            if (cat) {
+                                const [moved] = cat.subcategories.splice(draggedItem.index, 1);
+                                cat.subcategories.splice(toIndex, 0, moved);
+                                render();
+                            }
+                        }
+                    }
+                });
+            });
+
+            const verses = document.querySelectorAll('.verse-item[draggable="true"]');
+            verses.forEach(verse => {
+                verse.addEventListener('dragstart', (e) => {
+                    e.stopPropagation();
+                    draggedItem = {
+                        type: 'verse',
+                        catId: parseInt(verse.dataset.catId),
+                        subId: parseInt(verse.dataset.subId),
+                        verseId: parseInt(verse.dataset.verseId),
+                        index: parseInt(verse.dataset.verseIndex)
+                    };
+                    verse.classList.add('dragging');
+                });
+                verse.addEventListener('dragend', () => verse.classList.remove('dragging'));
+                verse.addEventListener('dragover', (e) => { e.preventDefault(); e.stopPropagation(); });
+                verse.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (draggedItem?.type === 'verse') {
+                        const toCatId = parseInt(verse.dataset.catId);
+                        const toSubId = parseInt(verse.dataset.subId);
+                        const toIndex = parseInt(verse.dataset.verseIndex);
                         if (draggedItem.catId === toCatId && draggedItem.subId === toSubId && draggedItem.index !== toIndex) {
                             const sub = findSub(toCatId, toSubId);
                             if (sub) {
@@ -733,67 +796,4 @@
         }
     </script>
 </body>
-</html>index !== toIndex) {
-                            const [moved] = data.categories.splice(draggedItem.index, 1);
-                            data.categories.splice(toIndex, 0, moved);
-                            render();
-                        }
-                    }
-                });
-            });
-
-            const subs = document.querySelectorAll('.subcategory[draggable="true"]');
-            subs.forEach(sub => {
-                sub.addEventListener('dragstart', (e) => {
-                    e.stopPropagation();
-                    draggedItem = {
-                        type: 'subcategory',
-                        catId: parseInt(sub.dataset.catId),
-                        subId: parseInt(sub.dataset.subId),
-                        index: parseInt(sub.dataset.subIndex)
-                    };
-                    sub.classList.add('dragging');
-                });
-                sub.addEventListener('dragend', () => sub.classList.remove('dragging'));
-                sub.addEventListener('dragover', (e) => { e.preventDefault(); e.stopPropagation(); });
-                sub.addEventListener('drop', (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    if (draggedItem?.type === 'subcategory') {
-                        const toCatId = parseInt(sub.dataset.catId);
-                        const toIndex = parseInt(sub.dataset.subIndex);
-                        if (draggedItem.catId === toCatId && draggedItem.index !== toIndex) {
-                            const cat = data.categories.find(c => c.id === toCatId);
-                            if (cat) {
-                                const [moved] = cat.subcategories.splice(draggedItem.index, 1);
-                                cat.subcategories.splice(toIndex, 0, moved);
-                                render();
-                            }
-                        }
-                    }
-                });
-            });
-
-            const verses = document.querySelectorAll('.verse-item[draggable="true"]');
-            verses.forEach(verse => {
-                verse.addEventListener('dragstart', (e) => {
-                    e.stopPropagation();
-                    draggedItem = {
-                        type: 'verse',
-                        catId: parseInt(verse.dataset.catId),
-                        subId: parseInt(verse.dataset.subId),
-                        verseId: parseInt(verse.dataset.verseId),
-                        index: parseInt(verse.dataset.verseIndex)
-                    };
-                    verse.classList.add('dragging');
-                });
-                verse.addEventListener('dragend', () => verse.classList.remove('dragging'));
-                verse.addEventListener('dragover', (e) => { e.preventDefault(); e.stopPropagation(); });
-                verse.addEventListener('drop', (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    if (draggedItem?.type === 'verse') {
-                        const toCatId = parseInt(verse.dataset.catId);
-                        const toSubId = parseInt(verse.dataset.subId);
-                        const toIndex = parseInt(verse.dataset.verseIndex);
-                        if (draggedItem.
+</html>
