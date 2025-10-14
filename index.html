@@ -575,12 +575,29 @@
                     draggedItem = { type: 'category', index: parseInt(cat.dataset.catIndex) };
                     cat.classList.add('dragging');
                     e.dataTransfer.effectAllowed = 'move';
+                    e.dataTransfer.setData('text/plain', 'category');
                 });
-                cat.addEventListener('dragend', () => cat.classList.remove('dragging'));
-                cat.addEventListener('dragover', (e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; });
+                cat.addEventListener('dragend', () => {
+                    cat.classList.remove('dragging');
+                    draggedItem = null;
+                });
+                cat.addEventListener('dragover', (e) => { 
+                    e.preventDefault(); 
+                    e.dataTransfer.dropEffect = 'move';
+                });
+                cat.addEventListener('dragenter', (e) => {
+                    e.preventDefault();
+                    if (draggedItem?.type === 'category') {
+                        cat.style.borderTop = '3px solid var(--accent)';
+                    }
+                });
+                cat.addEventListener('dragleave', (e) => {
+                    cat.style.borderTop = '';
+                });
                 cat.addEventListener('drop', (e) => {
                     e.preventDefault();
                     e.stopPropagation();
+                    cat.style.borderTop = '';
                     if (draggedItem?.type === 'category') {
                         const toIndex = parseInt(cat.dataset.catIndex);
                         if (draggedItem.index !== toIndex) {
