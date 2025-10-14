@@ -599,12 +599,16 @@
         }
 
         function setupDragDrop() {
+    let touchStartY = 0;
+    let touchStartX = 0;
+    let isDragging = false;
+    
     // Catégories
     const catHandles = document.querySelectorAll('.category-card > .category-header .drag-handle');
     catHandles.forEach(handle => {
         const card = handle.closest('.category-card');
         
-        // Rendre le handle draggable
+        // Desktop drag & drop
         handle.setAttribute('draggable', 'true');
         
         handle.addEventListener('dragstart', (e) => {
@@ -619,6 +623,43 @@
         handle.addEventListener('dragend', () => {
             card.classList.remove('dragging');
             draggedItem = null;
+        });
+        
+        // Mobile touch events
+        handle.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            touchStartY = e.touches[0].clientY;
+            touchStartX = e.touches[0].clientX;
+            isDragging = true;
+            draggedItem = { 
+                type: 'category', 
+                index: parseInt(card.dataset.catIndex)
+            };
+            card.classList.add('dragging');
+        });
+        
+        handle.addEventListener('touchend', (e) => {
+            if (!isDragging) return;
+            e.preventDefault();
+            card.classList.remove('dragging');
+            
+            const touch = e.changedTouches[0];
+            const dropTarget = document.elementFromPoint(touch.clientX, touch.clientY);
+            const targetCard = dropTarget?.closest('.category-card');
+            
+            if (targetCard && draggedItem?.type === 'category') {
+                const toIndex = parseInt(targetCard.dataset.catIndex);
+                const fromIndex = draggedItem.index;
+                if (fromIndex !== toIndex) {
+                    const [moved] = data.categories.splice(fromIndex, 1);
+                    data.categories.splice(toIndex, 0, moved);
+                    saveData();
+                    render();
+                }
+            }
+            
+            draggedItem = null;
+            isDragging = false;
         });
     });
     
@@ -650,7 +691,7 @@
     subHandles.forEach(handle => {
         const subDiv = handle.closest('.subcategory');
         
-        // Rendre le handle draggable
+        // Desktop drag & drop
         handle.setAttribute('draggable', 'true');
         
         handle.addEventListener('dragstart', (e) => {
@@ -668,6 +709,54 @@
             subDiv.classList.remove('dragging');
             document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
             draggedItem = null;
+        });
+        
+        // Mobile touch events
+        handle.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            touchStartY = e.touches[0].clientY;
+            touchStartX = e.touches[0].clientX;
+            isDragging = true;
+            draggedItem = { 
+                type: 'subcategory', 
+                catId: parseInt(subDiv.dataset.catId),
+                path: subDiv.dataset.subPath,
+                level: parseInt(subDiv.dataset.level)
+            };
+            subDiv.classList.add('dragging');
+        });
+        
+        handle.addEventListener('touchend', (e) => {
+            if (!isDragging) return;
+            e.preventDefault();
+            subDiv.classList.remove('dragging');
+            document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+            
+            const touch = e.changedTouches[0];
+            const dropTarget = document.elementFromPoint(touch.clientX, touch.clientY);
+            const targetSubDiv = dropTarget?.closest('.subcategory');
+            
+            if (targetSubDiv && draggedItem?.type === 'subcategory') {
+                const toCatId = parseInt(targetSubDiv.dataset.catId);
+                const toPath = targetSubDiv.dataset.subPath;
+                const toLevel = parseInt(targetSubDiv.dataset.level);
+                
+                if (draggedItem.catId === toCatId && draggedItem.level === toLevel && draggedItem.path !== toPath) {
+                    const fromData = getSubcategoryByPath(draggedItem.catId, draggedItem.path);
+                    const toData = getSubcategoryByPath(toCatId, toPath);
+                    
+                    if (fromData && toData && fromData.parent === toData.parent) {
+                        const [moved] = fromData.parent.splice(fromData.index, 1);
+                        const adjustedIndex = fromData.index < toData.index ? toData.index : toData.index;
+                        fromData.parent.splice(adjustedIndex, 0, moved);
+                        saveData();
+                        render();
+                    }
+                }
+            }
+            
+            draggedItem = null;
+            isDragging = false;
         });
     });
     
@@ -718,7 +807,7 @@
     verseHandles.forEach(handle => {
         const verseDiv = handle.closest('.verse-item');
         
-        // Rendre le handle draggable
+        // Desktop drag & drop
         handle.setAttribute('draggable', 'true');
         
         handle.addEventListener('dragstart', (e) => {
@@ -737,6 +826,52 @@
             verseDiv.classList.remove('dragging');
             document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
             draggedItem = null;
+        });
+        
+        // Mobile touch events
+        handle.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            touchStartY = e.touches[0].clientY;
+            touchStartX = e.touches[0].clientX;
+            isDragging = true;
+            draggedItem = {
+                type: 'verse',
+                catId: parseInt(verseDiv.dataset.catId),
+                subId: parseInt(verseDiv.dataset.subId),
+                verseId: parseInt(verseDiv.dataset.verseId),
+                index: parseInt(verseDiv.dataset.verseIndex)
+            };
+            verseDiv.classList.add('dragging');
+        });
+        
+        handle.addEventListener('touchend', (e) => {
+            if (!isDragging) return;
+            e.preventDefault();
+            verseDiv.classList.remove('dragging');
+            document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+            
+            const touch = e.changedTouches[0];
+            const dropTarget = document.elementFromPoint(touch.clientX, touch.clientY);
+            const targetVerseDiv = dropTarget?.closest('.verse-item');
+            
+            if (targetVerseDiv && draggedItem?.type === 'verse') {
+                const toCatId = parseInt(targetVerseDiv.dataset.catId);
+                const toSubId = parseInt(targetVerseDiv.dataset.subId);
+                const toIndex = parseInt(targetVerseDiv.dataset.verseIndex);
+                
+                if (draggedItem.catId === toCatId && draggedItem.subId === toSubId && draggedItem.index !== toIndex) {
+                    const sub = findSub(toCatId, toSubId);
+                    if (sub) {
+                        const [moved] = sub.verses.splice(draggedItem.index, 1);
+                        sub.verses.splice(toIndex, 0, moved);
+                        saveData();
+                        render();
+                    }
+                }
+            }
+            
+            draggedItem = null;
+            isDragging = false;
         });
     });
     
