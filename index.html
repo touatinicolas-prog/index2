@@ -221,7 +221,7 @@
     </div>
     
     <div class="storage-notice">
-        💡 Pensez à exporter régulièrement vos données
+        💡 Vos données sont sauvegardées automatiquement
     </div>
     
     <div class="header">
@@ -341,11 +341,32 @@
     </div>
 
     <script>
+        const STORAGE_KEY = 'monIndexBiblique';
         let data = {categories: [{id: 1, name: 'Foi et Confiance', expanded: true, subcategories: [{id: 11, name: 'Renforcer sa foi', expanded: true, verses: [{id: 111, ref: 'Hébreux 11:1', note: 'Définition de la foi'}], subcategories: []}]}]};
         let currentCat = null, currentSub = null, editItem = null, searchQuery = '', readOnlyMode = false;
         let dragMode = false, draggedItem = null;
 
+        function loadData() {
+            try {
+                const stored = localStorage.getItem(STORAGE_KEY);
+                if (stored) {
+                    data = JSON.parse(stored);
+                }
+            } catch (err) {
+                console.error('Erreur lors du chargement des données:', err);
+            }
+        }
+
+        function saveData() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+            } catch (err) {
+                console.error('Erreur lors de la sauvegarde des données:', err);
+            }
+        }
+
         window.addEventListener('DOMContentLoaded', () => {
+            loadData();
             render();
             setTimeout(() => document.getElementById('splash').classList.add('hide'), 1500);
             
@@ -565,6 +586,7 @@
                         if (draggedItem.index !== toIndex) {
                             const [moved] = data.categories.splice(draggedItem.index, 1);
                             data.categories.splice(toIndex, 0, moved);
+                            saveData();
                             render();
                         }
                     }
@@ -596,6 +618,7 @@
                             if (cat) {
                                 const [moved] = cat.subcategories.splice(draggedItem.index, 1);
                                 cat.subcategories.splice(toIndex, 0, moved);
+                                saveData();
                                 render();
                             }
                         }
@@ -630,6 +653,7 @@
                             if (sub) {
                                 const [moved] = sub.verses.splice(draggedItem.index, 1);
                                 sub.verses.splice(toIndex, 0, moved);
+                                saveData();
                                 render();
                             }
                         }
@@ -642,6 +666,7 @@
             const name = document.getElementById('categoryName').value.trim();
             if (!name) return;
             data.categories.push({ id: Date.now(), name, expanded: true, subcategories: [] });
+            saveData();
             render();
             closeModal('addCategoryModal');
             document.getElementById('categoryName').value = '';
@@ -656,7 +681,7 @@
 
         function saveEditCategory() {
             const cat = data.categories.find(c => c.id === editItem.id);
-            if (cat) { cat.name = document.getElementById('editCategoryName').value.trim(); render(); }
+            if (cat) { cat.name = document.getElementById('editCategoryName').value.trim(); saveData(); render(); }
             closeModal('editCategoryModal');
         }
 
@@ -681,6 +706,7 @@
                 const cat = data.categories.find(c => c.id === currentCat);
                 if (cat) cat.subcategories.push({ id: Date.now(), name, expanded: true, verses: [], subcategories: [] });
             }
+            saveData();
             render();
             closeModal('addSubcategoryModal');
         }
@@ -696,7 +722,7 @@
 
         function saveEditSubcategory() {
             const sub = findSub(editItem.catId, editItem.id);
-            if (sub) { sub.name = document.getElementById('editSubcategoryName').value.trim(); render(); }
+            if (sub) { sub.name = document.getElementById('editSubcategoryName').value.trim(); saveData(); render(); }
             closeModal('editSubcategoryModal');
         }
 
@@ -713,7 +739,7 @@
             const note = document.getElementById('verseNote').value.trim();
             if (!ref) return;
             const sub = findSub(currentCat, currentSub);
-            if (sub) { sub.verses.push({ id: Date.now(), ref, note }); render(); }
+            if (sub) { sub.verses.push({ id: Date.now(), ref, note }); saveData(); render(); }
             closeModal('addVerseModal');
         }
 
@@ -737,6 +763,7 @@
                 if (verse) {
                     verse.ref = document.getElementById('editVerseRef').value.trim();
                     verse.note = document.getElementById('editVerseNote').value.trim();
+                    saveData();
                     render();
                 }
             }
@@ -746,6 +773,7 @@
         function deleteCat(catId) {
             if (confirm('Supprimer cette catégorie ?')) {
                 data.categories = data.categories.filter(c => c.id !== catId);
+                saveData();
                 render();
             }
         }
@@ -761,13 +789,13 @@
         function deleteSub(catId, subId) {
             if (confirm('Supprimer cette sous-catégorie ?')) {
                 const cat = data.categories.find(c => c.id === catId);
-                if (cat) { deleteSubRec(cat.subcategories, subId); render(); }
+                if (cat) { deleteSubRec(cat.subcategories, subId); saveData(); render(); }
             }
         }
 
         function deleteVerse(catId, subId, verseId) {
             const sub = findSub(catId, subId);
-            if (sub) { sub.verses = sub.verses.filter(v => v.id !== verseId); render(); }
+            if (sub) { sub.verses = sub.verses.filter(v => v.id !== verseId); saveData(); render(); }
         }
 
         function exportData() {
@@ -785,6 +813,7 @@
                 reader.onload = (ev) => {
                     try {
                         data = JSON.parse(ev.target.result);
+                        saveData();
                         render();
                         alert('✅ Données importées avec succès !');
                     } catch (err) {
