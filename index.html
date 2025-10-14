@@ -599,174 +599,186 @@
         }
 
         function setupDragDrop() {
-            // Catégories
-            const catHandles = document.querySelectorAll('.category-card > .category-header .drag-handle');
-            catHandles.forEach(handle => {
-                const card = handle.closest('.category-card');
-                
-                handle.addEventListener('dragstart', (e) => {
-                    draggedItem = { 
-                        type: 'category', 
-                        index: parseInt(card.dataset.catIndex)
-                    };
-                    setTimeout(() => card.classList.add('dragging'), 0);
-                });
-                
-                handle.addEventListener('dragend', () => {
-                    card.classList.remove('dragging');
-                    draggedItem = null;
-                });
-            });
-            
-            const cats = document.querySelectorAll('.category-card');
-            cats.forEach(card => {
-                card.addEventListener('dragover', (e) => {
-                    if (draggedItem?.type === 'category') {
-                        e.preventDefault();
-                    }
-                });
-                
-                card.addEventListener('drop', (e) => {
-                    e.preventDefault();
-                    if (draggedItem?.type === 'category') {
-                        const toIndex = parseInt(card.dataset.catIndex);
-                        const fromIndex = draggedItem.index;
-                        if (fromIndex !== toIndex) {
-                            const [moved] = data.categories.splice(fromIndex, 1);
-                            data.categories.splice(toIndex, 0, moved);
-                            saveData();
-                            render();
-                        }
-                    }
-                });
-            });
+    // Catégories
+    const catHandles = document.querySelectorAll('.category-card > .category-header .drag-handle');
+    catHandles.forEach(handle => {
+        const card = handle.closest('.category-card');
+        
+        // Rendre le handle draggable
+        handle.setAttribute('draggable', 'true');
+        
+        handle.addEventListener('dragstart', (e) => {
+            draggedItem = { 
+                type: 'category', 
+                index: parseInt(card.dataset.catIndex)
+            };
+            e.dataTransfer.effectAllowed = 'move';
+            setTimeout(() => card.classList.add('dragging'), 0);
+        });
+        
+        handle.addEventListener('dragend', () => {
+            card.classList.remove('dragging');
+            draggedItem = null;
+        });
+    });
+    
+    const cats = document.querySelectorAll('.category-card');
+    cats.forEach(card => {
+        card.addEventListener('dragover', (e) => {
+            if (draggedItem?.type === 'category') {
+                e.preventDefault();
+            }
+        });
+        
+        card.addEventListener('drop', (e) => {
+            e.preventDefault();
+            if (draggedItem?.type === 'category') {
+                const toIndex = parseInt(card.dataset.catIndex);
+                const fromIndex = draggedItem.index;
+                if (fromIndex !== toIndex) {
+                    const [moved] = data.categories.splice(fromIndex, 1);
+                    data.categories.splice(toIndex, 0, moved);
+                    saveData();
+                    render();
+                }
+            }
+        });
+    });
 
-            // Sous-catégories
-            const subHandles = document.querySelectorAll('.subcategory > .subcategory-header .drag-handle');
-            subHandles.forEach(handle => {
-                const subDiv = handle.closest('.subcategory');
-                
-                handle.addEventListener('dragstart', (e) => {
-                    draggedItem = { 
-                        type: 'subcategory', 
-                        catId: parseInt(subDiv.dataset.catId),
-                        path: subDiv.dataset.subPath,
-                        level: parseInt(subDiv.dataset.level)
-                    };
-                    setTimeout(() => subDiv.classList.add('dragging'), 0);
-                });
-                
-                handle.addEventListener('dragend', () => {
-                    subDiv.classList.remove('dragging');
-                    document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
-                    draggedItem = null;
-                });
-            });
-            
-            const subs = document.querySelectorAll('.subcategory');
-            subs.forEach(subDiv => {
-                subDiv.addEventListener('dragover', (e) => {
-                    if (draggedItem?.type === 'subcategory') {
-                        const targetCatId = parseInt(subDiv.dataset.catId);
-                        const targetLevel = parseInt(subDiv.dataset.level);
-                        if (draggedItem.catId === targetCatId && draggedItem.level === targetLevel) {
-                            e.preventDefault();
-                            subDiv.classList.add('drag-over');
-                        }
-                    }
-                });
-                
-                subDiv.addEventListener('dragleave', () => {
-                    subDiv.classList.remove('drag-over');
-                });
-                
-                subDiv.addEventListener('drop', (e) => {
+    // Sous-catégories
+    const subHandles = document.querySelectorAll('.subcategory > .subcategory-header .drag-handle');
+    subHandles.forEach(handle => {
+        const subDiv = handle.closest('.subcategory');
+        
+        // Rendre le handle draggable
+        handle.setAttribute('draggable', 'true');
+        
+        handle.addEventListener('dragstart', (e) => {
+            draggedItem = { 
+                type: 'subcategory', 
+                catId: parseInt(subDiv.dataset.catId),
+                path: subDiv.dataset.subPath,
+                level: parseInt(subDiv.dataset.level)
+            };
+            e.dataTransfer.effectAllowed = 'move';
+            setTimeout(() => subDiv.classList.add('dragging'), 0);
+        });
+        
+        handle.addEventListener('dragend', () => {
+            subDiv.classList.remove('dragging');
+            document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+            draggedItem = null;
+        });
+    });
+    
+    const subs = document.querySelectorAll('.subcategory');
+    subs.forEach(subDiv => {
+        subDiv.addEventListener('dragover', (e) => {
+            if (draggedItem?.type === 'subcategory') {
+                const targetCatId = parseInt(subDiv.dataset.catId);
+                const targetLevel = parseInt(subDiv.dataset.level);
+                if (draggedItem.catId === targetCatId && draggedItem.level === targetLevel) {
                     e.preventDefault();
-                    subDiv.classList.remove('drag-over');
+                    subDiv.classList.add('drag-over');
+                }
+            }
+        });
+        
+        subDiv.addEventListener('dragleave', () => {
+            subDiv.classList.remove('drag-over');
+        });
+        
+        subDiv.addEventListener('drop', (e) => {
+            e.preventDefault();
+            subDiv.classList.remove('drag-over');
+            
+            if (draggedItem?.type === 'subcategory') {
+                const toCatId = parseInt(subDiv.dataset.catId);
+                const toPath = subDiv.dataset.subPath;
+                const toLevel = parseInt(subDiv.dataset.level);
+                
+                if (draggedItem.catId === toCatId && draggedItem.level === toLevel && draggedItem.path !== toPath) {
+                    const fromData = getSubcategoryByPath(draggedItem.catId, draggedItem.path);
+                    const toData = getSubcategoryByPath(toCatId, toPath);
                     
-                    if (draggedItem?.type === 'subcategory') {
-                        const toCatId = parseInt(subDiv.dataset.catId);
-                        const toPath = subDiv.dataset.subPath;
-                        const toLevel = parseInt(subDiv.dataset.level);
-                        
-                        if (draggedItem.catId === toCatId && draggedItem.level === toLevel && draggedItem.path !== toPath) {
-                            const fromData = getSubcategoryByPath(draggedItem.catId, draggedItem.path);
-                            const toData = getSubcategoryByPath(toCatId, toPath);
-                            
-                            if (fromData && toData && fromData.parent === toData.parent) {
-                                const [moved] = fromData.parent.splice(fromData.index, 1);
-                                const adjustedIndex = fromData.index < toData.index ? toData.index : toData.index;
-                                fromData.parent.splice(adjustedIndex, 0, moved);
-                                saveData();
-                                render();
-                            }
-                        }
+                    if (fromData && toData && fromData.parent === toData.parent) {
+                        const [moved] = fromData.parent.splice(fromData.index, 1);
+                        const adjustedIndex = fromData.index < toData.index ? toData.index : toData.index;
+                        fromData.parent.splice(adjustedIndex, 0, moved);
+                        saveData();
+                        render();
                     }
-                });
-            });
+                }
+            }
+        });
+    });
 
-            // Versets
-            const verseHandles = document.querySelectorAll('.verse-item .drag-handle');
-            verseHandles.forEach(handle => {
-                const verseDiv = handle.closest('.verse-item');
-                
-                handle.addEventListener('dragstart', (e) => {
-                    draggedItem = {
-                        type: 'verse',
-                        catId: parseInt(verseDiv.dataset.catId),
-                        subId: parseInt(verseDiv.dataset.subId),
-                        verseId: parseInt(verseDiv.dataset.verseId),
-                        index: parseInt(verseDiv.dataset.verseIndex)
-                    };
-                    setTimeout(() => verseDiv.classList.add('dragging'), 0);
-                });
-                
-                handle.addEventListener('dragend', () => {
-                    verseDiv.classList.remove('dragging');
-                    document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
-                    draggedItem = null;
-                });
-            });
-            
-            const verses = document.querySelectorAll('.verse-item');
-            verses.forEach(verseDiv => {
-                verseDiv.addEventListener('dragover', (e) => {
-                    if (draggedItem?.type === 'verse') {
-                        const targetCatId = parseInt(verseDiv.dataset.catId);
-                        const targetSubId = parseInt(verseDiv.dataset.subId);
-                        if (draggedItem.catId === targetCatId && draggedItem.subId === targetSubId) {
-                            e.preventDefault();
-                            verseDiv.classList.add('drag-over');
-                        }
-                    }
-                });
-                
-                verseDiv.addEventListener('dragleave', () => {
-                    verseDiv.classList.remove('drag-over');
-                });
-                
-                verseDiv.addEventListener('drop', (e) => {
+    // Versets
+    const verseHandles = document.querySelectorAll('.verse-item .drag-handle');
+    verseHandles.forEach(handle => {
+        const verseDiv = handle.closest('.verse-item');
+        
+        // Rendre le handle draggable
+        handle.setAttribute('draggable', 'true');
+        
+        handle.addEventListener('dragstart', (e) => {
+            draggedItem = {
+                type: 'verse',
+                catId: parseInt(verseDiv.dataset.catId),
+                subId: parseInt(verseDiv.dataset.subId),
+                verseId: parseInt(verseDiv.dataset.verseId),
+                index: parseInt(verseDiv.dataset.verseIndex)
+            };
+            e.dataTransfer.effectAllowed = 'move';
+            setTimeout(() => verseDiv.classList.add('dragging'), 0);
+        });
+        
+        handle.addEventListener('dragend', () => {
+            verseDiv.classList.remove('dragging');
+            document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+            draggedItem = null;
+        });
+    });
+    
+    const verses = document.querySelectorAll('.verse-item');
+    verses.forEach(verseDiv => {
+        verseDiv.addEventListener('dragover', (e) => {
+            if (draggedItem?.type === 'verse') {
+                const targetCatId = parseInt(verseDiv.dataset.catId);
+                const targetSubId = parseInt(verseDiv.dataset.subId);
+                if (draggedItem.catId === targetCatId && draggedItem.subId === targetSubId) {
                     e.preventDefault();
-                    verseDiv.classList.remove('drag-over');
-                    
-                    if (draggedItem?.type === 'verse') {
-                        const toCatId = parseInt(verseDiv.dataset.catId);
-                        const toSubId = parseInt(verseDiv.dataset.subId);
-                        const toIndex = parseInt(verseDiv.dataset.verseIndex);
-                        
-                        if (draggedItem.catId === toCatId && draggedItem.subId === toSubId && draggedItem.index !== toIndex) {
-                            const sub = findSub(toCatId, toSubId);
-                            if (sub) {
-                                const [moved] = sub.verses.splice(draggedItem.index, 1);
-                                sub.verses.splice(toIndex, 0, moved);
-                                saveData();
-                                render();
-                            }
-                        }
+                    verseDiv.classList.add('drag-over');
+                }
+            }
+        });
+        
+        verseDiv.addEventListener('dragleave', () => {
+            verseDiv.classList.remove('drag-over');
+        });
+        
+        verseDiv.addEventListener('drop', (e) => {
+            e.preventDefault();
+            verseDiv.classList.remove('drag-over');
+            
+            if (draggedItem?.type === 'verse') {
+                const toCatId = parseInt(verseDiv.dataset.catId);
+                const toSubId = parseInt(verseDiv.dataset.subId);
+                const toIndex = parseInt(verseDiv.dataset.verseIndex);
+                
+                if (draggedItem.catId === toCatId && draggedItem.subId === toSubId && draggedItem.index !== toIndex) {
+                    const sub = findSub(toCatId, toSubId);
+                    if (sub) {
+                        const [moved] = sub.verses.splice(draggedItem.index, 1);
+                        sub.verses.splice(toIndex, 0, moved);
+                        saveData();
+                        render();
                     }
-                });
-            });
-        }
+                }
+            }
+        });
+    });
+}
 
         function addCategory() {
             const name = document.getElementById('categoryName').value.trim();
