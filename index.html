@@ -555,7 +555,6 @@
                     <div class="subcategory-title">${highlight(sub.name)}</div>
                 </div>
                 <div style="display:flex;align-items:center;gap:12px;">
-                    <button class="icon-btn ${readOnlyMode ? 'hidden' : ''}" onclick="event.stopPropagation(); showSubMenu(event, ${catId}, ${sub.id}, ${level})">⋮</button>
                     ${level === 2 ? '<span class="chevron">→</span>' : `<span class="chevron">${sub.expanded ? '▼' : '▶'}</span>`}
                 </div>
             </div>
