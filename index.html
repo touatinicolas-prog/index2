@@ -1,23 +1,19 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#1a1a1a">
-    
-    <!-- Ajoutez ces lignes pour l'icône iOS -->
+
     <link rel="apple-touch-icon" href="icon.png">
     <link rel="apple-touch-icon" sizes="152x152" href="icon.png">
     <link rel="apple-touch-icon" sizes="167x167" href="icon.png">
     <link rel="apple-touch-icon" sizes="180x180" href="icon.png">
     
-  
     <title>Mon Index Biblique</title>
     <style>
-      
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
             --bg-primary: #1a1a1a;
@@ -229,62 +225,53 @@
             margin-bottom: 20px;
         }
         .page-view {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: var(--bg-primary);
-    z-index: 200;
-    overflow-y: auto;
-}
-
-.page-view.active {
-    display: block;
-}
-
-.page-header {
-    background: var(--bg-secondary);
-    padding: 20px;
-    border-bottom: 1px solid var(--border);
-    position: sticky;
-    top: 0;
-    z-index: 201;
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
-
-.back-btn {
-    background: transparent;
-    border: none;
-    color: var(--accent);
-    font-size: 24px;
-    cursor: pointer;
-    padding: 0;
-    line-height: 1;
-}
-
-.page-title {
-    font-size: 20px;
-    font-weight: 600;
-    flex: 1;
-}
-
-.page-content {
-    padding: 20px;
-}
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--bg-primary);
+            z-index: 200;
+            overflow-y: auto;
+        }
+        .page-view.active { display: block; }
+        .page-header {
+            background: var(--bg-secondary);
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 201;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .back-btn {
+            background: transparent;
+            border: none;
+            color: var(--accent);
+            font-size: 24px;
+            cursor: pointer;
+            padding: 0;
+            line-height: 1;
+        }
+        .page-title {
+            font-size: 20px;
+            font-weight: 600;
+            flex: 1;
+        }
+        .page-content { padding: 20px; }
     </style>
 </head>
     
 <body>
     <div class="splash" id="splash">
-    <div class="splash-icon">
-        <img src="icon.png" alt="IB" style="width: 100%; height: 100%; border-radius: 27px;">
+        <div class="splash-icon">
+            <img src="icon.png" alt="IB" style="width: 100%; height: 100%; border-radius: 27px;">
+        </div>
+        <div style="color: var(--text-secondary);">Mon Index Biblique</div>
     </div>
-    <div style="color: var(--text-secondary);">Mon Index Biblique</div>
-</div>
     
     <div class="header">
         <div class="header-top">
@@ -400,6 +387,14 @@
                 <button class="btn btn-secondary" onclick="closeModal('editVerseModal')">Annuler</button>
             </div>
         </div>
+    </div>
+
+    <div class="page-view" id="subsubPage">
+        <div class="page-header">
+            <button class="back-btn" onclick="closePage()">←</button>
+            <div class="page-title" id="pageTitle"></div>
+        </div>
+        <div class="page-content" id="pageContent"></div>
     </div>
 
     <script>
@@ -538,80 +533,79 @@
         }
 
         function renderSubs(subs, catId, level = 1, parentPath = '') {
-    return subs.map((sub, idx) => {
-        const hasMatch = matches(sub.name) || sub.verses.some(v => matches(v.ref) || matches(v.note || ''));
-        if (!hasMatch && searchQuery) return '';
-        const currentPath = parentPath ? `${parentPath}-${idx}` : `${idx}`;
-        
-        // Si niveau 2, ouvrir une page au lieu de déplier
-        const onClickAction = level === 2 
-            ? `if(!dragMode)openSubsubPage(${catId}, ${sub.id})` 
-            : `if(!dragMode)toggleSub(${catId}, ${sub.id})`;
-        
-        return `<div class="subcategory ${level === 2 ? 'level-2' : ''}" data-cat-id="${catId}" data-sub-id="${sub.id}" data-sub-path="${currentPath}" data-level="${level}">
-           <button class="icon-btn ${readOnlyMode ? 'hidden' : ''}" onclick="event.stopPropagation(); showSubMenu(event, ${catId}, ${sub.id}, ${level})">⋮</button>
-                <div class="subcategory-title-wrapper">
-                    ${dragMode ? '<span class="drag-handle" draggable="true">☰</span>' : ''}
-                    <div class="subcategory-title">${highlight(sub.name)}</div>
-                </div>
-                <div style="display:flex;align-items:center;gap:12px;">
-                    ${level === 2 ? '<span class="chevron">→</span>' : `<span class="chevron">${sub.expanded ? '▼' : '▶'}</span>`}
-                </div>
-            </div>
-            ${level === 2 ? '' : `<div class="subcategory-content ${sub.expanded ? 'expanded' : ''}">
-                ${sub.subcategories?.length > 0 ? renderSubs(sub.subcategories, catId, level + 1, currentPath) : ''}
-                ${sub.verses.map((v, vIdx) => {
-                    const vm = matches(v.ref) || matches(v.note || '');
-                    if (!vm && searchQuery) return '';
-                    return `<div class="verse-item" data-cat-id="${catId}" data-sub-id="${sub.id}" data-verse-id="${v.id}" data-verse-index="${vIdx}">
-                        <div class="verse-content">
+            return subs.map((sub, idx) => {
+                const hasMatch = matches(sub.name) || sub.verses.some(v => matches(v.ref) || matches(v.note || ''));
+                if (!hasMatch && searchQuery) return '';
+                const currentPath = parentPath ? `${parentPath}-${idx}` : `${idx}`;
+                
+                const onClickAction = level === 2 
+                    ? `if(!dragMode)openSubsubPage(${catId}, ${sub.id})` 
+                    : `if(!dragMode)toggleSub(${catId}, ${sub.id})`;
+                
+                return `<div class="subcategory ${level === 2 ? 'level-2' : ''}" data-cat-id="${catId}" data-sub-id="${sub.id}" data-sub-path="${currentPath}" data-level="${level}">
+                    <div class="subcategory-header" onclick="${onClickAction}">
+                        <div class="subcategory-title-wrapper">
                             ${dragMode ? '<span class="drag-handle" draggable="true">☰</span>' : ''}
-                            <div style="flex:1;">
-                                <a href="https://wol.jw.org/fr/wol/binav/r30/lp-f?q=${encodeURIComponent(v.ref)}" class="verse-ref" target="_blank" onclick="if(dragMode){event.preventDefault();return false;}">${highlight(v.ref)}</a>
-                                ${v.note ? `<div class="verse-note">${highlight(v.note)}</div>` : ''}
-                            </div>
+                            <div class="subcategory-title">${highlight(sub.name)}</div>
                         </div>
-                        <button class="icon-btn ${readOnlyMode ? 'hidden' : ''}" onclick="event.stopPropagation(); showVerseMenu(event, ${catId}, ${sub.id}, ${v.id})">⋮</button>
-                    </div>`;
-                }).join('')}
-            </div>`}
-        </div>`;
-    }).join('');
-}
-        function openSubsubPage(catId, subId) {
-    if (dragMode) return;
-    
-    const sub = findSub(catId, subId);
-    if (!sub) return;
-    
-    // Empêcher les doubles clics
-    if (document.getElementById('subsubPage').classList.contains('active')) return;
-    
-    document.getElementById('pageTitle').textContent = sub.name;
-    
-    const content = sub.verses.map((v, vIdx) => {
-        return `<div class="verse-item" data-cat-id="${catId}" data-sub-id="${sub.id}" data-verse-id="${v.id}" data-verse-index="${vIdx}">
-            <div class="verse-content">
-                <div style="flex:1;">
-                    <a href="https://wol.jw.org/fr/wol/binav/r30/lp-f?q=${encodeURIComponent(v.ref)}" class="verse-ref" target="_blank">${v.ref}</a>
-                    ${v.note ? `<div class="verse-note">${v.note}</div>` : ''}
-                </div>
-            </div>
-            <button class="icon-btn ${readOnlyMode ? 'hidden' : ''}" onclick="event.stopPropagation(); showVerseMenu(event, ${catId}, ${sub.id}, ${v.id})">⋮</button>
-        </div>`;
-    }).join('');
-    
-    document.getElementById('pageContent').innerHTML = content || '<div class="empty-state"><p>Aucun verset</p></div>';
-    
-    // Petit délai pour éviter les conflits tactiles
-    setTimeout(() => {
-        document.getElementById('subsubPage').classList.add('active');
-    }, 50);
-}
+                        <div style="display:flex;align-items:center;gap:12px;">
+                            <button class="icon-btn ${readOnlyMode ? 'hidden' : ''}" onclick="event.stopPropagation(); showSubMenu(event, ${catId}, ${sub.id}, ${level})">⋮</button>
+                            ${level === 2 ? '<span class="chevron">→</span>' : `<span class="chevron">${sub.expanded ? '▼' : '▶'}</span>`}
+                        </div>
+                    </div>
+                    ${level === 2 ? '' : `<div class="subcategory-content ${sub.expanded ? 'expanded' : ''}">
+                        ${sub.subcategories?.length > 0 ? renderSubs(sub.subcategories, catId, level + 1, currentPath) : ''}
+                        ${sub.verses.map((v, vIdx) => {
+                            const vm = matches(v.ref) || matches(v.note || '');
+                            if (!vm && searchQuery) return '';
+                            return `<div class="verse-item" data-cat-id="${catId}" data-sub-id="${sub.id}" data-verse-id="${v.id}" data-verse-index="${vIdx}">
+                                <div class="verse-content">
+                                    ${dragMode ? '<span class="drag-handle" draggable="true">☰</span>' : ''}
+                                    <div style="flex:1;">
+                                        <a href="https://wol.jw.org/fr/wol/binav/r30/lp-f?q=${encodeURIComponent(v.ref)}" class="verse-ref" target="_blank" onclick="if(dragMode){event.preventDefault();return false;}">${highlight(v.ref)}</a>
+                                        ${v.note ? `<div class="verse-note">${highlight(v.note)}</div>` : ''}
+                                    </div>
+                                </div>
+                                <button class="icon-btn ${readOnlyMode ? 'hidden' : ''}" onclick="event.stopPropagation(); showVerseMenu(event, ${catId}, ${sub.id}, ${v.id})">⋮</button>
+                            </div>`;
+                        }).join('')}
+                    </div>`}
+                </div>`;
+            }).join('');
+        }
 
-function closePage() {
-    document.getElementById('subsubPage').classList.remove('active');
-}
+        function openSubsubPage(catId, subId) {
+            if (dragMode) return;
+            
+            const sub = findSub(catId, subId);
+            if (!sub) return;
+            
+            if (document.getElementById('subsubPage').classList.contains('active')) return;
+            
+            document.getElementById('pageTitle').textContent = sub.name;
+            
+            const content = sub.verses.map((v, vIdx) => {
+                return `<div class="verse-item" data-cat-id="${catId}" data-sub-id="${sub.id}" data-verse-id="${v.id}" data-verse-index="${vIdx}">
+                    <div class="verse-content">
+                        <div style="flex:1;">
+                            <a href="https://wol.jw.org/fr/wol/binav/r30/lp-f?q=${encodeURIComponent(v.ref)}" class="verse-ref" target="_blank">${v.ref}</a>
+                            ${v.note ? `<div class="verse-note">${v.note}</div>` : ''}
+                        </div>
+                    </div>
+                    <button class="icon-btn ${readOnlyMode ? 'hidden' : ''}" onclick="event.stopPropagation(); showVerseMenu(event, ${catId}, ${sub.id}, ${v.id})">⋮</button>
+                </div>`;
+            }).join('');
+            
+            document.getElementById('pageContent').innerHTML = content || '<div class="empty-state"><p>Aucun verset</p></div>';
+            
+            setTimeout(() => {
+                document.getElementById('subsubPage').classList.add('active');
+            }, 50);
+        }
+
+        function closePage() {
+            document.getElementById('subsubPage').classList.remove('active');
+        }
 
         function showCatMenu(e, catId) {
             showMenu(e, [
@@ -633,71 +627,71 @@ function closePage() {
             showMenu(e, items);
         }
 
-        function showVerseMenu(e, catId, subId, verseId) {
-            showMenu(e, [
-                { label: dragMode ? '✓ Réorganiser' : 'Réorganiser', action: () => toggleDragMode() },
-                { label: 'Modifier', action: () => openEditVerseModal(catId, subId, verseId) },
-                { label: 'Supprimer', action: () => deleteVerse(catId, subId, verseId), danger: true }
-            ]);
+     function showVerseMenu(e, catId, subId, verseId) {
+    showMenu(e, [
+        { label: dragMode ? '✓ Réorganiser' : 'Réorganiser', action: () => toggleDragMode() },
+        { label: 'Modifier', action: () => openEditVerseModal(catId, subId, verseId) },
+        { label: 'Supprimer', action: () => deleteVerse(catId, subId, verseId), danger: true }
+    ]);
+}
+
+function render() {
+    const container = document.getElementById('categoriesContainer');
+    if (data.categories.length === 0) {
+        container.innerHTML = '';
+        document.getElementById('emptyState').style.display = 'block';
+        return;
+    }
+    document.getElementById('emptyState').style.display = 'none';
+    container.innerHTML = data.categories.map((cat, idx) => {
+        const hasMatch = matches(cat.name) || cat.subcategories.some(s => matches(s.name) || s.verses.some(v => matches(v.ref) || matches(v.note || '')));
+        if (!hasMatch && searchQuery) return '';
+        return `<div class="category-card" data-cat-index="${idx}" data-cat-id="${cat.id}">
+            <div class="category-header" onclick="if(!dragMode)toggleCat(${cat.id})">
+                <div class="category-title-wrapper">
+                    ${dragMode ? '<span class="drag-handle" draggable="true">☰</span>' : ''}
+                    <div class="category-title">${highlight(cat.name)}</div>
+                </div>
+                <div style="display:flex;align-items:center;gap:12px;">
+                    <button class="icon-btn ${readOnlyMode ? 'hidden' : ''}" onclick="event.stopPropagation(); showCatMenu(event, ${cat.id})">⋮</button>
+                    <span class="chevron">${cat.expanded ? '▼' : '▶'}</span>
+                </div>
+            </div>
+            <div class="category-content ${cat.expanded ? 'expanded' : ''}">
+                ${renderSubs(cat.subcategories, cat.id)}
+            </div>
+        </div>`;
+    }).join('');
+    
+    if (dragMode) setupDragDrop();
+}
+
+function openModal(id) { document.getElementById(id).classList.add('show'); }
+function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+
+function getSubcategoryByPath(catId, path) {
+    const cat = data.categories.find(c => c.id === catId);
+    if (!cat) return null;
+    
+    const indices = path.split('-').map(n => parseInt(n));
+    let current = cat.subcategories;
+    let parent = cat.subcategories;
+    
+    for (let i = 0; i < indices.length; i++) {
+        const idx = indices[i];
+        if (!current[idx]) return null;
+        
+        if (i === indices.length - 1) {
+            return { parent: parent, index: idx, item: current[idx] };
+        } else {
+            parent = current[idx].subcategories;
+            current = current[idx].subcategories;
         }
+    }
+    return null;
+}
 
-        function render() {
-            const container = document.getElementById('categoriesContainer');
-            if (data.categories.length === 0) {
-                container.innerHTML = '';
-                document.getElementById('emptyState').style.display = 'block';
-                return;
-            }
-            document.getElementById('emptyState').style.display = 'none';
-            container.innerHTML = data.categories.map((cat, idx) => {
-                const hasMatch = matches(cat.name) || cat.subcategories.some(s => matches(s.name) || s.verses.some(v => matches(v.ref) || matches(v.note || '')));
-                if (!hasMatch && searchQuery) return '';
-                return `<div class="category-card" data-cat-index="${idx}" data-cat-id="${cat.id}">
-                    <div class="category-header" onclick="if(!dragMode)toggleCat(${cat.id})">
-                        <div class="category-title-wrapper">
-                            ${dragMode ? '<span class="drag-handle" draggable="true">☰</span>' : ''}
-                            <div class="category-title">${highlight(cat.name)}</div>
-                        </div>
-                        <div style="display:flex;align-items:center;gap:12px;">
-                            <button class="icon-btn ${readOnlyMode ? 'hidden' : ''}" onclick="event.stopPropagation(); showCatMenu(event, ${cat.id})">⋮</button>
-                            <span class="chevron">${cat.expanded ? '▼' : '▶'}</span>
-                        </div>
-                    </div>
-                    <div class="category-content ${cat.expanded ? 'expanded' : ''}">
-                        ${renderSubs(cat.subcategories, cat.id)}
-                    </div>
-                </div>`;
-            }).join('');
-            
-            if (dragMode) setupDragDrop();
-        }
-
-        function openModal(id) { document.getElementById(id).classList.add('show'); }
-        function closeModal(id) { document.getElementById(id).classList.remove('show'); }
-
-        function getSubcategoryByPath(catId, path) {
-            const cat = data.categories.find(c => c.id === catId);
-            if (!cat) return null;
-            
-            const indices = path.split('-').map(n => parseInt(n));
-            let current = cat.subcategories;
-            let parent = cat.subcategories;
-            
-            for (let i = 0; i < indices.length; i++) {
-                const idx = indices[i];
-                if (!current[idx]) return null;
-                
-                if (i === indices.length - 1) {
-                    return { parent: parent, index: idx, item: current[idx] };
-                } else {
-                    parent = current[idx].subcategories;
-                    current = current[idx].subcategories;
-                }
-            }
-            return null;
-        }
-
-        function setupDragDrop() {
+function setupDragDrop() {
     let touchStartY = 0;
     let touchStartX = 0;
     let isDragging = false;
@@ -727,8 +721,8 @@ function closePage() {
         // Mobile touch events
         handle.addEventListener('touchstart', (e) => {
             if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
-    e.preventDefault();
-}
+                e.preventDefault();
+            }
             touchStartY = e.touches[0].clientY;
             touchStartX = e.touches[0].clientX;
             isDragging = true;
@@ -814,9 +808,9 @@ function closePage() {
         
         // Mobile touch events
         handle.addEventListener('touchstart', (e) => {
-        if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
-    e.preventDefault();
-}
+            if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+                e.preventDefault();
+            }
             touchStartY = e.touches[0].clientY;
             touchStartX = e.touches[0].clientX;
             isDragging = true;
@@ -1020,175 +1014,167 @@ function closePage() {
     });
 }
 
-        function addCategory() {
-            const name = document.getElementById('categoryName').value.trim();
-            if (!name) return;
-            data.categories.push({ id: Date.now(), name, expanded: true, subcategories: [] });
+function addCategory() {
+    const name = document.getElementById('categoryName').value.trim();
+    if (!name) return;
+    data.categories.push({ id: Date.now(), name, expanded: true, subcategories: [] });
+    saveData();
+    render();
+    closeModal('addCategoryModal');
+    document.getElementById('categoryName').value = '';
+}
+
+function openEditCatModal(catId) {
+    editItem = { type: 'cat', id: catId };
+    const cat = data.categories.find(c => c.id === catId);
+    document.getElementById('editCategoryName').value = cat.name;
+    openModal('editCategoryModal');
+}
+
+function saveEditCategory() {
+    const cat = data.categories.find(c => c.id === editItem.id);
+    if (cat) { cat.name = document.getElementById('editCategoryName').value.trim(); saveData(); render(); }
+    closeModal('editCategoryModal');
+}
+
+function openAddSubModal(catId, parentSubId = null) {
+    currentCat = catId;
+    currentSub = parentSubId;
+    document.getElementById('subcategoryName').value = '';
+    document.getElementById('subModalTitle').textContent = parentSubId ? 'Nouvelle Sous-sous-catégorie' : 'Nouvelle Sous-catégorie';
+    openModal('addSubcategoryModal');
+}
+
+function addSubcategory() {
+    const name = document.getElementById('subcategoryName').value.trim();
+    if (!name) return;
+    if (currentSub) {
+        const parentSub = findSub(currentCat, currentSub);
+        if (parentSub) {
+            if (!parentSub.subcategories) parentSub.subcategories = [];
+            parentSub.subcategories.push({ id: Date.now(), name, expanded: true, verses: [], subcategories: [] });
+        }
+    } else {
+        const cat = data.categories.find(c => c.id === currentCat);
+        if (cat) cat.subcategories.push({ id: Date.now(), name, expanded: true, verses: [], subcategories: [] });
+    }
+    saveData();
+    render();
+    closeModal('addSubcategoryModal');
+}
+
+function openEditSubModal(catId, subId) {
+    editItem = { type: 'sub', catId, id: subId };
+    const sub = findSub(catId, subId);
+    if (sub) {
+        document.getElementById('editSubcategoryName').value = sub.name;
+        openModal('editSubcategoryModal');
+    }
+}
+
+function saveEditSubcategory() {
+    const sub = findSub(editItem.catId, editItem.id);
+    if (sub) { sub.name = document.getElementById('editSubcategoryName').value.trim(); saveData(); render(); }
+    closeModal('editSubcategoryModal');
+}
+
+function openAddVerseModal(catId, subId) {
+    currentCat = catId;
+    currentSub = subId;
+    document.getElementById('verseRef').value = '';
+    document.getElementById('verseNote').value = '';
+    openModal('addVerseModal');
+}
+
+function addVerse() {
+    const ref = document.getElementById('verseRef').value.trim();
+    const note = document.getElementById('verseNote').value.trim();
+    if (!ref) return;
+    const sub = findSub(currentCat, currentSub);
+    if (sub) { sub.verses.push({ id: Date.now(), ref, note }); saveData(); render(); }
+    closeModal('addVerseModal');
+}
+
+function openEditVerseModal(catId, subId, verseId) {
+    editItem = { type: 'verse', catId, subId, id: verseId };
+    const sub = findSub(catId, subId);
+    if (sub) {
+        const verse = sub.verses.find(v => v.id === verseId);
+        if (verse) {
+            document.getElementById('editVerseRef').value = verse.ref;
+            document.getElementById('editVerseNote').value = verse.note || '';
+            openModal('editVerseModal');
+        }
+    }
+}
+
+function saveEditVerse() {
+    const sub = findSub(editItem.catId, editItem.subId);
+    if (sub) {
+        const verse = sub.verses.find(v => v.id === editItem.id);
+        if (verse) {
+            verse.ref = document.getElementById('editVerseRef').value.trim();
+            verse.note = document.getElementById('editVerseNote').value.trim();
             saveData();
             render();
-            closeModal('addCategoryModal');
-            document.getElementById('categoryName').value = '';
         }
+    }
+    closeModal('editVerseModal');
+}
 
-        function openEditCatModal(catId) {
-            editItem = { type: 'cat', id: catId };
-            const cat = data.categories.find(c => c.id === catId);
-            document.getElementById('editCategoryName').value = cat.name;
-            openModal('editCategoryModal');
-        }
+function deleteCat(catId) {
+    if (confirm('Supprimer cette catégorie ?')) {
+        data.categories = data.categories.filter(c => c.id !== catId);
+        saveData();
+        render();
+    }
+}
 
-        function saveEditCategory() {
-            const cat = data.categories.find(c => c.id === editItem.id);
-            if (cat) { cat.name = document.getElementById('editCategoryName').value.trim(); saveData(); render(); }
-            closeModal('editCategoryModal');
-        }
+function deleteSubRec(subs, subId) {
+    for (let i = 0; i < subs.length; i++) {
+        if (subs[i].id === subId) { subs.splice(i, 1); return true; }
+        if (subs[i].subcategories?.length > 0 && deleteSubRec(subs[i].subcategories, subId)) return true;
+    }
+    return false;
+}
 
-        function openAddSubModal(catId, parentSubId = null) {
-            currentCat = catId;
-            currentSub = parentSubId;
-            document.getElementById('subcategoryName').value = '';
-            document.getElementById('subModalTitle').textContent = parentSubId ? 'Nouvelle Sous-sous-catégorie' : 'Nouvelle Sous-catégorie';
-            openModal('addSubcategoryModal');
-        }
+function deleteSub(catId, subId) {
+    if (confirm('Supprimer cette sous-catégorie ?')) {
+        const cat = data.categories.find(c => c.id === catId);
+        if (cat) { deleteSubRec(cat.subcategories, subId); saveData(); render(); }
+    }
+}
 
-        function addSubcategory() {
-            const name = document.getElementById('subcategoryName').value.trim();
-            if (!name) return;
-            if (currentSub) {
-                const parentSub = findSub(currentCat, currentSub);
-                if (parentSub) {
-                    if (!parentSub.subcategories) parentSub.subcategories = [];
-                    parentSub.subcategories.push({ id: Date.now(), name, expanded: true, verses: [], subcategories: [] });
-                }
-            } else {
-                const cat = data.categories.find(c => c.id === currentCat);
-                if (cat) cat.subcategories.push({ id: Date.now(), name, expanded: true, verses: [], subcategories: [] });
-            }
-            saveData();
-            render();
-            closeModal('addSubcategoryModal');
-        }
+function deleteVerse(catId, subId, verseId) {
+    const sub = findSub(catId, subId);
+    if (sub) { sub.verses = sub.verses.filter(v => v.id !== verseId); saveData(); render(); }
+}
 
-        function openEditSubModal(catId, subId) {
-            editItem = { type: 'sub', catId, id: subId };
-            const sub = findSub(catId, subId);
-            if (sub) {
-                document.getElementById('editSubcategoryName').value = sub.name;
-                openModal('editSubcategoryModal');
-            }
-        }
+function exportData() {
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `index-biblique-${new Date().toISOString().split('T')[0]}.json`;
+    a.click();
+}
 
-        function saveEditSubcategory() {
-            const sub = findSub(editItem.catId, editItem.id);
-            if (sub) { sub.name = document.getElementById('editSubcategoryName').value.trim(); saveData(); render(); }
-            closeModal('editSubcategoryModal');
-        }
-
-        function openAddVerseModal(catId, subId) {
-            currentCat = catId;
-            currentSub = subId;
-            document.getElementById('verseRef').value = '';
-            document.getElementById('verseNote').value = '';
-            openModal('addVerseModal');
-        }
-
-        function addVerse() {
-            const ref = document.getElementById('verseRef').value.trim();
-            const note = document.getElementById('verseNote').value.trim();
-            if (!ref) return;
-            const sub = findSub(currentCat, currentSub);
-            if (sub) { sub.verses.push({ id: Date.now(), ref, note }); saveData(); render(); }
-            closeModal('addVerseModal');
-        }
-
-        function openEditVerseModal(catId, subId, verseId) {
-            editItem = { type: 'verse', catId, subId, id: verseId };
-            const sub = findSub(catId, subId);
-            if (sub) {
-                const verse = sub.verses.find(v => v.id === verseId);
-                if (verse) {
-                    document.getElementById('editVerseRef').value = verse.ref;
-                    document.getElementById('editVerseNote').value = verse.note || '';
-                    openModal('editVerseModal');
-                }
-            }
-        }
-
-        function saveEditVerse() {
-            const sub = findSub(editItem.catId, editItem.subId);
-            if (sub) {
-                const verse = sub.verses.find(v => v.id === editItem.id);
-                if (verse) {
-                    verse.ref = document.getElementById('editVerseRef').value.trim();
-                    verse.note = document.getElementById('editVerseNote').value.trim();
-                    saveData();
-                    render();
-                }
-            }
-            closeModal('editVerseModal');
-        }
-
-        function deleteCat(catId) {
-            if (confirm('Supprimer cette catégorie ?')) {
-                data.categories = data.categories.filter(c => c.id !== catId);
+function importData(e) {
+    const file = e.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+            try {
+                data = JSON.parse(ev.target.result);
                 saveData();
                 render();
+                alert('✅ Données importées avec succès !');
+            } catch (err) {
+                alert('❌ Erreur lors de l\'import');
             }
-        }
-
-        function deleteSubRec(subs, subId) {
-            for (let i = 0; i < subs.length; i++) {
-                if (subs[i].id === subId) { subs.splice(i, 1); return true; }
-                if (subs[i].subcategories?.length > 0 && deleteSubRec(subs[i].subcategories, subId)) return true;
-            }
-            return false;
-        }
-
-        function deleteSub(catId, subId) {
-            if (confirm('Supprimer cette sous-catégorie ?')) {
-                const cat = data.categories.find(c => c.id === catId);
-                if (cat) { deleteSubRec(cat.subcategories, subId); saveData(); render(); }
-            }
-        }
-
-        function deleteVerse(catId, subId, verseId) {
-            const sub = findSub(catId, subId);
-            if (sub) { sub.verses = sub.verses.filter(v => v.id !== verseId); saveData(); render(); }
-        }
-
-        function exportData() {
-            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
-            a.download = `index-biblique-${new Date().toISOString().split('T')[0]}.json`;
-            a.click();
-        }
-
-        
-        function importData(e) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (ev) => {
-                    try {
-                        data = JSON.parse(ev.target.result);
-                        saveData();
-                        render();
-                        alert('✅ Données importées avec succès !');
-                    } catch (err) {
-                        alert('❌ Erreur lors de l\'import');
-                    }
-                };
-                reader.readAsText(file);
-            }
-        }
+        };
+        reader.readAsText(file);
+    }
+}
     </script>
-    <div class="page-view" id="subsubPage">
-        <div class="page-header">
-            <button class="back-btn" onclick="closePage()">←</button>
-            <div class="page-title" id="pageTitle"></div>
-        </div>
-        <div class="page-content" id="pageContent"></div>
-    </div>
 </body>
 </html>
