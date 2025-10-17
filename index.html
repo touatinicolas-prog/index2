@@ -935,9 +935,9 @@ function closePage() {
         
         // Mobile touch events
         handle.addEventListener('touchstart', (e) => {
-    if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
-        e.preventDefault();
-    }
+            if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+                e.preventDefault();
+            }
             touchStartY = e.touches[0].clientY;
             touchStartX = e.touches[0].clientX;
             isDragging = true;
