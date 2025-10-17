@@ -17,53 +17,7 @@
   
     <title>Mon Index Biblique</title>
     <style>
-        .page-view {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: var(--bg-primary);
-    z-index: 200;
-    overflow-y: auto;
-}
-
-.page-view.active {
-    display: block;
-}
-
-.page-header {
-    background: var(--bg-secondary);
-    padding: 20px;
-    border-bottom: 1px solid var(--border);
-    position: sticky;
-    top: 0;
-    z-index: 201;
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
-
-.back-btn {
-    background: transparent;
-    border: none;
-    color: var(--accent);
-    font-size: 24px;
-    cursor: pointer;
-    padding: 0;
-    line-height: 1;
-}
-
-.page-title {
-    font-size: 20px;
-    font-weight: 600;
-    flex: 1;
-}
-
-.page-content {
-    padding: 20px;
-}
+      
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
             --bg-primary: #1a1a1a;
@@ -323,20 +277,7 @@
 }
     </style>
 </head>
-    <div class="page-view" id="subsubPage">
-    <div class="page-header">
-        <button class="back-btn" onclick="closePage()">←</button>
-        <div class="page-title" id="pageTitle"></div>
-    </div>
-    <div class="page-content" id="pageContent"></div>
-</div>
-    <div class="page-view" id="subsubPage">
-    <div class="page-header">
-        <button class="back-btn" onclick="closePage()">←</button>
-        <div class="page-title" id="pageTitle"></div>
-    </div>
-    <div class="page-content" id="pageContent"></div>
-</div>
+    
 <body>
     <div class="splash" id="splash">
     <div class="splash-icon">
@@ -596,7 +537,7 @@
             if (sub) { sub.expanded = !sub.expanded; render(); }
         }
 
-        ffunction renderSubs(subs, catId, level = 1, parentPath = '') {
+        function renderSubs(subs, catId, level = 1, parentPath = '') {
     return subs.map((sub, idx) => {
         const hasMatch = matches(sub.name) || sub.verses.some(v => matches(v.ref) || matches(v.note || ''));
         if (!hasMatch && searchQuery) return '';
@@ -875,7 +816,9 @@ function closePage() {
         
         // Mobile touch events
         handle.addEventListener('touchstart', (e) => {
-            e.preventDefault();
+        if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+    e.preventDefault();
+}
             touchStartY = e.touches[0].clientY;
             touchStartX = e.touches[0].clientX;
             isDragging = true;
@@ -992,8 +935,9 @@ function closePage() {
         
         // Mobile touch events
         handle.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            touchStartY = e.touches[0].clientY;
+    if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+        e.preventDefault();
+    }
             touchStartX = e.touches[0].clientX;
             isDragging = true;
             draggedItem = {
@@ -1266,5 +1210,12 @@ function closePage() {
             }
         }
     </script>
+    <div class="page-view" id="subsubPage">
+        <div class="page-header">
+            <button class="back-btn" onclick="closePage()">←</button>
+            <div class="page-title" id="pageTitle"></div>
+        </div>
+        <div class="page-content" id="pageContent"></div>
+    </div>
 </body>
 </html>
