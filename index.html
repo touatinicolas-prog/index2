@@ -145,7 +145,7 @@
             margin-bottom: 6px;
             font-size: 15px;
         }
-        .verse-note { color: var(--text-secondary); font-size: 14px; line-height: 1.5; }
+        .verse-note { color: var(--text-secondary); font-size: 14px; line-height: 1.5; white-space: pre-wrap; }
         .highlight { background-color: #7a5d00; color: #fff; padding: 2px 4px; border-radius: 2px; }
         .context-menu {
             position: fixed;
@@ -194,7 +194,30 @@
             color: var(--text-primary);
             font-size: 16px;
         }
-        .form-input:focus { outline: none; border-color: var(--accent); }
+        .form-input {
+    width: 100%;
+    padding: 12px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text-primary);
+    font-size: 16px;
+}
+.form-input:focus { outline: none; border-color: var(--accent); }
+.form-textarea {
+    width: 100%;
+    padding: 12px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text-primary);
+    font-size: 16px;
+    min-height: 120px;
+    resize: vertical;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+    line-height: 1.5;
+}
+.form-textarea:focus { outline: none; border-color: var(--accent); }
         .modal-buttons { display: flex; gap: 10px; margin-top: 24px; }
         .empty-state { text-align: center; padding: 60px 20px; color: var(--text-secondary); }
         .splash {
@@ -301,8 +324,10 @@
         <div class="modal-content">
             <div class="modal-title">Nouvelle Catégorie</div>
             <div class="form-group">
-                <label class="form-label">Nom</label>
+    <label class="form-label">Nom</label>
+    <label class="form-label">Note</label>
                 <input type="text" class="form-input" id="categoryName">
+    <textarea class="form-textarea" id="verseNote" placeholder="Ajoutez vos réflexions, commentaires..."></textarea>
             </div>
             <div class="modal-buttons">
                 <button class="btn btn-primary" onclick="addCategory()">Ajouter</button>
@@ -361,9 +386,9 @@
                 <input type="text" class="form-input" id="verseRef">
             </div>
             <div class="form-group">
-                <label class="form-label">Note</label>
-                <input type="text" class="form-input" id="verseNote">
-            </div>
+    <label class="form-label">Note</label>
+    <textarea class="form-textarea" id="verseNote" placeholder="Ajoutez vos réflexions, commentaires..."></textarea>
+</div>
             <div class="modal-buttons">
                 <button class="btn btn-primary" onclick="addVerse()">Ajouter</button>
                 <button class="btn btn-secondary" onclick="closeModal('addVerseModal')">Annuler</button>
@@ -379,9 +404,9 @@
                 <input type="text" class="form-input" id="editVerseRef">
             </div>
             <div class="form-group">
-                <label class="form-label">Note</label>
-                <input type="text" class="form-input" id="editVerseNote">
-            </div>
+    <label class="form-label">Note</label>
+    <textarea class="form-textarea" id="editVerseNote" placeholder="Ajoutez vos réflexions, commentaires..."></textarea>
+</div>
             <div class="modal-buttons">
                 <button class="btn btn-primary" onclick="saveEditVerse()">Enregistrer</button>
                 <button class="btn btn-secondary" onclick="closeModal('editVerseModal')">Annuler</button>
@@ -457,7 +482,7 @@
             render();
         }
 
-        function showMenu(e, items) {
+        ffunction showMenu(e, items) {
     e.preventDefault();
     e.stopPropagation();
     
