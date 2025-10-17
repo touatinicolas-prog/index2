@@ -17,6 +17,53 @@
   
     <title>Mon Index Biblique</title>
     <style>
+        .page-view {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--bg-primary);
+    z-index: 200;
+    overflow-y: auto;
+}
+
+.page-view.active {
+    display: block;
+}
+
+.page-header {
+    background: var(--bg-secondary);
+    padding: 20px;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 201;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.back-btn {
+    background: transparent;
+    border: none;
+    color: var(--accent);
+    font-size: 24px;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+}
+
+.page-title {
+    font-size: 20px;
+    font-weight: 600;
+    flex: 1;
+}
+
+.page-content {
+    padding: 20px;
+}
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
             --bg-primary: #1a1a1a;
@@ -283,6 +330,13 @@
     </div>
     <div class="page-content" id="pageContent"></div>
 </div>
+    <div class="page-view" id="subsubPage">
+    <div class="page-header">
+        <button class="back-btn" onclick="closePage()">←</button>
+        <div class="page-title" id="pageTitle"></div>
+    </div>
+    <div class="page-content" id="pageContent"></div>
+</div>
 <body>
     <div class="splash" id="splash">
     <div class="splash-icon">
@@ -542,7 +596,7 @@
             if (sub) { sub.expanded = !sub.expanded; render(); }
         }
 
-        function renderSubs(subs, catId, level = 1, parentPath = '') {
+        ffunction renderSubs(subs, catId, level = 1, parentPath = '') {
     return subs.map((sub, idx) => {
         const hasMatch = matches(sub.name) || sub.verses.some(v => matches(v.ref) || matches(v.note || ''));
         if (!hasMatch && searchQuery) return '';
@@ -550,11 +604,11 @@
         
         // Si niveau 2, ouvrir une page au lieu de déplier
         const onClickAction = level === 2 
-            ? `openSubsubPage(${catId}, ${sub.id})` 
+            ? `if(!dragMode)openSubsubPage(${catId}, ${sub.id})` 
             : `if(!dragMode)toggleSub(${catId}, ${sub.id})`;
         
         return `<div class="subcategory ${level === 2 ? 'level-2' : ''}" data-cat-id="${catId}" data-sub-id="${sub.id}" data-sub-path="${currentPath}" data-level="${level}">
-            <div class="subcategory-header" onclick="${onClickAction}">
+            <div class="subcategory-header" onclick="${onClickAction}" ontouchend="${onClickAction}">
                 <div class="subcategory-title-wrapper">
                     ${dragMode ? '<span class="drag-handle" draggable="true">☰</span>' : ''}
                     <div class="subcategory-title">${highlight(sub.name)}</div>
@@ -583,6 +637,41 @@
             </div>`}
         </div>`;
     }).join('');
+}
+
+        function openSubsubPage(catId, subId) {
+    if (dragMode) return;
+    
+    const sub = findSub(catId, subId);
+    if (!sub) return;
+    
+    // Empêcher les doubles clics
+    if (document.getElementById('subsubPage').classList.contains('active')) return;
+    
+    document.getElementById('pageTitle').textContent = sub.name;
+    
+    const content = sub.verses.map((v, vIdx) => {
+        return `<div class="verse-item" data-cat-id="${catId}" data-sub-id="${sub.id}" data-verse-id="${v.id}" data-verse-index="${vIdx}">
+            <div class="verse-content">
+                <div style="flex:1;">
+                    <a href="https://wol.jw.org/fr/wol/binav/r30/lp-f?q=${encodeURIComponent(v.ref)}" class="verse-ref" target="_blank">${v.ref}</a>
+                    ${v.note ? `<div class="verse-note">${v.note}</div>` : ''}
+                </div>
+            </div>
+            <button class="icon-btn ${readOnlyMode ? 'hidden' : ''}" onclick="event.stopPropagation(); showVerseMenu(event, ${catId}, ${sub.id}, ${v.id})">⋮</button>
+        </div>`;
+    }).join('');
+    
+    document.getElementById('pageContent').innerHTML = content || '<div class="empty-state"><p>Aucun verset</p></div>';
+    
+    // Petit délai pour éviter les conflits tactiles
+    setTimeout(() => {
+        document.getElementById('subsubPage').classList.add('active');
+    }, 50);
+}
+
+function closePage() {
+    document.getElementById('subsubPage').classList.remove('active');
 }
 
         function showCatMenu(e, catId) {
