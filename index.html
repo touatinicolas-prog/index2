@@ -458,44 +458,59 @@
         }
 
         function showMenu(e, items) {
-            e.preventDefault();
-            e.stopPropagation();
-            
+    e.preventDefault();
+    e.stopPropagation();
+    
+    closeContextMenu();
+    
+    const div = document.createElement('div');
+    div.className = 'context-menu';
+    
+    items.forEach(item => {
+        const itm = document.createElement('div');
+        itm.className = 'context-menu-item' + (item.danger ? ' danger' : '');
+        itm.textContent = item.label;
+        itm.onclick = (ev) => {
+            ev.stopPropagation();
             closeContextMenu();
-            
-            const div = document.createElement('div');
-            div.className = 'context-menu';
-            
-            items.forEach(item => {
-                const itm = document.createElement('div');
-                itm.className = 'context-menu-item' + (item.danger ? ' danger' : '');
-                itm.textContent = item.label;
-                itm.onclick = (ev) => {
-                    ev.stopPropagation();
-                    closeContextMenu();
-                    setTimeout(() => item.action(), 50);
-                };
-                div.appendChild(itm);
-            });
-            
-            document.body.appendChild(div);
-            
-            setTimeout(() => {
-                const rect = div.getBoundingClientRect();
-                const viewportHeight = window.innerHeight;
-                const viewportWidth = window.innerWidth;
-                
-                let x = e.pageX || (e.touches && e.touches[0].pageX) || 0;
-                let y = e.pageY || (e.touches && e.touches[0].pageY) || 0;
-                
-                let finalX = Math.max(10, Math.min(x, viewportWidth - rect.width - 10));
-                let finalY = y + rect.height > viewportHeight - 10 ? y - rect.height - 10 : y;
-                finalY = Math.max(10, finalY);
-                
-                div.style.left = finalX + 'px';
-                div.style.top = finalY + 'px';
-            }, 10);
+            setTimeout(() => item.action(), 50);
+        };
+        div.appendChild(itm);
+    });
+    
+    document.body.appendChild(div);
+    
+    setTimeout(() => {
+        const rect = div.getBoundingClientRect();
+        const viewportHeight = window.innerHeight;
+        const viewportWidth = window.innerWidth;
+        
+        // Obtenir la position du clic en coordonnées viewport
+        let x = e.clientX || (e.touches && e.touches[0].clientX) || 0;
+        let y = e.clientY || (e.touches && e.touches[0].clientY) || 0;
+        
+        // Calculer la position X (éviter le débordement à droite)
+        let finalX = x + 10;
+        if (finalX + rect.width > viewportWidth - 10) {
+            finalX = viewportWidth - rect.width - 10;
         }
+        finalX = Math.max(10, finalX);
+        
+        // Calculer la position Y (afficher au-dessus si pas assez d'espace en-dessous)
+        let finalY = y + 10;
+        if (finalY + rect.height > viewportHeight - 10) {
+            finalY = y - rect.height - 10;
+        }
+        // Si toujours pas assez d'espace, placer en haut de l'écran
+        if (finalY < 10) {
+            finalY = 10;
+        }
+        
+        // Utiliser position fixed avec clientX/Y au lieu de pageX/Y
+        div.style.left = finalX + 'px';
+        div.style.top = finalY + 'px';
+    }, 10);
+}
 
         function highlight(text) {
             if (!searchQuery || !text) return text;
