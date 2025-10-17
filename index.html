@@ -194,15 +194,6 @@
             color: var(--text-primary);
             font-size: 16px;
         }
-        .form-input {
-    width: 100%;
-    padding: 12px;
-    background: var(--bg-tertiary);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    color: var(--text-primary);
-    font-size: 16px;
-}
 .form-input:focus { outline: none; border-color: var(--accent); }
 .form-textarea {
     width: 100%;
@@ -325,10 +316,8 @@
             <div class="modal-title">Nouvelle Catégorie</div>
             <div class="form-group">
     <label class="form-label">Nom</label>
-    <label class="form-label">Note</label>
-                <input type="text" class="form-input" id="categoryName">
-    <textarea class="form-textarea" id="verseNote" placeholder="Ajoutez vos réflexions, commentaires..."></textarea>
-            </div>
+    <input type="text" class="form-input" id="categoryName">
+</div>
             <div class="modal-buttons">
                 <button class="btn btn-primary" onclick="addCategory()">Ajouter</button>
                 <button class="btn btn-secondary" onclick="closeModal('addCategoryModal')">Annuler</button>
@@ -482,7 +471,7 @@
             render();
         }
 
-        ffunction showMenu(e, items) {
+        function showMenu(e, items) {
     e.preventDefault();
     e.stopPropagation();
     
