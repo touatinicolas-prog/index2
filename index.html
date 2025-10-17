@@ -1165,33 +1165,7 @@ function closePage() {
             a.click();
         }
 
-        function openSubsubPage(catId, subId) {
-    if (dragMode) return;
-    
-    const sub = findSub(catId, subId);
-    if (!sub) return;
-    
-    document.getElementById('pageTitle').textContent = sub.name;
-    
-    const content = sub.verses.map((v, vIdx) => {
-        return `<div class="verse-item" data-cat-id="${catId}" data-sub-id="${sub.id}" data-verse-id="${v.id}" data-verse-index="${vIdx}">
-            <div class="verse-content">
-                <div style="flex:1;">
-                    <a href="https://wol.jw.org/fr/wol/binav/r30/lp-f?q=${encodeURIComponent(v.ref)}" class="verse-ref" target="_blank">${v.ref}</a>
-                    ${v.note ? `<div class="verse-note">${v.note}</div>` : ''}
-                </div>
-            </div>
-            <button class="icon-btn ${readOnlyMode ? 'hidden' : ''}" onclick="event.stopPropagation(); showVerseMenu(event, ${catId}, ${sub.id}, ${v.id})">⋮</button>
-        </div>`;
-    }).join('');
-    
-    document.getElementById('pageContent').innerHTML = content || '<div class="empty-state"><p>Aucun verset</p></div>';
-    document.getElementById('subsubPage').classList.add('active');
-}
-
-function closePage() {
-    document.getElementById('subsubPage').classList.remove('active');
-}
+        
         function importData(e) {
             const file = e.target.files[0];
             if (file) {
