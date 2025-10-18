@@ -554,9 +554,10 @@
                 <div style="margin: 12px 0 8px 0;">❌ <strong style="color: var(--text-primary);">NON</strong> - Remplacement total</div>
                 <div style="color: var(--text-secondary); font-size: 14px; margin-left: 24px;">Toutes vos données actuelles seront remplacées</div>
             </div>
-            <div class="modal-buttons">
-                <button class="btn btn-primary" onclick="confirmMerge(true)">Oui</button>
-                <button class="btn btn-secondary" onclick="confirmMerge(false)">Non</button>
+            <div class="modal-buttons" style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <button class="btn btn-primary" onclick="confirmMerge(true)" style="flex: 1; min-width: 80px;">Oui</button>
+                <button class="btn btn-secondary" onclick="confirmMerge(false)" style="flex: 1; min-width: 80px;">Non</button>
+                <button class="btn btn-secondary" onclick="cancelImport()" style="flex: 1; min-width: 80px;">Annuler</button>
             </div>
         </div>
     </div>
@@ -1441,6 +1442,12 @@ function confirmMerge(shouldMerge) {
     }
     
     pendingImportData = null;
+}
+
+function cancelImport() {
+    closeModal('mergeModal');
+    pendingImportData = null;
+    document.getElementById('importFile').value = ''; // Réinitialise le sélecteur de fichier
 }
 
 function mergeData(importedData) {
