@@ -726,9 +726,25 @@
         }
 
         function renderSubs(subs, catId, level = 1, parentPath = '') {
-            return subs.map((sub, idx) => {
-                const hasMatch = matches(sub.name) || sub.verses.some(v => matches(v.ref) || matches(v.note || ''));
-                if (!hasMatch && searchQuery) return '';
+    return subs.map((sub, idx) => {
+        // Fonction récursive pour vérifier les matches dans toute la hiérarchie
+        function hasMatchRecursive(subcategory) {
+            // Vérifier le nom de la sous-catégorie
+            if (matches(subcategory.name)) return true;
+            
+            // Vérifier les versets
+            if (subcategory.verses && subcategory.verses.some(v => matches(v.ref) || matches(v.note || ''))) return true;
+            
+            // Vérifier récursivement les sous-sous-catégories
+            if (subcategory.subcategories && subcategory.subcategories.length > 0) {
+                return subcategory.subcategories.some(s => hasMatchRecursive(s));
+            }
+            
+            return false;
+        }
+        
+        const hasMatch = hasMatchRecursive(sub);
+        if (!hasMatch && searchQuery) return '';
                 const currentPath = parentPath ? `${parentPath}-${idx}` : `${idx}`;
                 
                 const onClickAction = level === 2 
