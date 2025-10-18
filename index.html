@@ -542,6 +542,25 @@
         </div>
     </div>
 
+    <div class="modal" id="mergeModal">
+        <div class="modal-content">
+            <div class="modal-title">🔄 Synchronisation des données</div>
+            <p style="color: var(--text-secondary); line-height: 1.6; margin: 16px 0;">
+                Voulez-vous <strong style="color: var(--text-primary);">fusionner</strong> les données avec celles existantes ?
+            </p>
+            <div style="background: var(--bg-tertiary); padding: 12px; border-radius: 6px; margin: 16px 0;">
+                <div style="margin-bottom: 8px;">✅ <strong style="color: var(--text-primary);">OUI</strong> - Fusion intelligente (recommandé)</div>
+                <div style="color: var(--text-secondary); font-size: 14px; margin-left: 24px;">Vos données actuelles seront conservées et combinées avec le fichier importé</div>
+                <div style="margin: 12px 0 8px 0;">❌ <strong style="color: var(--text-primary);">NON</strong> - Remplacement total</div>
+                <div style="color: var(--text-secondary); font-size: 14px; margin-left: 24px;">Toutes vos données actuelles seront remplacées</div>
+            </div>
+            <div class="modal-buttons">
+                <button class="btn btn-primary" onclick="confirmMerge(true)">Oui</button>
+                <button class="btn btn-secondary" onclick="confirmMerge(false)">Non</button>
+            </div>
+        </div>
+    </div>
+    
     <div class="page-view" id="subsubPage">
         <div class="page-header">
             <button class="back-btn" onclick="closePage()">←</button>
@@ -1389,26 +1408,16 @@ function exportData() {
     a.click();
 }
 
+let pendingImportData = null;
+
 function importData(e) {
     const file = e.target.files[0];
     if (file) {
         const reader = new FileReader();
         reader.onload = (ev) => {
             try {
-                const importedData = JSON.parse(ev.target.result);
-                
-                // Demander à l'utilisateur s'il veut fusionner ou remplacer
-                const shouldMerge = confirm('🔄 Voulez-vous FUSIONNER les données avec celles existantes?\n\n✅ OUI = Fusion intelligente (recommandé)\n❌ NON = Remplacement total');
-                
-                if (shouldMerge) {
-                    mergeData(importedData);
-                    alert('✅ Données fusionnées avec succès !\n\nVos données existantes ont été conservées et combinées avec le fichier importé.');
-                } else {
-                    data = importedData;
-                    saveData();
-                    render();
-                    alert('✅ Données remplacées avec succès !');
-                }
+                pendingImportData = JSON.parse(ev.target.result);
+                openModal('mergeModal');
             } catch (err) {
                 alert('❌ Erreur lors de l\'import');
                 console.error(err);
@@ -1416,6 +1425,22 @@ function importData(e) {
         };
         reader.readAsText(file);
     }
+}
+
+function confirmMerge(shouldMerge) {
+    closeModal('mergeModal');
+    
+    if (shouldMerge) {
+        mergeData(pendingImportData);
+        alert('✅ Données fusionnées avec succès !\n\nVos données existantes ont été conservées et combinées avec le fichier importé.');
+    } else {
+        data = pendingImportData;
+        saveData();
+        render();
+        alert('✅ Données remplacées avec succès !');
+    }
+    
+    pendingImportData = null;
 }
 
 function mergeData(importedData) {
