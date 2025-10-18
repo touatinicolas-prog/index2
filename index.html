@@ -399,6 +399,32 @@
             flex: 1;
         }
         .page-content { padding: 20px; }
+        .formatting-toolbar {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 8px;
+            padding: 8px;
+            background: var(--bg-primary);
+            border-radius: 6px;
+            border: 1px solid var(--border);
+        }
+        .format-btn {
+            padding: 6px 12px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            color: var(--text-primary);
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+        .format-btn:hover {
+            background: var(--bg-secondary);
+        }
+        .format-btn:active {
+            background: var(--accent);
+        }
     </style>
 </head>
     
@@ -499,6 +525,11 @@
             </div>
             <div class="form-group">
     <label class="form-label">Note</label>
+    <div class="formatting-toolbar">
+        <button type="button" class="format-btn" onclick="formatText('verseNote', 'bold')" title="Gras"><strong>G</strong></button>
+        <button type="button" class="format-btn" onclick="formatText('verseNote', 'italic')" title="Italique"><em>I</em></button>
+        <button type="button" class="format-btn" onclick="formatText('verseNote', 'underline')" title="Souligné"><u>S</u></button>
+    </div>
     <textarea class="form-textarea" id="verseNote" placeholder="Ajoutez vos réflexions, commentaires..." onkeypress="if(event.key==='Enter'&&event.ctrlKey){addVerse()}"></textarea>
 </div>
             <div class="form-group">
@@ -525,6 +556,11 @@
             </div>
             <div class="form-group">
     <label class="form-label">Note</label>
+    <div class="formatting-toolbar">
+        <button type="button" class="format-btn" onclick="formatText('editVerseNote', 'bold')" title="Gras"><strong>G</strong></button>
+        <button type="button" class="format-btn" onclick="formatText('editVerseNote', 'italic')" title="Italique"><em>I</em></button>
+        <button type="button" class="format-btn" onclick="formatText('editVerseNote', 'underline')" title="Souligné"><u>S</u></button>
+    </div>
     <textarea class="form-textarea" id="editVerseNote" placeholder="Ajoutez vos réflexions, commentaires..." onkeypress="if(event.key==='Enter'&&event.ctrlKey){saveEditVerse()}"></textarea>
 </div>
             <div class="form-group">
@@ -772,7 +808,7 @@
                                     ${dragMode ? '<span class="drag-handle" draggable="true">☰</span>' : ''}
                                     <div style="flex:1;">
     <a href="https://wol.jw.org/fr/wol/binav/r30/lp-f?q=${encodeURIComponent(v.ref)}" class="verse-ref" target="_blank" onclick="if(dragMode){event.preventDefault();return false;}">${highlight(v.ref)}</a>
-    ${v.note ? `<div class="verse-note">${highlight(v.note)}</div>` : ''}
+    ${v.note ? `<div class="verse-note">${highlight(renderFormattedNote(v.note))}</div>` : ''}
     ${v.attachments && v.attachments.length > 0 ? `<div class="verse-attachments">${v.attachments.map((att, attIdx) => {
         if (att.type === 'application/pdf') {
             return `<div class="attachment-pdf" onclick="window.open('${att.data}', '_blank')">📄</div>`;
@@ -805,7 +841,7 @@
                     <div class="verse-content">
                         <div style="flex:1;">
     <a href="https://wol.jw.org/fr/wol/binav/r30/lp-f?q=${encodeURIComponent(v.ref)}" class="verse-ref" target="_blank">${v.ref}</a>
-    ${v.note ? `<div class="verse-note">${v.note}</div>` : ''}
+   ${v.note ? `<div class="verse-note">${renderFormattedNote(v.note)}</div>` : ''}
     ${v.attachments && v.attachments.length > 0 ? `<div class="verse-attachments">${v.attachments.map((att, attIdx) => {
         if (att.type === 'application/pdf') {
             return `<div class="attachment-pdf" onclick="window.open('${att.data}', '_blank')">📄</div>`;
@@ -1638,6 +1674,47 @@ function openImageViewer(src) {
 
 function closeImageViewer() {
     document.getElementById('imageViewer').classList.remove('show');
+}
+        function formatText(textareaId, format) {
+    const textarea = document.getElementById(textareaId);
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const selectedText = textarea.value.substring(start, end);
+    
+    if (!selectedText) {
+        alert('Veuillez d\'abord sélectionner du texte à formater');
+        return;
+    }
+    
+    let formattedText = '';
+    
+    switch(format) {
+        case 'bold':
+            formattedText = `**${selectedText}**`;
+            break;
+        case 'italic':
+            formattedText = `*${selectedText}*`;
+            break;
+        case 'underline':
+            formattedText = `__${selectedText}__`;
+            break;
+    }
+    
+    textarea.value = textarea.value.substring(0, start) + formattedText + textarea.value.substring(end);
+    textarea.focus();
+    textarea.setSelectionRange(start, start + formattedText.length);
+}
+
+function renderFormattedNote(note) {
+    if (!note) return '';
+    
+    // Convertir le markdown en HTML
+    let formatted = note
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')  // Gras
+        .replace(/\*(.*?)\*/g, '<em>$1</em>')              // Italique
+        .replace(/__(.*?)__/g, '<u>$1</u>');               // Souligné
+    
+    return formatted;
 }
     </script>
 </body>
