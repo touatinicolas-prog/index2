@@ -146,6 +146,129 @@
             font-size: 15px;
         }
         .verse-note { color: var(--text-secondary); font-size: 14px; line-height: 1.5; white-space: pre-wrap; }
+        .verse-attachments {
+    margin-top: 10px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+.attachment-thumb {
+    width: 80px;
+    height: 80px;
+    border-radius: 6px;
+    object-fit: cover;
+    cursor: pointer;
+    border: 2px solid var(--border);
+    transition: border-color 0.2s;
+}
+.attachment-thumb:hover {
+    border-color: var(--accent);
+}
+.attachment-pdf {
+    width: 80px;
+    height: 80px;
+    border-radius: 6px;
+    background: var(--bg-tertiary);
+    border: 2px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    cursor: pointer;
+    transition: border-color 0.2s;
+}
+.attachment-pdf:hover {
+    border-color: var(--accent);
+}
+.file-input-wrapper {
+    margin-top: 8px;
+}
+.file-input-label {
+    display: inline-block;
+    padding: 8px 16px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    color: var(--text-primary);
+    transition: background 0.2s;
+}
+.file-input-label:hover {
+    background: var(--bg-primary);
+}
+.attached-files-list {
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.attached-file-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px;
+    background: var(--bg-primary);
+    border-radius: 6px;
+}
+.attached-file-preview {
+    width: 50px;
+    height: 50px;
+    border-radius: 4px;
+    object-fit: cover;
+}
+.attached-file-info {
+    flex: 1;
+    font-size: 14px;
+    color: var(--text-secondary);
+}
+.attached-file-name {
+    color: var(--text-primary);
+    font-weight: 500;
+}
+.remove-file-btn {
+    background: transparent;
+    border: none;
+    color: #e74c3c;
+    cursor: pointer;
+    font-size: 18px;
+    padding: 4px;
+}
+.image-viewer-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.95);
+    z-index: 2000;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+.image-viewer-modal.show { display: flex; }
+.image-viewer-content {
+    max-width: 90%;
+    max-height: 90%;
+    object-fit: contain;
+}
+.image-viewer-close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: var(--bg-secondary);
+    border: none;
+    color: var(--text-primary);
+    font-size: 32px;
+    cursor: pointer;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
         .highlight { background-color: #7a5d00; color: #fff; padding: 2px 4px; border-radius: 2px; }
         .context-menu {
             position: fixed;
@@ -378,6 +501,14 @@
     <label class="form-label">Note</label>
     <textarea class="form-textarea" id="verseNote" placeholder="Ajoutez vos réflexions, commentaires..." onkeypress="if(event.key==='Enter'&&event.ctrlKey){addVerse()}"></textarea>
 </div>
+            <div class="form-group">
+    <label class="form-label">Fichiers (images, PDF)</label>
+    <div class="file-input-wrapper">
+        <label class="file-input-label" for="verseFiles">📎 Ajouter des fichiers</label>
+        <input type="file" id="verseFiles" accept="image/*,application/pdf" multiple style="display:none" onchange="handleFileSelect(event, 'add')">
+    </div>
+    <div id="addFilesPreview" class="attached-files-list"></div>
+</div>
             <div class="modal-buttons">
                 <button class="btn btn-primary" onclick="addVerse()">Ajouter</button>
                 <button class="btn btn-secondary" onclick="closeModal('addVerseModal')">Annuler</button>
@@ -396,6 +527,14 @@
     <label class="form-label">Note</label>
     <textarea class="form-textarea" id="editVerseNote" placeholder="Ajoutez vos réflexions, commentaires..." onkeypress="if(event.key==='Enter'&&event.ctrlKey){saveEditVerse()}"></textarea>
 </div>
+            <div class="form-group">
+    <label class="form-label">Fichiers (images, PDF)</label>
+    <div class="file-input-wrapper">
+        <label class="file-input-label" for="editVerseFiles">📎 Ajouter des fichiers</label>
+        <input type="file" id="editVerseFiles" accept="image/*,application/pdf" multiple style="display:none" onchange="handleFileSelect(event, 'edit')">
+    </div>
+    <div id="editFilesPreview" class="attached-files-list"></div>
+</div>
             <div class="modal-buttons">
                 <button class="btn btn-primary" onclick="saveEditVerse()">Enregistrer</button>
                 <button class="btn btn-secondary" onclick="closeModal('editVerseModal')">Annuler</button>
@@ -410,12 +549,17 @@
         </div>
         <div class="page-content" id="pageContent"></div>
     </div>
+        <div class="image-viewer-modal" id="imageViewer" onclick="closeImageViewer()">
+    <button class="image-viewer-close" onclick="closeImageViewer()">×</button>
+    <img id="imageViewerContent" class="image-viewer-content" src="" alt="Image">
+</div>
 
     <script>
         const STORAGE_KEY = 'monIndexBiblique';
-        let data = {categories: [{id: 1, name: 'Foi et Confiance', expanded: true, subcategories: [{id: 11, name: 'Renforcer sa foi', expanded: true, verses: [{id: 111, ref: 'Hébreux 11:1', note: 'Définition de la foi'}], subcategories: []}]}]};
+        let data = {categories: [{id: 1, name: 'Foi et Confiance', expanded: true, subcategories: [{id: 11, name: 'Renforcer sa foi', expanded: true, verses: [{id: 111, ref: 'Hébreux 11:1', note: 'Définition de la foi', attachments: []}], subcategories: []}]}]};
         let currentCat = null, currentSub = null, editItem = null, searchQuery = '', readOnlyMode = false;
         let dragMode = false, draggedItem = null;
+        let tempAttachments = [];
 
         function loadData() {
             try {
@@ -591,9 +735,16 @@
                                 <div class="verse-content">
                                     ${dragMode ? '<span class="drag-handle" draggable="true">☰</span>' : ''}
                                     <div style="flex:1;">
-                                        <a href="https://wol.jw.org/fr/wol/binav/r30/lp-f?q=${encodeURIComponent(v.ref)}" class="verse-ref" target="_blank" onclick="if(dragMode){event.preventDefault();return false;}">${highlight(v.ref)}</a>
-                                        ${v.note ? `<div class="verse-note">${highlight(v.note)}</div>` : ''}
-                                    </div>
+    <a href="https://wol.jw.org/fr/wol/binav/r30/lp-f?q=${encodeURIComponent(v.ref)}" class="verse-ref" target="_blank" onclick="if(dragMode){event.preventDefault();return false;}">${highlight(v.ref)}</a>
+    ${v.note ? `<div class="verse-note">${highlight(v.note)}</div>` : ''}
+    ${v.attachments && v.attachments.length > 0 ? `<div class="verse-attachments">${v.attachments.map((att, attIdx) => {
+        if (att.type === 'application/pdf') {
+            return `<div class="attachment-pdf" onclick="window.open('${att.data}', '_blank')">📄</div>`;
+        } else {
+            return `<img src="${att.data}" class="attachment-thumb" onclick="openImageViewer('${att.data}')" alt="Attachment ${attIdx + 1}">`;
+        }
+    }).join('')}</div>` : ''}
+</div>
                                 </div>
                                 <button class="icon-btn ${readOnlyMode ? 'hidden' : ''}" onclick="event.stopPropagation(); showVerseMenu(event, ${catId}, ${sub.id}, ${v.id})">⋮</button>
                             </div>`;
@@ -617,9 +768,16 @@
                 return `<div class="verse-item" data-cat-id="${catId}" data-sub-id="${sub.id}" data-verse-id="${v.id}" data-verse-index="${vIdx}">
                     <div class="verse-content">
                         <div style="flex:1;">
-                            <a href="https://wol.jw.org/fr/wol/binav/r30/lp-f?q=${encodeURIComponent(v.ref)}" class="verse-ref" target="_blank">${v.ref}</a>
-                            ${v.note ? `<div class="verse-note">${v.note}</div>` : ''}
-                        </div>
+    <a href="https://wol.jw.org/fr/wol/binav/r30/lp-f?q=${encodeURIComponent(v.ref)}" class="verse-ref" target="_blank">${v.ref}</a>
+    ${v.note ? `<div class="verse-note">${v.note}</div>` : ''}
+    ${v.attachments && v.attachments.length > 0 ? `<div class="verse-attachments">${v.attachments.map((att, attIdx) => {
+        if (att.type === 'application/pdf') {
+            return `<div class="attachment-pdf" onclick="window.open('${att.data}', '_blank')">📄</div>`;
+        } else {
+            return `<img src="${att.data}" class="attachment-thumb" onclick="openImageViewer('${att.data}')" alt="Attachment ${attIdx + 1}">`;
+        }
+    }).join('')}</div>` : ''}
+</div>
                     </div>
                     <button class="icon-btn ${readOnlyMode ? 'hidden' : ''}" onclick="event.stopPropagation(); showVerseMenu(event, ${catId}, ${sub.id}, ${v.id})">⋮</button>
                 </div>`;
@@ -1120,6 +1278,9 @@ function openAddVerseModal(catId, subId) {
     currentSub = subId;
     document.getElementById('verseRef').value = '';
     document.getElementById('verseNote').value = '';
+    document.getElementById('verseFiles').value = '';
+    document.getElementById('addFilesPreview').innerHTML = '';
+    tempAttachments = [];
     openModal('addVerseModal');
 }
 
@@ -1128,8 +1289,18 @@ function addVerse() {
     const note = document.getElementById('verseNote').value.trim();
     if (!ref) return;
     const sub = findSub(currentCat, currentSub);
-    if (sub) { sub.verses.push({ id: Date.now(), ref, note }); saveData(); render(); }
+    if (sub) { 
+        sub.verses.push({ 
+            id: Date.now(), 
+            ref, 
+            note, 
+            attachments: [...tempAttachments] 
+        }); 
+        saveData(); 
+        render(); 
+    }
     closeModal('addVerseModal');
+    tempAttachments = [];
 }
 
 function openEditVerseModal(catId, subId, verseId) {
@@ -1140,6 +1311,9 @@ function openEditVerseModal(catId, subId, verseId) {
         if (verse) {
             document.getElementById('editVerseRef').value = verse.ref;
             document.getElementById('editVerseNote').value = verse.note || '';
+            document.getElementById('editVerseFiles').value = '';
+            tempAttachments = verse.attachments ? [...verse.attachments] : [];
+            displayEditAttachments();
             openModal('editVerseModal');
         }
     }
@@ -1152,11 +1326,13 @@ function saveEditVerse() {
         if (verse) {
             verse.ref = document.getElementById('editVerseRef').value.trim();
             verse.note = document.getElementById('editVerseNote').value.trim();
+            verse.attachments = [...tempAttachments];
             saveData();
             render();
         }
     }
     closeModal('editVerseModal');
+    tempAttachments = [];
 }
 
 function deleteCat(catId) {
@@ -1211,6 +1387,80 @@ function importData(e) {
         };
         reader.readAsText(file);
     }
+}
+        function handleFileSelect(event, mode) {
+    const files = event.target.files;
+    if (!files.length) return;
+    
+    Array.from(files).forEach(file => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const attachment = {
+                name: file.name,
+                type: file.type,
+                data: e.target.result
+            };
+            tempAttachments.push(attachment);
+            if (mode === 'add') {
+                displayAddAttachments();
+            } else {
+                displayEditAttachments();
+            }
+        };
+        reader.readAsDataURL(file);
+    });
+}
+
+function displayAddAttachments() {
+    const container = document.getElementById('addFilesPreview');
+    container.innerHTML = tempAttachments.map((att, idx) => {
+        const isImage = att.type.startsWith('image/');
+        const isPdf = att.type === 'application/pdf';
+        return `<div class="attached-file-item">
+            ${isImage ? `<img src="${att.data}" class="attached-file-preview" alt="${att.name}">` : 
+              isPdf ? `<div class="attached-file-preview" style="background: var(--bg-tertiary); display: flex; align-items: center; justify-content: center; font-size: 20px;">📄</div>` : ''}
+            <div class="attached-file-info">
+                <div class="attached-file-name">${att.name}</div>
+                <div>${(att.data.length / 1024).toFixed(1)} KB</div>
+            </div>
+            <button class="remove-file-btn" onclick="removeAttachment(${idx}, 'add')">×</button>
+        </div>`;
+    }).join('');
+}
+
+function displayEditAttachments() {
+    const container = document.getElementById('editFilesPreview');
+    container.innerHTML = tempAttachments.map((att, idx) => {
+        const isImage = att.type.startsWith('image/');
+        const isPdf = att.type === 'application/pdf';
+        return `<div class="attached-file-item">
+            ${isImage ? `<img src="${att.data}" class="attached-file-preview" alt="${att.name}">` : 
+              isPdf ? `<div class="attached-file-preview" style="background: var(--bg-tertiary); display: flex; align-items: center; justify-content: center; font-size: 20px;">📄</div>` : ''}
+            <div class="attached-file-info">
+                <div class="attached-file-name">${att.name}</div>
+                <div>${(att.data.length / 1024).toFixed(1)} KB</div>
+            </div>
+            <button class="remove-file-btn" onclick="removeAttachment(${idx}, 'edit')">×</button>
+        </div>`;
+    }).join('');
+}
+
+function removeAttachment(index, mode) {
+    tempAttachments.splice(index, 1);
+    if (mode === 'add') {
+        displayAddAttachments();
+    } else {
+        displayEditAttachments();
+    }
+}
+
+function openImageViewer(src) {
+    document.getElementById('imageViewerContent').src = src;
+    document.getElementById('imageViewer').classList.add('show');
+}
+
+function closeImageViewer() {
+    document.getElementById('imageViewer').classList.remove('show');
 }
     </script>
 </body>
