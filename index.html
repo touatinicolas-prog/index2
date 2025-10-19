@@ -1951,19 +1951,19 @@ document.addEventListener('DOMContentLoaded', () => {
         function openBibleVerse(ref) {
     const jwLibraryUrl = `jwlibrary:///finder?bible=${encodeURIComponent(ref)}`;
     
-    // Créer un lien temporaire et le cliquer
-    const link = document.createElement('a');
-    link.href = jwLibraryUrl;
-    link.style.display = 'none';
-    document.body.appendChild(link);
+    // Méthode 1: Essayer d'ouvrir dans un nouvel onglet qui se ferme automatiquement
+    const newWindow = window.open(jwLibraryUrl, '_blank');
     
-    // Simuler un clic sur le lien
-    link.click();
-    
-    // Supprimer le lien après un court délai
+    // Si l'ouverture échoue ou l'app ne s'ouvre pas, fermer la fenêtre
     setTimeout(() => {
-        document.body.removeChild(link);
-    }, 100);
+        if (newWindow && !newWindow.closed) {
+            try {
+                newWindow.close();
+            } catch (e) {
+                // Impossible de fermer, ce n'est pas grave
+            }
+        }
+    }, 500);
 }
 
 function renderFormattedNote(note) {
