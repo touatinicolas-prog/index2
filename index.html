@@ -1505,18 +1505,33 @@ function confirmMerge(shouldMerge) {
     
     if (shouldMerge) {
         mergeData(pendingImportData);
-        saveData(); // Sauvegarde explicite après fusion
-        render();
-        alert('✅ Données fusionnées avec succès !\n\nVos données existantes ont été conservées et combinées avec le fichier importé.');
     } else {
         data = pendingImportData;
-        saveData();
-        render();
-        alert('✅ Données remplacées avec succès !');
+    }
+    
+    // Sauvegarder dans tous les cas
+    try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        console.log('✅ Données sauvegardées:', data);
+    } catch (err) {
+        console.error('❌ Erreur de sauvegarde:', err);
+        alert('❌ Erreur lors de la sauvegarde des données');
+    }
+    
+    render();
+    
+    // Vérifier que la sauvegarde a bien fonctionné
+    const verification = localStorage.getItem(STORAGE_KEY);
+    if (verification) {
+        alert(shouldMerge ? 
+            '✅ Données fusionnées et sauvegardées avec succès !\n\nVos données existantes ont été conservées et combinées avec le fichier importé.' : 
+            '✅ Données remplacées et sauvegardées avec succès !');
+    } else {
+        alert('⚠️ Attention : Les données n\'ont pas pu être sauvegardées. Veuillez réessayer.');
     }
     
     pendingImportData = null;
-    document.getElementById('importFile').value = ''; // Réinitialise le sélecteur de fichier
+    document.getElementById('importFile').value = '';
 }
 
 function cancelImport() {
@@ -1540,9 +1555,6 @@ function mergeData(importedData) {
             data.categories.push(importedCat);
         }
     });
-    
-    saveData();
-    render();
 }
 
 function mergeCategoryData(existing, imported) {
