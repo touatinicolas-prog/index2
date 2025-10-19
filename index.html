@@ -462,6 +462,7 @@
         <div class="controls" id="controls">
             <button class="btn btn-primary" onclick="openModal('addCategoryModal')">+ Catégorie</button>
             <button class="btn btn-success" onclick="exportData()">Exporter</button>
+            <button class="btn btn-secondary" onclick="checkStorageSize()">📊 Taille</button>
             <button class="btn btn-info" onclick="document.getElementById('importFile').click()">Importer</button>
             <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
         </div>
@@ -1481,6 +1482,66 @@ function exportData() {
     a.click();
 }
 
+        function checkStorageSize() {
+    try {
+        const jsonString = JSON.stringify(data);
+        const sizeInBytes = jsonString.length;
+        const sizeInKB = (sizeInBytes / 1024).toFixed(2);
+        const sizeInMB = (sizeInBytes / 1024 / 1024).toFixed(2);
+        const percentUsed = ((sizeInBytes / (5 * 1024 * 1024)) * 100).toFixed(1);
+        
+        // Fonction récursive pour compter les fichiers
+        function countFilesRecursive(subcategories) {
+            let imgCount = 0;
+            let pdfCountLocal = 0;
+            
+            subcategories.forEach(sub => {
+                // Compter dans les versets de cette sous-catégorie
+                if (sub.verses) {
+                    sub.verses.forEach(v => {
+                        if (v.attachments) {
+                            v.attachments.forEach(att => {
+                                if (att.type.startsWith('image/')) imgCount++;
+                                if (att.type === 'application/pdf') pdfCountLocal++;
+                            });
+                        }
+                    });
+                }
+                // Récursion pour les sous-sous-catégories
+                if (sub.subcategories && sub.subcategories.length > 0) {
+                    const subCounts = countFilesRecursive(sub.subcategories);
+                    imgCount += subCounts.images;
+                    pdfCountLocal += subCounts.pdfs;
+                }
+            });
+            
+            return { images: imgCount, pdfs: pdfCountLocal };
+        }
+        
+        // Compter tous les fichiers
+        let imageCount = 0;
+        let pdfCount = 0;
+        
+        data.categories.forEach(cat => {
+            const counts = countFilesRecursive(cat.subcategories);
+            imageCount += counts.images;
+            pdfCount += counts.pdfs;
+        });
+        
+        alert(`📊 INFORMATIONS DE STOCKAGE\n\n` +
+              `Taille: ${sizeInKB} KB (${sizeInMB} MB)\n` +
+              `Utilisation: ${percentUsed}% de la limite\n` +
+              `Limite navigateur: ~5 MB\n\n` +
+              `📎 Fichiers attachés:\n` +
+              `Images: ${imageCount}\n` +
+              `PDF: ${pdfCount}\n\n` +
+              `${percentUsed > 80 ? '⚠️ ATTENTION: Proche de la limite !' : '✅ Espace suffisant'}`);
+    } catch (err) {
+        alert('❌ Erreur lors du calcul de la taille');
+        console.error(err);
+    }
+}
+        
 let pendingImportData = null;
 
 function importData(e) {
@@ -1505,41 +1566,62 @@ function confirmMerge(shouldMerge) {
     
     try {
         if (shouldMerge) {
-            // Fusionner les données
             mergeData(pendingImportData);
-            console.log('Fusion terminée, données actuelles:', data);
+            console.log('Fusion terminée');
         } else {
-            // Remplacer complètement
-            data = JSON.parse(JSON.stringify(pendingImportData)); // Clone profond
-            console.log('Remplacement terminé, données actuelles:', data);
+            data = JSON.parse(JSON.stringify(pendingImportData));
+            console.log('Remplacement terminé');
         }
         
-        // Forcer la sauvegarde immédiate
+        // Calculer la taille des données
         const jsonString = JSON.stringify(data);
-        localStorage.setItem(STORAGE_KEY, jsonString);
-        console.log('✅ Sauvegarde dans localStorage effectuée');
+        const sizeInMB = (jsonString.length / 1024 / 1024).toFixed(2);
+        console.log(`Taille des données: ${sizeInMB} MB`);
         
-        // Vérification immédiate
-        const verification = localStorage.getItem(STORAGE_KEY);
-        console.log('Vérification localStorage:', verification ? 'OK' : 'ÉCHEC');
-        
-        if (!verification) {
-            throw new Error('La sauvegarde a échoué');
+        // Vérifier si la taille est raisonnable (< 4 MB pour être sûr)
+        if (jsonString.length > 4 * 1024 * 1024) {
+            throw new Error(`Les données sont trop volumineuses (${sizeInMB} MB). La limite du navigateur est d'environ 5 MB.\n\nConseil: Réduisez le nombre d'images ou leur qualité.`);
         }
         
-        // Recharger depuis le localStorage pour être sûr
-        data = JSON.parse(verification);
+        // Tenter la sauvegarde
+        localStorage.setItem(STORAGE_KEY, jsonString);
+        console.log('✅ Sauvegarde réussie');
         
-        // Mettre à jour l'affichage
+        // Vérification
+        const verification = localStorage.getItem(STORAGE_KEY);
+        if (!verification) {
+            throw new Error('La sauvegarde a échoué - vérification impossible');
+        }
+        
+        // Recharger depuis le localStorage
+        data = JSON.parse(verification);
         render();
         
         alert(shouldMerge ? 
-            '✅ Données fusionnées et sauvegardées avec succès !' : 
-            '✅ Données remplacées et sauvegardées avec succès !');
+            `✅ Données fusionnées avec succès !\n\nTaille: ${sizeInMB} MB` : 
+            `✅ Données remplacées avec succès !\n\nTaille: ${sizeInMB} MB`);
             
     } catch (err) {
-        console.error('❌ Erreur complète:', err);
-        alert('❌ Erreur lors de l\'import : ' + err.message);
+        console.error('❌ Erreur:', err);
+        
+        // Message spécifique pour quota dépassé
+        if (err.name === 'QuotaExceededError' || err.message.includes('quota')) {
+            const sizeInMB = (JSON.stringify(data).length / 1024 / 1024).toFixed(2);
+            alert(`❌ QUOTA DÉPASSÉ !\n\nVos données (${sizeInMB} MB) dépassent la limite du navigateur (~5 MB).\n\n💡 Solutions:\n1. Réduisez le nombre d'images attachées\n2. Compressez vos images avant de les ajouter\n3. Utilisez moins de fichiers PDF\n4. Exportez régulièrement vos données en plusieurs fichiers`);
+        } else {
+            alert('❌ Erreur lors de l\'import:\n\n' + err.message);
+        }
+        
+        // Restaurer les données précédentes
+        try {
+            const oldData = localStorage.getItem(STORAGE_KEY);
+            if (oldData) {
+                data = JSON.parse(oldData);
+                render();
+            }
+        } catch (restoreErr) {
+            console.error('Impossible de restaurer les anciennes données');
+        }
     }
     
     pendingImportData = null;
