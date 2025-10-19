@@ -1503,31 +1503,43 @@ function importData(e) {
 function confirmMerge(shouldMerge) {
     closeModal('mergeModal');
     
-    if (shouldMerge) {
-        mergeData(pendingImportData);
-    } else {
-        data = pendingImportData;
-    }
-    
-    // Sauvegarder dans tous les cas
     try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-        console.log('✅ Données sauvegardées:', data);
-    } catch (err) {
-        console.error('❌ Erreur de sauvegarde:', err);
-        alert('❌ Erreur lors de la sauvegarde des données');
-    }
-    
-    render();
-    
-    // Vérifier que la sauvegarde a bien fonctionné
-    const verification = localStorage.getItem(STORAGE_KEY);
-    if (verification) {
+        if (shouldMerge) {
+            // Fusionner les données
+            mergeData(pendingImportData);
+            console.log('Fusion terminée, données actuelles:', data);
+        } else {
+            // Remplacer complètement
+            data = JSON.parse(JSON.stringify(pendingImportData)); // Clone profond
+            console.log('Remplacement terminé, données actuelles:', data);
+        }
+        
+        // Forcer la sauvegarde immédiate
+        const jsonString = JSON.stringify(data);
+        localStorage.setItem(STORAGE_KEY, jsonString);
+        console.log('✅ Sauvegarde dans localStorage effectuée');
+        
+        // Vérification immédiate
+        const verification = localStorage.getItem(STORAGE_KEY);
+        console.log('Vérification localStorage:', verification ? 'OK' : 'ÉCHEC');
+        
+        if (!verification) {
+            throw new Error('La sauvegarde a échoué');
+        }
+        
+        // Recharger depuis le localStorage pour être sûr
+        data = JSON.parse(verification);
+        
+        // Mettre à jour l'affichage
+        render();
+        
         alert(shouldMerge ? 
-            '✅ Données fusionnées et sauvegardées avec succès !\n\nVos données existantes ont été conservées et combinées avec le fichier importé.' : 
+            '✅ Données fusionnées et sauvegardées avec succès !' : 
             '✅ Données remplacées et sauvegardées avec succès !');
-    } else {
-        alert('⚠️ Attention : Les données n\'ont pas pu être sauvegardées. Veuillez réessayer.');
+            
+    } catch (err) {
+        console.error('❌ Erreur complète:', err);
+        alert('❌ Erreur lors de l\'import : ' + err.message);
     }
     
     pendingImportData = null;
