@@ -1951,22 +1951,15 @@ document.addEventListener('DOMContentLoaded', () => {
         function openBibleVerse(ref) {
     const jwLibraryUrl = `jwlibrary:///finder?bible=${encodeURIComponent(ref)}`;
     
-    // Créer un événement de clic simulé
-    const event = new MouseEvent('click', {
-        view: window,
-        bubbles: true,
-        cancelable: true
-    });
-    
-    const link = document.createElement('a');
-    link.href = jwLibraryUrl;
-    link.target = '_system'; // Ouvre dans l'app système
-    document.body.appendChild(link);
-    link.dispatchEvent(event);
-    
+    // Utiliser setTimeout pour éviter le popup blocker
     setTimeout(() => {
-        document.body.removeChild(link);
-    }, 100);
+        window.location = jwLibraryUrl;
+        
+        // Revenir à la page après 1.5 secondes
+        setTimeout(() => {
+            window.history.back();
+        }, 1500);
+    }, 0);
 }
 
 function renderFormattedNote(note) {
