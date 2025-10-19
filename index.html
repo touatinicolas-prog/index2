@@ -1949,18 +1949,16 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
         function openBibleVerse(ref) {
-    // Essayer d'ouvrir JW Library
+    // Essayer d'ouvrir JW Library directement
     const jwLibraryUrl = `jwlibrary:///finder?bible=${encodeURIComponent(ref)}`;
     
-    // Créer un iframe invisible pour éviter que Safari n'ouvre une nouvelle page
-    const iframe = document.createElement('iframe');
-    iframe.style.display = 'none';
-    iframe.src = jwLibraryUrl;
-    document.body.appendChild(iframe);
+    // Utiliser window.location pour ouvrir l'app
+    window.location.href = jwLibraryUrl;
     
-    // Nettoyer l'iframe après un court délai
+    // Alternative : Si JW Library n'est pas installée, revenir en arrière après 1 seconde
     setTimeout(() => {
-        document.body.removeChild(iframe);
+        // Si on est toujours sur la page (l'app ne s'est pas ouverte), on ne fait rien
+        // L'utilisateur reste sur la page
     }, 1000);
 }
 
