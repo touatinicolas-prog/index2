@@ -827,7 +827,7 @@
                                 <div class="verse-content">
                                     ${dragMode ? '<span class="drag-handle" draggable="true">☰</span>' : ''}
                                     <div style="flex:1;">
-    <a href="#" class="verse-ref" onclick="openBibleVerse('${v.ref.replace(/'/g, "\\'")}'); return false;">${highlight(v.ref)}</a>
+    <div class="verse-ref">${highlight(v.ref)}</div>
     ${v.note ? `<div class="verse-note">${highlight(renderFormattedNote(v.note))}</div>` : ''}
     ${v.attachments && v.attachments.length > 0 ? `<div class="verse-attachments">${v.attachments.map((att, attIdx) => {
         if (att.type === 'application/pdf') {
@@ -860,7 +860,7 @@
                 return `<div class="verse-item" data-cat-id="${catId}" data-sub-id="${sub.id}" data-verse-id="${v.id}" data-verse-index="${vIdx}">
                     <div class="verse-content">
                         <div style="flex:1;">
-    <a href="#" class="verse-ref" onclick="openBibleVerse('${v.ref.replace(/'/g, "\\'")}'); return false;">${v.ref}</a>
+    <div class="verse-ref">${v.ref}</div>
    ${v.note ? `<div class="verse-note">${renderFormattedNote(v.note)}</div>` : ''}
     ${v.attachments && v.attachments.length > 0 ? `<div class="verse-attachments">${v.attachments.map((att, attIdx) => {
         if (att.type === 'application/pdf') {
@@ -1948,30 +1948,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-        function openBibleVerse(ref) {
-    const jwLibraryUrl = `jwlibrary:///finder?bible=${encodeURIComponent(ref)}`;
-    
-    // Sauvegarder l'état de la page
-    const currentScroll = window.scrollY;
-    
-    // Ouvrir JW Library
-    window.location.href = jwLibraryUrl;
-    
-    // Détecter quand Safari reprend le focus et revenir immédiatement en arrière
-    const checkFocus = setInterval(() => {
-        if (document.hasFocus()) {
-            // Safari a repris le focus, retourner à la page
-            window.history.back();
-            window.scrollTo(0, currentScroll);
-            clearInterval(checkFocus);
-        }
-    }, 100);
-    
-    // Arrêter la vérification après 3 secondes
-    setTimeout(() => {
-        clearInterval(checkFocus);
-    }, 3000);
-}
 
 function renderFormattedNote(note) {
     if (!note) return '';
