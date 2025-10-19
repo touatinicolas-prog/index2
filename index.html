@@ -1737,22 +1737,94 @@ function findSubInArray(subsArray, subId) {
     if (!files.length) return;
     
     Array.from(files).forEach(file => {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            const attachment = {
-                name: file.name,
-                type: file.type,
-                data: e.target.result
+        // Si c'est un PDF, pas de compression
+        if (file.type === 'application/pdf') {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const attachment = {
+                    name: file.name,
+                    type: file.type,
+                    data: e.target.result
+                };
+                tempAttachments.push(attachment);
+                if (mode === 'add') {
+                    displayAddAttachments();
+                } else {
+                    displayEditAttachments();
+                }
             };
-            tempAttachments.push(attachment);
-            if (mode === 'add') {
-                displayAddAttachments();
-            } else {
-                displayEditAttachments();
-            }
-        };
-        reader.readAsDataURL(file);
+            reader.readAsDataURL(file);
+        } 
+        // Si c'est une image, compresser
+        else if (file.type.startsWith('image/')) {
+            compressImage(file, (compressedData) => {
+                const attachment = {
+                    name: file.name,
+                    type: file.type,
+                    data: compressedData
+                };
+                tempAttachments.push(attachment);
+                if (mode === 'add') {
+                    displayAddAttachments();
+                } else {
+                    displayEditAttachments();
+                }
+            });
+        }
     });
+}
+
+function compressImage(file, callback) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+            const canvas = document.createElement('canvas');
+            
+            // Définir la largeur maximale (1200px est un bon compromis)
+            const MAX_WIDTH = 1200;
+            const MAX_HEIGHT = 1200;
+            
+            let width = img.width;
+            let height = img.height;
+            
+            // Calculer les nouvelles dimensions en gardant le ratio
+            if (width > height) {
+                if (width > MAX_WIDTH) {
+                    height = height * (MAX_WIDTH / width);
+                    width = MAX_WIDTH;
+                }
+            } else {
+                if (height > MAX_HEIGHT) {
+                    width = width * (MAX_HEIGHT / height);
+                    height = MAX_HEIGHT;
+                }
+            }
+            
+            canvas.width = width;
+            canvas.height = height;
+            
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+            
+            // Convertir en JPEG avec qualité 0.8 (bon compromis qualité/taille)
+            const compressedData = canvas.toDataURL('image/jpeg', 0.8);
+            
+            // Calculer la réduction
+            const originalSize = e.target.result.length;
+            const compressedSize = compressedData.length;
+            const reduction = ((1 - compressedSize / originalSize) * 100).toFixed(0);
+            
+            console.log(`📸 Image compressée: ${file.name}`);
+            console.log(`   Original: ${(originalSize / 1024).toFixed(1)} KB`);
+            console.log(`   Compressé: ${(compressedSize / 1024).toFixed(1)} KB`);
+            console.log(`   Réduction: ${reduction}%`);
+            
+            callback(compressedData);
+        };
+        img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
 }
 
 function displayAddAttachments() {
@@ -1760,12 +1832,13 @@ function displayAddAttachments() {
     container.innerHTML = tempAttachments.map((att, idx) => {
         const isImage = att.type.startsWith('image/');
         const isPdf = att.type === 'application/pdf';
+        const sizeKB = (att.data.length / 1024).toFixed(1);
         return `<div class="attached-file-item">
             ${isImage ? `<img src="${att.data}" class="attached-file-preview" alt="${att.name}">` : 
               isPdf ? `<div class="attached-file-preview" style="background: var(--bg-tertiary); display: flex; align-items: center; justify-content: center; font-size: 20px;">📄</div>` : ''}
             <div class="attached-file-info">
                 <div class="attached-file-name">${att.name}</div>
-                <div>${(att.data.length / 1024).toFixed(1)} KB</div>
+                <div>${sizeKB} KB ${isImage ? '✓ compressé' : ''}</div>
             </div>
             <button class="remove-file-btn" onclick="removeAttachment(${idx}, 'add')">×</button>
         </div>`;
@@ -1777,12 +1850,13 @@ function displayEditAttachments() {
     container.innerHTML = tempAttachments.map((att, idx) => {
         const isImage = att.type.startsWith('image/');
         const isPdf = att.type === 'application/pdf';
+        const sizeKB = (att.data.length / 1024).toFixed(1);
         return `<div class="attached-file-item">
             ${isImage ? `<img src="${att.data}" class="attached-file-preview" alt="${att.name}">` : 
               isPdf ? `<div class="attached-file-preview" style="background: var(--bg-tertiary); display: flex; align-items: center; justify-content: center; font-size: 20px;">📄</div>` : ''}
             <div class="attached-file-info">
                 <div class="attached-file-name">${att.name}</div>
-                <div>${(att.data.length / 1024).toFixed(1)} KB</div>
+                <div>${sizeKB} KB ${isImage ? '✓ compressé' : ''}</div>
             </div>
             <button class="remove-file-btn" onclick="removeAttachment(${idx}, 'edit')">×</button>
         </div>`;
