@@ -1951,15 +1951,30 @@ document.addEventListener('DOMContentLoaded', () => {
         function openBibleVerse(ref) {
     const jwLibraryUrl = `jwlibrary:///finder?bible=${encodeURIComponent(ref)}`;
     
-    // Utiliser setTimeout pour éviter le popup blocker
+    // Créer un iframe caché qui va absorber l'erreur
+    const iframe = document.createElement('iframe');
+    iframe.style.display = 'none';
+    iframe.style.width = '1px';
+    iframe.style.height = '1px';
+    iframe.style.position = 'absolute';
+    iframe.style.top = '-1000px';
+    
+    document.body.appendChild(iframe);
+    
+    // Charger l'URL dans l'iframe
+    iframe.src = jwLibraryUrl;
+    
+    // Attendre que JW Library soit bien lancée avant de nettoyer
     setTimeout(() => {
-        window.location = jwLibraryUrl;
-        
-        // Revenir à la page après 1.5 secondes
-        setTimeout(() => {
-            window.history.back();
-        }, 1500);
-    }, 0);
+        try {
+            document.body.removeChild(iframe);
+        } catch (e) {
+            // Ignorer les erreurs
+        }
+    }, 2000);
+    
+    // Empêcher la navigation de la page principale
+    return false;
 }
 
 function renderFormattedNote(note) {
