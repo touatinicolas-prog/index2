@@ -751,9 +751,11 @@
         }
 
         function matches(text) {
-            if (!text) return !searchQuery;
-            return !searchQuery || text.toLowerCase().includes(searchQuery);
-        }
+    if (!text) return !searchQuery;
+    // Nettoyer le HTML pour la recherche
+    const cleanText = text.replace(/<[^>]*>/g, '').toLowerCase();
+    return !searchQuery || cleanText.includes(searchQuery);
+}
 
         function findSub(catId, subId, parentSubs = null) {
             const cat = data.categories.find(c => c.id === catId);
