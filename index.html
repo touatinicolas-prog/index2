@@ -319,6 +319,9 @@
         }
 .form-input:focus { outline: none; border-color: var(--accent); }
 .form-textarea {
+    display: none;
+}
+.rich-text-editor {
     width: 100%;
     padding: 12px;
     background: var(--bg-tertiary);
@@ -330,8 +333,14 @@
     resize: vertical;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
     line-height: 1.5;
+    overflow-y: auto;
 }
-.form-textarea:focus { outline: none; border-color: var(--accent); }
+.rich-text-editor:focus { outline: none; border-color: var(--accent); }
+.rich-text-editor:empty:before {
+    content: attr(data-placeholder);
+    color: var(--text-secondary);
+    opacity: 0.5;
+}
         .modal-buttons { display: flex; gap: 10px; margin-top: 24px; }
         .empty-state { text-align: center; padding: 60px 20px; color: var(--text-secondary); }
         .splash {
@@ -400,31 +409,39 @@
         }
         .page-content { padding: 20px; }
         .formatting-toolbar {
-            display: flex;
-            gap: 4px;
-            margin-bottom: 8px;
-            padding: 8px;
-            background: var(--bg-primary);
-            border-radius: 6px;
-            border: 1px solid var(--border);
-        }
-        .format-btn {
-            padding: 6px 12px;
-            background: var(--bg-tertiary);
-            border: 1px solid var(--border);
-            border-radius: 4px;
-            color: var(--text-primary);
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
-            transition: background 0.2s;
-        }
-        .format-btn:hover {
-            background: var(--bg-secondary);
-        }
-        .format-btn:active {
-            background: var(--accent);
-        }
+    display: flex;
+    gap: 4px;
+    margin-bottom: 8px;
+    padding: 8px;
+    background: var(--bg-primary);
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    flex-wrap: wrap;
+}
+.format-btn {
+    padding: 8px 14px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--text-primary);
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+.format-btn:hover {
+    background: var(--bg-secondary);
+}
+.format-btn:active {
+    background: var(--accent);
+    transform: scale(0.95);
+}
+.format-btn.active {
+    background: var(--accent);
+    border-color: var(--accent);
+}
     </style>
 </head>
     
@@ -526,11 +543,11 @@
             <div class="form-group">
     <label class="form-label">Note</label>
     <div class="formatting-toolbar">
-        <button type="button" class="format-btn" onclick="formatText('verseNote', 'bold')" title="Gras"><strong>G</strong></button>
-        <button type="button" class="format-btn" onclick="formatText('verseNote', 'italic')" title="Italique"><em>I</em></button>
-        <button type="button" class="format-btn" onclick="formatText('verseNote', 'underline')" title="Souligné"><u>S</u></button>
+        <button type="button" class="format-btn" onclick="toggleFormat('verseNote', 'bold')" title="Gras"><strong>G</strong></button>
+        <button type="button" class="format-btn" onclick="toggleFormat('verseNote', 'italic')" title="Italique"><em>I</em></button>
+        <button type="button" class="format-btn" onclick="toggleFormat('verseNote', 'underline')" title="Souligné"><u>S</u></button>
     </div>
-    <textarea class="form-textarea" id="verseNote" placeholder="Ajoutez vos réflexions, commentaires..." onkeypress="if(event.key==='Enter'&&event.ctrlKey){addVerse()}"></textarea>
+    <div class="rich-text-editor" id="verseNote" contenteditable="true" data-placeholder="Ajoutez vos réflexions, commentaires..." onkeydown="handleEditorKeydown(event, 'verseNote')"></div>
 </div>
             <div class="form-group">
     <label class="form-label">Fichiers (images, PDF)</label>
@@ -557,11 +574,11 @@
             <div class="form-group">
     <label class="form-label">Note</label>
     <div class="formatting-toolbar">
-        <button type="button" class="format-btn" onclick="formatText('editVerseNote', 'bold')" title="Gras"><strong>G</strong></button>
-        <button type="button" class="format-btn" onclick="formatText('editVerseNote', 'italic')" title="Italique"><em>I</em></button>
-        <button type="button" class="format-btn" onclick="formatText('editVerseNote', 'underline')" title="Souligné"><u>S</u></button>
+        <button type="button" class="format-btn" onclick="toggleFormat('editVerseNote', 'bold')" title="Gras"><strong>G</strong></button>
+        <button type="button" class="format-btn" onclick="toggleFormat('editVerseNote', 'italic')" title="Italique"><em>I</em></button>
+        <button type="button" class="format-btn" onclick="toggleFormat('editVerseNote', 'underline')" title="Souligné"><u>S</u></button>
     </div>
-    <textarea class="form-textarea" id="editVerseNote" placeholder="Ajoutez vos réflexions, commentaires..." onkeypress="if(event.key==='Enter'&&event.ctrlKey){saveEditVerse()}"></textarea>
+    <div class="rich-text-editor" id="editVerseNote" contenteditable="true" data-placeholder="Ajoutez vos réflexions, commentaires..." onkeydown="handleEditorKeydown(event, 'editVerseNote')"></div>
 </div>
             <div class="form-group">
     <label class="form-label">Fichiers (images, PDF)</label>
@@ -1363,7 +1380,7 @@ function openAddVerseModal(catId, subId) {
     currentCat = catId;
     currentSub = subId;
     document.getElementById('verseRef').value = '';
-    document.getElementById('verseNote').value = '';
+    document.getElementById('verseNote').innerHTML = '';
     document.getElementById('verseFiles').value = '';
     document.getElementById('addFilesPreview').innerHTML = '';
     tempAttachments = [];
@@ -1372,7 +1389,8 @@ function openAddVerseModal(catId, subId) {
 
 function addVerse() {
     const ref = document.getElementById('verseRef').value.trim();
-    const note = document.getElementById('verseNote').value.trim();
+    const noteHTML = document.getElementById('verseNote').innerHTML.trim();
+    const note = noteHTML.replace(/<br\s*\/?>/gi, '\n');
     if (!ref) return;
     const sub = findSub(currentCat, currentSub);
     if (sub) { 
@@ -1398,7 +1416,8 @@ function openEditVerseModal(catId, subId, verseId) {
         const verse = sub.verses.find(v => v.id === verseId);
         if (verse) {
             document.getElementById('editVerseRef').value = verse.ref;
-            document.getElementById('editVerseNote').value = verse.note || '';
+            const noteHTML = (verse.note || '').replace(/\n/g, '<br>');
+            document.getElementById('editVerseNote').innerHTML = noteHTML;
             document.getElementById('editVerseFiles').value = '';
             tempAttachments = verse.attachments ? [...verse.attachments] : [];
             displayEditAttachments();
@@ -1413,7 +1432,8 @@ function saveEditVerse() {
         const verse = sub.verses.find(v => v.id === editItem.id);
         if (verse) {
             verse.ref = document.getElementById('editVerseRef').value.trim();
-            verse.note = document.getElementById('editVerseNote').value.trim();
+            const noteHTML = document.getElementById('editVerseNote').innerHTML.trim();
+            verse.note = noteHTML.replace(/<br\s*\/?>/gi, '\n');
             verse.attachments = [...tempAttachments];
             verse.lastModified = Date.now();
             sub.lastModified = Date.now();
@@ -1678,46 +1698,79 @@ function openImageViewer(src) {
 function closeImageViewer() {
     document.getElementById('imageViewer').classList.remove('show');
 }
-        function formatText(textareaId, format) {
-    const textarea = document.getElementById(textareaId);
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
-    const selectedText = textarea.value.substring(start, end);
+        let currentFormatState = {
+    bold: false,
+    italic: false,
+    underline: false
+};
+
+function toggleFormat(editorId, format) {
+    const editor = document.getElementById(editorId);
+    editor.focus();
     
-    if (!selectedText) {
-        alert('Veuillez d\'abord sélectionner du texte à formater');
+    // Activer/désactiver le format
+    if (format === 'bold') {
+        document.execCommand('bold', false, null);
+    } else if (format === 'italic') {
+        document.execCommand('italic', false, null);
+    } else if (format === 'underline') {
+        document.execCommand('underline', false, null);
+    }
+    
+    // Mettre à jour l'état visuel du bouton
+    updateFormatButtons(editorId);
+}
+
+function updateFormatButtons(editorId) {
+    const toolbar = document.getElementById(editorId).previousElementSibling;
+    if (!toolbar || !toolbar.classList.contains('formatting-toolbar')) return;
+    
+    const buttons = toolbar.querySelectorAll('.format-btn');
+    buttons.forEach(btn => {
+        const title = btn.getAttribute('title');
+        if (title === 'Gras') {
+            btn.classList.toggle('active', document.queryCommandState('bold'));
+        } else if (title === 'Italique') {
+            btn.classList.toggle('active', document.queryCommandState('italic'));
+        } else if (title === 'Souligné') {
+            btn.classList.toggle('active', document.queryCommandState('underline'));
+        }
+    });
+}
+
+function handleEditorKeydown(event, editorId) {
+    // Ctrl+Enter pour soumettre
+    if (event.key === 'Enter' && event.ctrlKey) {
+        event.preventDefault();
+        if (editorId === 'verseNote') {
+            addVerse();
+        } else if (editorId === 'editVerseNote') {
+            saveEditVerse();
+        }
         return;
     }
     
-    let formattedText = '';
-    
-    switch(format) {
-        case 'bold':
-            formattedText = `**${selectedText}**`;
-            break;
-        case 'italic':
-            formattedText = `*${selectedText}*`;
-            break;
-        case 'underline':
-            formattedText = `__${selectedText}__`;
-            break;
-    }
-    
-    textarea.value = textarea.value.substring(0, start) + formattedText + textarea.value.substring(end);
-    textarea.focus();
-    textarea.setSelectionRange(start, start + formattedText.length);
+    // Mettre à jour les boutons après un court délai pour que le formatage soit appliqué
+    setTimeout(() => updateFormatButtons(editorId), 10);
 }
+
+// Mettre à jour les boutons quand on clique dans l'éditeur
+document.addEventListener('DOMContentLoaded', () => {
+    ['verseNote', 'editVerseNote'].forEach(editorId => {
+        const editor = document.getElementById(editorId);
+        if (editor) {
+            editor.addEventListener('mouseup', () => updateFormatButtons(editorId));
+            editor.addEventListener('keyup', () => updateFormatButtons(editorId));
+            editor.addEventListener('touchend', () => updateFormatButtons(editorId));
+        }
+    });
+});
+        
 
 function renderFormattedNote(note) {
     if (!note) return '';
-    
-    // Convertir le markdown en HTML
-    let formatted = note
-        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')  // Gras
-        .replace(/\*(.*?)\*/g, '<em>$1</em>')              // Italique
-        .replace(/__(.*?)__/g, '<u>$1</u>');               // Souligné
-    
-    return formatted;
+    // Le HTML est déjà formaté depuis contenteditable
+    return note.replace(/\n/g, '<br>');
 }
     </script>
 </body>
