@@ -1485,6 +1485,8 @@ function confirmMerge(shouldMerge) {
     
     if (shouldMerge) {
         mergeData(pendingImportData);
+        saveData(); // Sauvegarde explicite après fusion
+        render();
         alert('✅ Données fusionnées avec succès !\n\nVos données existantes ont été conservées et combinées avec le fichier importé.');
     } else {
         data = pendingImportData;
@@ -1494,6 +1496,7 @@ function confirmMerge(shouldMerge) {
     }
     
     pendingImportData = null;
+    document.getElementById('importFile').value = ''; // Réinitialise le sélecteur de fichier
 }
 
 function cancelImport() {
