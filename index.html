@@ -1951,30 +1951,26 @@ document.addEventListener('DOMContentLoaded', () => {
         function openBibleVerse(ref) {
     const jwLibraryUrl = `jwlibrary:///finder?bible=${encodeURIComponent(ref)}`;
     
-    // Créer un iframe caché qui va absorber l'erreur
-    const iframe = document.createElement('iframe');
-    iframe.style.display = 'none';
-    iframe.style.width = '1px';
-    iframe.style.height = '1px';
-    iframe.style.position = 'absolute';
-    iframe.style.top = '-1000px';
+    // Sauvegarder l'état de la page
+    const currentScroll = window.scrollY;
     
-    document.body.appendChild(iframe);
+    // Ouvrir JW Library
+    window.location.href = jwLibraryUrl;
     
-    // Charger l'URL dans l'iframe
-    iframe.src = jwLibraryUrl;
-    
-    // Attendre que JW Library soit bien lancée avant de nettoyer
-    setTimeout(() => {
-        try {
-            document.body.removeChild(iframe);
-        } catch (e) {
-            // Ignorer les erreurs
+    // Détecter quand Safari reprend le focus et revenir immédiatement en arrière
+    const checkFocus = setInterval(() => {
+        if (document.hasFocus()) {
+            // Safari a repris le focus, retourner à la page
+            window.history.back();
+            window.scrollTo(0, currentScroll);
+            clearInterval(checkFocus);
         }
-    }, 2000);
+    }, 100);
     
-    // Empêcher la navigation de la page principale
-    return false;
+    // Arrêter la vérification après 3 secondes
+    setTimeout(() => {
+        clearInterval(checkFocus);
+    }, 3000);
 }
 
 function renderFormattedNote(note) {
