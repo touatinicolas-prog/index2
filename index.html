@@ -1899,7 +1899,7 @@
                             const toData = getSubcategoryByPath(toCatId, toPath);
                             if (fromData && toData && fromData.parent === toData.parent) {
                                 const [moved] = fromData.parent.splice(fromData.index, 1);
-                                const adjustedIndex = fromData.index < toData.index ? toData.index : toData.index;
+                                const adjustedIndex = fromData.index < toData.index ? toData.index : toData.index + 1;
                                 fromData.parent.splice(adjustedIndex, 0, moved);
                                 saveData();
                                 render();
