@@ -716,13 +716,6 @@
                 }
               ],
               "lastModified": 1760901390005
-            },
-            {
-              "id": 1760991723782,
-              "ref": "Tes",
-              "note": "",
-              "attachments": [],
-              "lastModified": 1760991723782
             }
           ],
           "subcategories": [],
@@ -744,6 +737,11 @@
         "deletedAt": 1760991610810
       }
     ],
-    "verses": []
+    "verses": [
+      {
+        "id": 1760991723782,
+        "deletedAt": 1760991744285
+      }
+    ]
   }
 }
