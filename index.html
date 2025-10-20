@@ -1519,90 +1519,144 @@
         }
 
         function mergeData(importedData) {
-            if (!importedData.categories) return;
+    if (!importedData.categories) return;
+    
+    console.log('🔀 FUSION - Données GitHub:', importedData.categories.length, 'catégories');
+    console.log('🔀 FUSION - Données locales:', data.categories.length, 'catégories');
+    
+    // Créer une map des catégories locales par ID
+    const localCategoriesMap = new Map();
+    data.categories.forEach(cat => {
+        localCategoriesMap.set(cat.id, cat);
+    });
+    
+    // Parcourir les catégories importées
+    importedData.categories.forEach(importedCat => {
+        const existingCat = localCategoriesMap.get(importedCat.id);
+        
+        if (existingCat) {
+            // La catégorie existe déjà, fusionner
+            console.log(`🔀 Catégorie ${importedCat.id} existe déjà, fusion...`);
+            mergeCategoryData(existingCat, importedCat);
+        } else {
+            // Nouvelle catégorie, l'ajouter
+            console.log(`➕ Nouvelle catégorie ${importedCat.id} ajoutée depuis GitHub`);
+            data.categories.push(importedCat);
+        }
+    });
+    
+    console.log('🔀 FUSION TERMINÉE - Total:', data.categories.length, 'catégories');
+}
+
+function mergeCategoryData(existing, imported) {
+    // Comparer les timestamps
+    const existingTime = existing.lastModified || 0;
+    const importedTime = imported.lastModified || 0;
+    
+    console.log(`   Catégorie "${existing.name}" - Local: ${existingTime}, GitHub: ${importedTime}`);
+    
+    // Si GitHub est plus récent, mettre à jour le nom
+    if (importedTime > existingTime) {
+        console.log(`   ⬇️ GitHub plus récent, mise à jour du nom`);
+        existing.name = imported.name;
+        existing.lastModified = imported.lastModified;
+    }
+    
+    if (imported.subcategories) {
+        if (!existing.subcategories) existing.subcategories = [];
+        
+        // Créer une map des sous-catégories locales par ID
+        const localSubsMap = new Map();
+        existing.subcategories.forEach(sub => {
+            localSubsMap.set(sub.id, sub);
+        });
+        
+        imported.subcategories.forEach(importedSub => {
+            const existingSub = localSubsMap.get(importedSub.id);
             
-            importedData.categories.forEach(importedCat => {
-                const existingCat = data.categories.find(c => c.id === importedCat.id);
+            if (existingSub) {
+                console.log(`   🔀 Sous-catégorie ${importedSub.id} existe, fusion...`);
+                mergeSubcategoryData(existingSub, importedSub);
+            } else {
+                console.log(`   ➕ Nouvelle sous-catégorie ${importedSub.id} ajoutée`);
+                existing.subcategories.push(importedSub);
+            }
+        });
+    }
+}
+
+function mergeSubcategoryData(existing, imported) {
+    const existingTime = existing.lastModified || 0;
+    const importedTime = imported.lastModified || 0;
+    
+    // Si GitHub est plus récent, mettre à jour
+    if (importedTime > existingTime) {
+        existing.name = imported.name;
+        existing.lastModified = imported.lastModified;
+    }
+    
+    // Fusionner les versets
+    if (imported.verses) {
+        if (!existing.verses) existing.verses = [];
+        
+        const localVersesMap = new Map();
+        existing.verses.forEach(v => {
+            localVersesMap.set(v.id, v);
+        });
+        
+        imported.verses.forEach(importedVerse => {
+            const existingVerse = localVersesMap.get(importedVerse.id);
+            
+            if (existingVerse) {
+                // Le verset existe, comparer les timestamps
+                const vExistingTime = existingVerse.lastModified || 0;
+                const vImportedTime = importedVerse.lastModified || 0;
                 
-                if (existingCat) {
-                    mergeCategoryData(existingCat, importedCat);
-                } else {
-                    data.categories.push(importedCat);
+                if (vImportedTime > vExistingTime) {
+                    // GitHub plus récent, remplacer
+                    existingVerse.ref = importedVerse.ref;
+                    existingVerse.note = importedVerse.note;
+                    existingVerse.attachments = importedVerse.attachments;
+                    existingVerse.lastModified = importedVerse.lastModified;
                 }
-            });
-        }
-
-        function mergeCategoryData(existing, imported) {
-            if (imported.lastModified && (!existing.lastModified || imported.lastModified > existing.lastModified)) {
-                existing.name = imported.name;
-                existing.lastModified = imported.lastModified;
+            } else {
+                // Nouveau verset depuis GitHub
+                existing.verses.push(importedVerse);
             }
+        });
+    }
+    
+    // Fusionner les sous-sous-catégories
+    if (imported.subcategories) {
+        if (!existing.subcategories) existing.subcategories = [];
+        
+        const localSubSubsMap = new Map();
+        existing.subcategories.forEach(subsub => {
+            localSubSubsMap.set(subsub.id, subsub);
+        });
+        
+        imported.subcategories.forEach(importedSubSub => {
+            const existingSubSub = localSubSubsMap.get(importedSubSub.id);
             
-            if (imported.subcategories) {
-                if (!existing.subcategories) existing.subcategories = [];
-                
-                imported.subcategories.forEach(importedSub => {
-                    const existingSub = findSubInArray(existing.subcategories, importedSub.id);
-                    
-                    if (existingSub) {
-                        mergeSubcategoryData(existingSub, importedSub);
-                    } else {
-                        existing.subcategories.push(importedSub);
-                    }
-                });
+            if (existingSubSub) {
+                mergeSubcategoryData(existingSubSub, importedSubSub);
+            } else {
+                existing.subcategories.push(importedSubSub);
             }
-        }
+        });
+    }
+}
 
-        function mergeSubcategoryData(existing, imported) {
-            if (imported.lastModified && (!existing.lastModified || imported.lastModified > existing.lastModified)) {
-                existing.name = imported.name;
-                existing.lastModified = imported.lastModified;
-            }
-            
-            if (imported.verses) {
-                if (!existing.verses) existing.verses = [];
-                
-                imported.verses.forEach(importedVerse => {
-                    const existingVerse = existing.verses.find(v => v.id === importedVerse.id);
-                    
-                    if (existingVerse) {
-                        if (importedVerse.lastModified && (!existingVerse.lastModified || importedVerse.lastModified > existingVerse.lastModified)) {
-                            existingVerse.ref = importedVerse.ref;
-                            existingVerse.note = importedVerse.note;
-                            existingVerse.attachments = importedVerse.attachments;
-                            existingVerse.lastModified = importedVerse.lastModified;
-                        }
-                    } else {
-                        existing.verses.push(importedVerse);
-                    }
-                });
-            }
-            
-            if (imported.subcategories) {
-                if (!existing.subcategories) existing.subcategories = [];
-                
-                imported.subcategories.forEach(importedSubSub => {
-                    const existingSubSub = findSubInArray(existing.subcategories, importedSubSub.id);
-                    
-                    if (existingSubSub) {
-                        mergeSubcategoryData(existingSubSub, importedSubSub);
-                    } else {
-                        existing.subcategories.push(importedSubSub);
-                    }
-                });
-            }
+function findSubInArray(subsArray, subId) {
+    for (let sub of subsArray) {
+        if (sub.id === subId) return sub;
+        if (sub.subcategories?.length > 0) {
+            const found = findSubInArray(sub.subcategories, subId);
+            if (found) return found;
         }
-
-        function findSubInArray(subsArray, subId) {
-            for (let sub of subsArray) {
-                if (sub.id === subId) return sub;
-                if (sub.subcategories?.length > 0) {
-                    const found = findSubInArray(sub.subcategories, subId);
-                    if (found) return found;
-                }
-            }
-            return null;
-        }
+    }
+    return null;
+}
         
         function handleFileSelect(event, mode) {
             const files = event.target.files;
