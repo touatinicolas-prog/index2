@@ -714,6 +714,13 @@
         }
       ],
       "lastModified": 1760901406420
+    },
+    {
+      "id": 1760985702928,
+      "name": "Test 2",
+      "expanded": true,
+      "subcategories": [],
+      "lastModified": 1760985702928
     }
   ],
   "deletedItems": {
