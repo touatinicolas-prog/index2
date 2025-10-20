@@ -105,7 +105,7 @@
             {
               "id": 1760986535164,
               "name": "Chapitre 3",
-              "expanded": false,
+              "expanded": true,
               "verses": [
                 {
                   "id": 1760986821693,
@@ -138,7 +138,7 @@
         {
           "id": 1760737736343,
           "name": "Nombres",
-          "expanded": false,
+          "expanded": true,
           "verses": [],
           "subcategories": []
         },
@@ -327,13 +327,13 @@
         {
           "id": 1760739393609,
           "name": "Jonas",
-          "expanded": false,
+          "expanded": true,
           "verses": [],
           "subcategories": [
             {
               "id": 1760910184295,
               "name": "Chapitre 3",
-              "expanded": false,
+              "expanded": true,
               "verses": [
                 {
                   "id": 1760910414467,
@@ -669,7 +669,7 @@
           "name": "Ce qui se passera avant",
           "verses": [],
           "subcategories": [],
-          "expanded": true
+          "expanded": false
         },
         {
           "id": 1759772559192,
@@ -702,7 +702,7 @@
         {
           "id": 1760900258162,
           "name": "Amarguedon",
-          "expanded": false,
+          "expanded": true,
           "verses": [
             {
               "id": 1760901390005,
