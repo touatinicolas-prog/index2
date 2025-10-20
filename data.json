@@ -714,37 +714,6 @@
         }
       ],
       "lastModified": 1760901406420
-    },
-    {
-      "id": 1760975970973,
-      "name": "Test",
-      "expanded": true,
-      "subcategories": [],
-      "lastModified": 1760975970973
-    },
-    {
-      "id": 1,
-      "name": "Foi et Confiance",
-      "expanded": false,
-      "lastModified": 1760975600926,
-      "subcategories": [
-        {
-          "id": 11,
-          "name": "Renforcer sa foi",
-          "expanded": true,
-          "lastModified": 1760975600926,
-          "verses": [
-            {
-              "id": 111,
-              "ref": "Hébreux 11:1",
-              "note": "Définition de la foi",
-              "attachments": [],
-              "lastModified": 1760975600926
-            }
-          ],
-          "subcategories": []
-        }
-      ]
     }
   ],
   "deletedItems": {
