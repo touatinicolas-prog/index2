@@ -1079,10 +1079,19 @@ console.log('📤 Envoi vers GitHub (données + suppressions)...');
             if (showMessages) alert('✅ Synchronisation réussie !');
             render();
         } else {
-            const errorData = await saveResponse.json();
-            console.error('❌ Erreur de sauvegarde:', errorData);
-            throw new Error(errorData.message || 'Erreur lors de la sauvegarde');
-        }
+    const errorData = await saveResponse.json();
+    console.error('❌ Erreur de sauvegarde:', errorData);
+
+    // 🔁 Si conflit SHA, retenter une fois automatiquement
+    if (errorData.message && errorData.message.includes('does not match')) {
+        console.warn('⚠️ Conflit SHA détecté — nouvelle tentative...');
+        await new Promise(r => setTimeout(r, 1500)); // petite pause
+        return await syncWithGithub(showMessages); // retente une seule fois
+    }
+
+    throw new Error(errorData.message || 'Erreur lors de la sauvegarde');
+}
+
         
     } catch (error) {
         console.error('💥 Erreur de synchronisation:', error);
