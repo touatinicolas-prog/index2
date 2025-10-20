@@ -601,7 +601,7 @@
     {
       "id": 1760739953938,
       "name": "Grande tribulation",
-      "expanded": false,
+      "expanded": true,
       "subcategories": [
         {
           "id": 1760739970048,
@@ -678,7 +678,7 @@
           "name": "Ce qui se passera avant",
           "verses": [],
           "subcategories": [],
-          "expanded": true
+          "expanded": false
         },
         {
           "id": 1759772559192,
@@ -688,7 +688,7 @@
             {
               "id": 1760737432207,
               "name": "Avant",
-              "expanded": true,
+              "expanded": false,
               "verses": [
                 {
                   "id": 1760737467621,
@@ -706,7 +706,7 @@
     {
       "id": 1760900187695,
       "name": "Image",
-      "expanded": true,
+      "expanded": false,
       "subcategories": [
         {
           "id": 1760900258162,
