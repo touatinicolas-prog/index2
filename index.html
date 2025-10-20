@@ -1116,14 +1116,26 @@ const dataToSync = {
     deletedItems: deletedItems
 };
 
-// ✅ Validation avant envoi
+// ✅ Validation et encodage robuste avant envoi
 let content;
 try {
     const jsonString = JSON.stringify(dataToSync, null, 2);
-    JSON.parse(jsonString); // Vérifier que c'est du JSON valide
-    content = btoa(unescape(encodeURIComponent(jsonString)));
+    
+    // Vérifier que c'est du JSON valide
+    JSON.parse(jsonString);
     console.log('✅ JSON validé avant envoi');
     console.log('📏 Taille du JSON:', (jsonString.length / 1024).toFixed(2), 'KB');
+    
+    // Encodage plus robuste pour éviter les corruptions
+    const utf8Bytes = new TextEncoder().encode(jsonString);
+    let binaryString = '';
+    for (let i = 0; i < utf8Bytes.length; i++) {
+        binaryString += String.fromCharCode(utf8Bytes[i]);
+    }
+    content = btoa(binaryString);
+    
+    console.log('✅ Encodage Base64 réussi');
+    console.log('📏 Taille encodée:', (content.length / 1024).toFixed(2), 'KB');
 } catch (validationError) {
     console.error('❌ Données invalides détectées:', validationError);
     throw new Error('Impossible de créer un JSON valide. Vérifiez vos données locales.');
@@ -1353,7 +1365,15 @@ const dataToSync = {
     categories: localData.categories,
     deletedItems: deletedItems
 };
-const content = btoa(unescape(encodeURIComponent(JSON.stringify(dataToSync, null, 2))));
+// Encodage robuste pour éviter les corruptions
+const jsonString = JSON.stringify(dataToSync, null, 2);
+const utf8Bytes = new TextEncoder().encode(jsonString);
+let binaryString = '';
+for (let i = 0; i < utf8Bytes.length; i++) {
+    binaryString += String.fromCharCode(utf8Bytes[i]);
+}
+const content = btoa(binaryString);
+console.log('🔧 Réparation - Encodage robuste appliqué');
         
         const saveResponse = await fetch(
             `https://api.github.com/repos/${GITHUB_CONFIG.username}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.filepath}`,
