@@ -824,6 +824,7 @@ async function getIndexedDBSize() {
         let currentCat = null, currentSub = null, editItem = null, searchQuery = '', readOnlyMode = false;
         let dragMode = false, draggedItem = null;
         let tempAttachments = [];
+        let deletedItems = JSON.parse(localStorage.getItem('deletedItems') || '{"categories":[],"subcategories":[],"verses":[]}');
 
         async function loadData() {
     try {
@@ -1023,6 +1024,8 @@ async function getIndexedDBSize() {
         
         // Charger les données
         await loadData();
+        // Nettoyer les anciennes suppressions
+cleanOldDeletions();
         render();
         
         if (!githubToken) {
@@ -1572,12 +1575,20 @@ async function forceUploadToGithub() {
         }
 
         function deleteCat(catId) {
-            if (confirm('Supprimer cette catégorie ?')) {
-                data.categories = data.categories.filter(c => c.id !== catId);
-                saveData();
-                render();
-            }
-        }
+    if (confirm('Supprimer cette catégorie ?')) {
+        // Marquer comme supprimée
+        deletedItems.categories.push({
+            id: catId,
+            deletedAt: Date.now()
+        });
+        localStorage.setItem('deletedItems', JSON.stringify(deletedItems));
+        
+        // Supprimer localement
+        data.categories = data.categories.filter(c => c.id !== catId);
+        saveData();
+        render();
+    }
+}
 
         function deleteSubRec(subs, subId) {
             for (let i = 0; i < subs.length; i++) {
@@ -1588,16 +1599,42 @@ async function forceUploadToGithub() {
         }
 
         function deleteSub(catId, subId) {
-            if (confirm('Supprimer cette sous-catégorie ?')) {
-                const cat = data.categories.find(c => c.id === catId);
-                if (cat) { deleteSubRec(cat.subcategories, subId); saveData(); render(); }
-            }
+    if (confirm('Supprimer cette sous-catégorie ?')) {
+        // Marquer comme supprimée
+        deletedItems.subcategories.push({
+            id: subId,
+            deletedAt: Date.now()
+        });
+        localStorage.setItem('deletedItems', JSON.stringify(deletedItems));
+        
+        // Supprimer localement
+        const cat = data.categories.find(c => c.id === catId);
+        if (cat) { 
+            deleteSubRec(cat.subcategories, subId); 
+            saveData(); 
+            render(); 
         }
+    }
+}
 
         function deleteVerse(catId, subId, verseId) {
-            const sub = findSub(catId, subId);
-            if (sub) { sub.verses = sub.verses.filter(v => v.id !== verseId); saveData(); render(); }
+    if (confirm('Supprimer ce verset ?')) {
+        // Marquer comme supprimée
+        deletedItems.verses.push({
+            id: verseId,
+            deletedAt: Date.now()
+        });
+        localStorage.setItem('deletedItems', JSON.stringify(deletedItems));
+        
+        // Supprimer localement
+        const sub = findSub(catId, subId);
+        if (sub) { 
+            sub.verses = sub.verses.filter(v => v.id !== verseId); 
+            saveData(); 
+            render(); 
         }
+    }
+}
 
         function exportData() {
             const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
@@ -1737,6 +1774,7 @@ async function forceUploadToGithub() {
     
     console.log('🔀 FUSION - Données GitHub:', importedData.categories.length, 'catégories');
     console.log('🔀 FUSION - Données locales:', data.categories.length, 'catégories');
+    console.log('🗑️ Éléments supprimés localement:', deletedItems);
     
     // Créer une map des catégories locales par ID
     const localCategoriesMap = new Map();
@@ -1746,6 +1784,13 @@ async function forceUploadToGithub() {
     
     // Parcourir les catégories importées
     importedData.categories.forEach(importedCat => {
+        // Vérifier si cette catégorie a été supprimée localement
+        const wasDeleted = deletedItems.categories.find(d => d.id === importedCat.id);
+        if (wasDeleted) {
+            console.log(`🗑️ Catégorie ${importedCat.id} ignorée (supprimée localement)`);
+            return; // Ne pas la réimporter
+        }
+        
         const existingCat = localCategoriesMap.get(importedCat.id);
         
         if (existingCat) {
@@ -1819,6 +1864,13 @@ function mergeSubcategoryData(existing, imported) {
         });
         
         imported.verses.forEach(importedVerse => {
+            // Vérifier si ce verset a été supprimé localement
+            const wasDeleted = deletedItems.verses.find(d => d.id === importedVerse.id);
+            if (wasDeleted) {
+                console.log(`   🗑️ Verset ${importedVerse.id} ignoré (supprimé localement)`);
+                return;
+            }
+            
             const existingVerse = localVersesMap.get(importedVerse.id);
             
             if (existingVerse) {
@@ -1850,6 +1902,13 @@ function mergeSubcategoryData(existing, imported) {
         });
         
         imported.subcategories.forEach(importedSubSub => {
+            // Vérifier si cette sous-catégorie a été supprimée localement
+            const wasDeleted = deletedItems.subcategories.find(d => d.id === importedSubSub.id);
+            if (wasDeleted) {
+                console.log(`   🗑️ Sous-catégorie ${importedSubSub.id} ignorée (supprimée localement)`);
+                return;
+            }
+            
             const existingSubSub = localSubSubsMap.get(importedSubSub.id);
             
             if (existingSubSub) {
@@ -1859,6 +1918,16 @@ function mergeSubcategoryData(existing, imported) {
             }
         });
     }
+}
+        
+        function cleanOldDeletions() {
+    const thirtyDaysAgo = Date.now() - (30 * 24 * 60 * 60 * 1000);
+    
+    deletedItems.categories = deletedItems.categories.filter(d => d.deletedAt > thirtyDaysAgo);
+    deletedItems.subcategories = deletedItems.subcategories.filter(d => d.deletedAt > thirtyDaysAgo);
+    deletedItems.verses = deletedItems.verses.filter(d => d.deletedAt > thirtyDaysAgo);
+    
+    localStorage.setItem('deletedItems', JSON.stringify(deletedItems));
 }
 
 function findSubInArray(subsArray, subId) {
