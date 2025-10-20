@@ -969,6 +969,7 @@ function applyDeletions() {
                     ? sub.verses.filter(v => !deletedItems.verses.some(d => d.id === v.id))
                     : [],
                 subcategories: sub.sub
+     }
 
         async function syncWithGithub(showMessages = false) {
     if (!githubToken) {
