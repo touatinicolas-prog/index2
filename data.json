@@ -318,7 +318,7 @@
         {
           "id": 1760739393609,
           "name": "Jonas",
-          "expanded": false,
+          "expanded": true,
           "verses": [],
           "subcategories": [
             {
@@ -714,13 +714,6 @@
         }
       ],
       "lastModified": 1760901406420
-    },
-    {
-      "id": 1760947866029,
-      "name": "Test GitHub",
-      "expanded": true,
-      "subcategories": [],
-      "lastModified": 1760947866029
     }
   ]
 }
