@@ -23,6 +23,8 @@
             --text-secondary: #b8b8b8;
             --accent: #4a90e2;
             --border: #4a4a4a;
+            --success: #2d7d46;
+            --warning: #e67e22;
         }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
@@ -40,7 +42,8 @@
         }
         .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
         .header h1 { font-size: 22px; font-weight: 600; }
-        .mode-toggle {
+        .header-buttons { display: flex; gap: 8px; }
+        .mode-toggle, .sync-btn, .settings-btn {
             padding: 8px 16px;
             background: var(--accent);
             color: white;
@@ -48,6 +51,29 @@
             border-radius: 6px;
             cursor: pointer;
             font-size: 14px;
+        }
+        .settings-btn { background: var(--bg-tertiary); padding: 8px 12px; }
+        .sync-btn { padding: 8px 12px; }
+        .sync-status {
+            font-size: 12px;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 10px;
+        }
+        .sync-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--text-secondary);
+        }
+        .sync-indicator.synced { background: var(--success); }
+        .sync-indicator.syncing { background: var(--warning); animation: pulse 1s infinite; }
+        .sync-indicator.error { background: #e74c3c; }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
         }
         .search-input {
             width: 100%;
@@ -147,128 +173,120 @@
         }
         .verse-note { color: var(--text-secondary); font-size: 14px; line-height: 1.5; white-space: pre-wrap; }
         .verse-attachments {
-    margin-top: 10px;
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-}
-.attachment-thumb {
-    width: 80px;
-    height: 80px;
-    border-radius: 6px;
-    object-fit: cover;
-    cursor: pointer;
-    border: 2px solid var(--border);
-    transition: border-color 0.2s;
-}
-.attachment-thumb:hover {
-    border-color: var(--accent);
-}
-.attachment-pdf {
-    width: 80px;
-    height: 80px;
-    border-radius: 6px;
-    background: var(--bg-tertiary);
-    border: 2px solid var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 24px;
-    cursor: pointer;
-    transition: border-color 0.2s;
-}
-.attachment-pdf:hover {
-    border-color: var(--accent);
-}
-.file-input-wrapper {
-    margin-top: 8px;
-}
-.file-input-label {
-    display: inline-block;
-    padding: 8px 16px;
-    background: var(--bg-tertiary);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 14px;
-    color: var(--text-primary);
-    transition: background 0.2s;
-}
-.file-input-label:hover {
-    background: var(--bg-primary);
-}
-.attached-files-list {
-    margin-top: 10px;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-.attached-file-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 8px;
-    background: var(--bg-primary);
-    border-radius: 6px;
-}
-.attached-file-preview {
-    width: 50px;
-    height: 50px;
-    border-radius: 4px;
-    object-fit: cover;
-}
-.attached-file-info {
-    flex: 1;
-    font-size: 14px;
-    color: var(--text-secondary);
-}
-.attached-file-name {
-    color: var(--text-primary);
-    font-weight: 500;
-}
-.remove-file-btn {
-    background: transparent;
-    border: none;
-    color: #e74c3c;
-    cursor: pointer;
-    font-size: 18px;
-    padding: 4px;
-}
-.image-viewer-modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0,0,0,0.95);
-    z-index: 2000;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-}
-.image-viewer-modal.show { display: flex; }
-.image-viewer-content {
-    max-width: 90%;
-    max-height: 90%;
-    object-fit: contain;
-}
-.image-viewer-close {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    background: var(--bg-secondary);
-    border: none;
-    color: var(--text-primary);
-    font-size: 32px;
-    cursor: pointer;
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
+            margin-top: 10px;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .attachment-thumb {
+            width: 80px;
+            height: 80px;
+            border-radius: 6px;
+            object-fit: cover;
+            cursor: pointer;
+            border: 2px solid var(--border);
+            transition: border-color 0.2s;
+        }
+        .attachment-thumb:hover { border-color: var(--accent); }
+        .attachment-pdf {
+            width: 80px;
+            height: 80px;
+            border-radius: 6px;
+            background: var(--bg-tertiary);
+            border: 2px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+        .attachment-pdf:hover { border-color: var(--accent); }
+        .file-input-wrapper { margin-top: 8px; }
+        .file-input-label {
+            display: inline-block;
+            padding: 8px 16px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            color: var(--text-primary);
+            transition: background 0.2s;
+        }
+        .file-input-label:hover { background: var(--bg-primary); }
+        .attached-files-list {
+            margin-top: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .attached-file-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px;
+            background: var(--bg-primary);
+            border-radius: 6px;
+        }
+        .attached-file-preview {
+            width: 50px;
+            height: 50px;
+            border-radius: 4px;
+            object-fit: cover;
+        }
+        .attached-file-info {
+            flex: 1;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+        .attached-file-name {
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+        .remove-file-btn {
+            background: transparent;
+            border: none;
+            color: #e74c3c;
+            cursor: pointer;
+            font-size: 18px;
+            padding: 4px;
+        }
+        .image-viewer-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.95);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .image-viewer-modal.show { display: flex; }
+        .image-viewer-content {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+        }
+        .image-viewer-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: var(--bg-secondary);
+            border: none;
+            color: var(--text-primary);
+            font-size: 32px;
+            cursor: pointer;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
         .highlight { background-color: #7a5d00; color: #fff; padding: 2px 4px; border-radius: 2px; }
         .context-menu {
             position: fixed;
@@ -295,6 +313,7 @@
             padding: 20px;
             align-items: center;
             justify-content: center;
+            overflow-y: auto;
         }
         .modal.show { display: flex; }
         .modal-content {
@@ -304,6 +323,8 @@
             max-width: 500px;
             width: 100%;
             border: 1px solid var(--border);
+            max-height: 90vh;
+            overflow-y: auto;
         }
         .modal-title { font-size: 20px; font-weight: 600; margin-bottom: 20px; }
         .form-group { margin-bottom: 16px; }
@@ -317,31 +338,28 @@
             color: var(--text-primary);
             font-size: 16px;
         }
-.form-input:focus { outline: none; border-color: var(--accent); }
-.form-textarea {
-    display: none;
-}
-.rich-text-editor {
-    width: 100%;
-    padding: 12px;
-    background: var(--bg-tertiary);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    color: var(--text-primary);
-    font-size: 16px;
-    min-height: 120px;
-    resize: vertical;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
-    line-height: 1.5;
-    overflow-y: auto;
-}
-.rich-text-editor:focus { outline: none; border-color: var(--accent); }
-.rich-text-editor:empty:before {
-    content: attr(data-placeholder);
-    color: var(--text-secondary);
-    opacity: 0.5;
-}
-        .modal-buttons { display: flex; gap: 10px; margin-top: 24px; }
+        .form-input:focus { outline: none; border-color: var(--accent); }
+        .rich-text-editor {
+            width: 100%;
+            padding: 12px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text-primary);
+            font-size: 16px;
+            min-height: 120px;
+            resize: vertical;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            line-height: 1.5;
+            overflow-y: auto;
+        }
+        .rich-text-editor:focus { outline: none; border-color: var(--accent); }
+        .rich-text-editor:empty:before {
+            content: attr(data-placeholder);
+            color: var(--text-secondary);
+            opacity: 0.5;
+        }
+        .modal-buttons { display: flex; gap: 10px; margin-top: 24px; flex-wrap: wrap; }
         .empty-state { text-align: center; padding: 60px 20px; color: var(--text-secondary); }
         .splash {
             position: fixed;
@@ -409,42 +427,48 @@
         }
         .page-content { padding: 20px; }
         .formatting-toolbar {
-    display: flex;
-    gap: 4px;
-    margin-bottom: 8px;
-    padding: 8px;
-    background: var(--bg-primary);
-    border-radius: 6px;
-    border: 1px solid var(--border);
-    flex-wrap: wrap;
-}
-.format-btn {
-    padding: 8px 14px;
-    background: var(--bg-tertiary);
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    color: var(--text-primary);
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: 500;
-    transition: all 0.2s;
-    user-select: none;
-    -webkit-tap-highlight-color: transparent;
-}
-.format-btn:hover {
-    background: var(--bg-secondary);
-}
-.format-btn:active {
-    background: var(--accent);
-    transform: scale(0.95);
-}
-.format-btn.active {
-    background: var(--accent);
-    border-color: var(--accent);
-}
+            display: flex;
+            gap: 4px;
+            margin-bottom: 8px;
+            padding: 8px;
+            background: var(--bg-primary);
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            flex-wrap: wrap;
+        }
+        .format-btn {
+            padding: 8px 14px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            color: var(--text-primary);
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+            user-select: none;
+        }
+        .format-btn:hover { background: var(--bg-secondary); }
+        .format-btn:active {
+            background: var(--accent);
+            transform: scale(0.95);
+        }
+        .format-btn.active {
+            background: var(--accent);
+            border-color: var(--accent);
+        }
+        .info-box {
+            background: var(--bg-tertiary);
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 16px;
+            font-size: 14px;
+            line-height: 1.6;
+            color: var(--text-secondary);
+        }
+        .info-box strong { color: var(--text-primary); }
     </style>
 </head>
-    
 <body>
     <div class="splash" id="splash">
         <div class="splash-icon">
@@ -456,7 +480,15 @@
     <div class="header">
         <div class="header-top">
             <h1>Mon Index Biblique</h1>
-            <button class="mode-toggle" onclick="toggleMode()" id="modeBtn">Mode Lecture</button>
+            <div class="header-buttons">
+                <button class="settings-btn" onclick="openSettings()">⚙️</button>
+                <button class="sync-btn" onclick="manualSync()">🔄</button>
+                <button class="mode-toggle" onclick="toggleMode()" id="modeBtn">Mode Lecture</button>
+            </div>
+        </div>
+        <div class="sync-status" id="syncStatus">
+            <div class="sync-indicator" id="syncIndicator"></div>
+            <span id="syncText">Initialisation...</span>
         </div>
         <input type="text" class="search-input" id="searchInput" placeholder="Rechercher...">
         <div class="controls" id="controls">
@@ -478,13 +510,62 @@
 
     <div id="contextMenu"></div>
     
+    <!-- GitHub Config Modal -->
+    <div class="modal" id="githubConfigModal">
+        <div class="modal-content">
+            <div class="modal-title">🔧 Configuration GitHub</div>
+            <div class="info-box">
+                <strong>Configuration initiale requise</strong><br>
+                Pour synchroniser vos données entre vos appareils, entrez votre Personal Access Token GitHub.
+            </div>
+            <div class="form-group">
+                <label class="form-label">Personal Access Token</label>
+                <input type="password" class="form-input" id="githubToken" placeholder="ghp_...">
+            </div>
+            <div class="modal-buttons">
+                <button class="btn btn-primary" onclick="saveGithubConfig()">Enregistrer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="modal" id="settingsModal">
+        <div class="modal-content">
+            <div class="modal-title">⚙️ Paramètres</div>
+            <div class="form-group">
+                <label class="form-label">GitHub Token</label>
+                <input type="password" class="form-input" id="settingsToken" placeholder="ghp_...">
+            </div>
+            <div class="info-box">
+                <strong>Informations GitHub:</strong><br>
+                Username: <strong>touatinicolas-prog</strong><br>
+                Repository: <strong>index2</strong><br>
+                Branche: <strong>main</strong><br>
+                Fichier: <strong>data.json</strong>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Synchronisation automatique</label>
+                <select class="form-input" id="autoSyncInterval">
+                    <option value="0">Désactivée</option>
+                    <option value="60000">Toutes les minutes</option>
+                    <option value="120000" selected>Toutes les 2 minutes</option>
+                    <option value="300000">Toutes les 5 minutes</option>
+                </select>
+            </div>
+            <div class="modal-buttons">
+                <button class="btn btn-primary" onclick="saveSettings()">Enregistrer</button>
+                <button class="btn btn-secondary" onclick="closeModal('settingsModal')">Annuler</button>
+            </div>
+        </div>
+    </div>
+    
     <div class="modal" id="addCategoryModal">
         <div class="modal-content">
             <div class="modal-title">Nouvelle Catégorie</div>
             <div class="form-group">
-    <label class="form-label">Nom</label>
-    <input type="text" class="form-input" id="categoryName" onkeypress="if(event.key==='Enter'){addCategory()}">
-</div>
+                <label class="form-label">Nom</label>
+                <input type="text" class="form-input" id="categoryName" onkeypress="if(event.key==='Enter'){addCategory()}">
+            </div>
             <div class="modal-buttons">
                 <button class="btn btn-primary" onclick="addCategory()">Ajouter</button>
                 <button class="btn btn-secondary" onclick="closeModal('addCategoryModal')">Annuler</button>
@@ -497,7 +578,7 @@
             <div class="modal-title">Modifier la catégorie</div>
             <div class="form-group">
                 <label class="form-label">Nom</label>
-               <input type="text" class="form-input" id="editCategoryName" onkeypress="if(event.key==='Enter'){saveEditCategory()}">
+                <input type="text" class="form-input" id="editCategoryName" onkeypress="if(event.key==='Enter'){saveEditCategory()}">
             </div>
             <div class="modal-buttons">
                 <button class="btn btn-primary" onclick="saveEditCategory()">Enregistrer</button>
@@ -542,22 +623,22 @@
                 <input type="text" class="form-input" id="verseRef" onkeypress="if(event.key==='Enter'){document.getElementById('verseNote').focus()}">
             </div>
             <div class="form-group">
-    <label class="form-label">Note</label>
-    <div class="formatting-toolbar">
-        <button type="button" class="format-btn" onclick="toggleFormat('verseNote', 'bold')" title="Gras"><strong>G</strong></button>
-        <button type="button" class="format-btn" onclick="toggleFormat('verseNote', 'italic')" title="Italique"><em>I</em></button>
-        <button type="button" class="format-btn" onclick="toggleFormat('verseNote', 'underline')" title="Souligné"><u>S</u></button>
-    </div>
-    <div class="rich-text-editor" id="verseNote" contenteditable="true" data-placeholder="Ajoutez vos réflexions, commentaires..." onkeydown="handleEditorKeydown(event, 'verseNote')"></div>
-</div>
+                <label class="form-label">Note</label>
+                <div class="formatting-toolbar">
+                    <button type="button" class="format-btn" onclick="toggleFormat('verseNote', 'bold')" title="Gras"><strong>G</strong></button>
+                    <button type="button" class="format-btn" onclick="toggleFormat('verseNote', 'italic')" title="Italique"><em>I</em></button>
+                    <button type="button" class="format-btn" onclick="toggleFormat('verseNote', 'underline')" title="Souligné"><u>S</u></button>
+                </div>
+                <div class="rich-text-editor" id="verseNote" contenteditable="true" data-placeholder="Ajoutez vos réflexions, commentaires..." onkeydown="handleEditorKeydown(event, 'verseNote')"></div>
+            </div>
             <div class="form-group">
-    <label class="form-label">Fichiers (images, PDF)</label>
-    <div class="file-input-wrapper">
-        <label class="file-input-label" for="verseFiles">📎 Ajouter des fichiers</label>
-        <input type="file" id="verseFiles" accept="image/*,application/pdf" multiple style="display:none" onchange="handleFileSelect(event, 'add')">
-    </div>
-    <div id="addFilesPreview" class="attached-files-list"></div>
-</div>
+                <label class="form-label">Fichiers (images, PDF)</label>
+                <div class="file-input-wrapper">
+                    <label class="file-input-label" for="verseFiles">📎 Ajouter des fichiers</label>
+                    <input type="file" id="verseFiles" accept="image/*,application/pdf" multiple style="display:none" onchange="handleFileSelect(event, 'add')">
+                </div>
+                <div id="addFilesPreview" class="attached-files-list"></div>
+            </div>
             <div class="modal-buttons">
                 <button class="btn btn-primary" onclick="addVerse()">Ajouter</button>
                 <button class="btn btn-secondary" onclick="closeModal('addVerseModal')">Annuler</button>
@@ -573,22 +654,22 @@
                 <input type="text" class="form-input" id="editVerseRef" onkeypress="if(event.key==='Enter'){document.getElementById('editVerseNote').focus()}">
             </div>
             <div class="form-group">
-    <label class="form-label">Note</label>
-    <div class="formatting-toolbar">
-        <button type="button" class="format-btn" onclick="toggleFormat('editVerseNote', 'bold')" title="Gras"><strong>G</strong></button>
-        <button type="button" class="format-btn" onclick="toggleFormat('editVerseNote', 'italic')" title="Italique"><em>I</em></button>
-        <button type="button" class="format-btn" onclick="toggleFormat('editVerseNote', 'underline')" title="Souligné"><u>S</u></button>
-    </div>
-    <div class="rich-text-editor" id="editVerseNote" contenteditable="true" data-placeholder="Ajoutez vos réflexions, commentaires..." onkeydown="handleEditorKeydown(event, 'editVerseNote')"></div>
-</div>
+                <label class="form-label">Note</label>
+                <div class="formatting-toolbar">
+                    <button type="button" class="format-btn" onclick="toggleFormat('editVerseNote', 'bold')" title="Gras"><strong>G</strong></button>
+                    <button type="button" class="format-btn" onclick="toggleFormat('editVerseNote', 'italic')" title="Italique"><em>I</em></button>
+                    <button type="button" class="format-btn" onclick="toggleFormat('editVerseNote', 'underline')" title="Souligné"><u>S</u></button>
+                </div>
+                <div class="rich-text-editor" id="editVerseNote" contenteditable="true" data-placeholder="Ajoutez vos réflexions, commentaires..." onkeydown="handleEditorKeydown(event, 'editVerseNote')"></div>
+            </div>
             <div class="form-group">
-    <label class="form-label">Fichiers (images, PDF)</label>
-    <div class="file-input-wrapper">
-        <label class="file-input-label" for="editVerseFiles">📎 Ajouter des fichiers</label>
-        <input type="file" id="editVerseFiles" accept="image/*,application/pdf" multiple style="display:none" onchange="handleFileSelect(event, 'edit')">
-    </div>
-    <div id="editFilesPreview" class="attached-files-list"></div>
-</div>
+                <label class="form-label">Fichiers (images, PDF)</label>
+                <div class="file-input-wrapper">
+                    <label class="file-input-label" for="editVerseFiles">📎 Ajouter des fichiers</label>
+                    <input type="file" id="editVerseFiles" accept="image/*,application/pdf" multiple style="display:none" onchange="handleFileSelect(event, 'edit')">
+                </div>
+                <div id="editFilesPreview" class="attached-files-list"></div>
+            </div>
             <div class="modal-buttons">
                 <button class="btn btn-primary" onclick="saveEditVerse()">Enregistrer</button>
                 <button class="btn btn-secondary" onclick="closeModal('editVerseModal')">Annuler</button>
@@ -608,7 +689,7 @@
                 <div style="margin: 12px 0 8px 0;">❌ <strong style="color: var(--text-primary);">NON</strong> - Remplacement total</div>
                 <div style="color: var(--text-secondary); font-size: 14px; margin-left: 24px;">Toutes vos données actuelles seront remplacées</div>
             </div>
-            <div class="modal-buttons" style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <div class="modal-buttons">
                 <button class="btn btn-primary" onclick="confirmMerge(true)" style="flex: 1; min-width: 80px;">Oui</button>
                 <button class="btn btn-secondary" onclick="confirmMerge(false)" style="flex: 1; min-width: 80px;">Non</button>
                 <button class="btn btn-secondary" onclick="cancelImport()" style="flex: 1; min-width: 80px;">Annuler</button>
@@ -623,12 +704,24 @@
         </div>
         <div class="page-content" id="pageContent"></div>
     </div>
-        <div class="image-viewer-modal" id="imageViewer" onclick="closeImageViewer()">
-    <button class="image-viewer-close" onclick="closeImageViewer()">×</button>
-    <img id="imageViewerContent" class="image-viewer-content" src="" alt="Image">
-</div>
-
+    
+    <div class="image-viewer-modal" id="imageViewer" onclick="closeImageViewer()">
+        <button class="image-viewer-close" onclick="closeImageViewer()">×</button>
+        <img id="imageViewerContent" class="image-viewer-content" src="" alt="Image">
+    </div>
     <script>
+        // Configuration GitHub
+        const GITHUB_CONFIG = {
+            username: 'touatinicolas-prog',
+            repo: 'index2',
+            branch: 'main',
+            filepath: 'data.json'
+        };
+        let githubToken = localStorage.getItem('githubToken') || null;
+        let autoSyncInterval = null;
+        let isSyncing = false;
+        let lastSyncTime = null;
+        
         const STORAGE_KEY = 'monIndexBiblique';
         let data = {categories: [{id: 1, name: 'Foi et Confiance', expanded: true, lastModified: Date.now(), subcategories: [{id: 11, name: 'Renforcer sa foi', expanded: true, lastModified: Date.now(), verses: [{id: 111, ref: 'Hébreux 11:1', note: 'Définition de la foi', attachments: [], lastModified: Date.now()}], subcategories: []}]}]};
         let currentCat = null, currentSub = null, editItem = null, searchQuery = '', readOnlyMode = false;
@@ -649,14 +742,155 @@
         function saveData() {
             try {
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+                if (githubToken && !isSyncing) {
+                    syncWithGithub(false);
+                }
             } catch (err) {
                 console.error('Erreur lors de la sauvegarde des données:', err);
             }
         }
 
+        // Fonctions GitHub Sync
+        function updateSyncStatus(status, text) {
+            const indicator = document.getElementById('syncIndicator');
+            const statusText = document.getElementById('syncText');
+            indicator.className = 'sync-indicator ' + status;
+            statusText.textContent = text;
+        }
+
+        async function syncWithGithub(showMessages = false) {
+            if (!githubToken) {
+                updateSyncStatus('error', 'Token manquant - Configurez dans ⚙️');
+                return;
+            }
+            
+            if (isSyncing) return;
+            isSyncing = true;
+            updateSyncStatus('syncing', 'Synchronisation...');
+            
+            try {
+                const response = await fetch(
+                    `https://api.github.com/repos/${GITHUB_CONFIG.username}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.filepath}`,
+                    {
+                        headers: {
+                            'Authorization': `token ${githubToken}`,
+                            'Accept': 'application/vnd.github.v3+json'
+                        }
+                    }
+                );
+                
+                let remoteSha = null;
+                let remoteData = null;
+                
+                if (response.ok) {
+                    const fileData = await response.json();
+                    remoteSha = fileData.sha;
+                    const content = atob(fileData.content);
+                    remoteData = JSON.parse(content);
+                    mergeData(remoteData);
+                }
+                
+                const content = btoa(unescape(encodeURIComponent(JSON.stringify(data, null, 2))));
+                
+                const saveResponse = await fetch(
+                    `https://api.github.com/repos/${GITHUB_CONFIG.username}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.filepath}`,
+                    {
+                        method: 'PUT',
+                        headers: {
+                            'Authorization': `token ${githubToken}`,
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            message: `Mise à jour depuis ${navigator.userAgent.includes('iPhone') ? 'iPhone' : 'iPad'} - ${new Date().toLocaleString('fr-FR')}`,
+                            content: content,
+                            sha: remoteSha,
+                            branch: GITHUB_CONFIG.branch
+                        })
+                    }
+                );
+                
+                if (saveResponse.ok) {
+                    lastSyncTime = new Date();
+                    updateSyncStatus('synced', `Synchronisé à ${lastSyncTime.toLocaleTimeString('fr-FR')}`);
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+                    if (showMessages) alert('✅ Synchronisation réussie !');
+                } else {
+                    throw new Error('Erreur lors de la sauvegarde');
+                }
+                
+            } catch (error) {
+                console.error('Erreur de synchronisation:', error);
+                updateSyncStatus('error', 'Erreur de synchronisation');
+                if (showMessages) alert('❌ Erreur de synchronisation: ' + error.message);
+            } finally {
+                isSyncing = false;
+            }
+        }
+
+        function manualSync() {
+            syncWithGithub(true);
+        }
+
+        function startAutoSync() {
+            const interval = parseInt(localStorage.getItem('autoSyncInterval') || '120000');
+            if (interval > 0) {
+                if (autoSyncInterval) clearInterval(autoSyncInterval);
+                autoSyncInterval = setInterval(() => syncWithGithub(false), interval);
+            }
+        }
+
+        function openSettings() {
+            document.getElementById('settingsToken').value = githubToken || '';
+            document.getElementById('autoSyncInterval').value = localStorage.getItem('autoSyncInterval') || '120000';
+            openModal('settingsModal');
+        }
+
+        function saveSettings() {
+            const token = document.getElementById('settingsToken').value.trim();
+            const interval = document.getElementById('autoSyncInterval').value;
+            
+            if (token) {
+                githubToken = token;
+                localStorage.setItem('githubToken', token);
+            }
+            
+            localStorage.setItem('autoSyncInterval', interval);
+            
+            closeModal('settingsModal');
+            startAutoSync();
+            syncWithGithub(true);
+        }
+
+        function saveGithubConfig() {
+            const token = document.getElementById('githubToken').value.trim();
+            
+            if (!token) {
+                alert('⚠️ Veuillez entrer votre token GitHub');
+                return;
+            }
+            
+            githubToken = token;
+            localStorage.setItem('githubToken', token);
+            closeModal('githubConfigModal');
+            
+            alert('✅ Configuration enregistrée !\n\nVotre app va maintenant se synchroniser avec GitHub.');
+            syncWithGithub(true);
+            startAutoSync();
+        }
+
         window.addEventListener('DOMContentLoaded', () => {
             loadData();
             render();
+            
+            if (!githubToken) {
+                setTimeout(() => {
+                    openModal('githubConfigModal');
+                }, 2000);
+            } else {
+                syncWithGithub(false);
+                startAutoSync();
+            }
+            
             setTimeout(() => document.getElementById('splash').classList.add('hide'), 1500);
             
             let timeout;
@@ -690,59 +924,53 @@
         }
 
         function showMenu(e, items) {
-    e.preventDefault();
-    e.stopPropagation();
-    
-    closeContextMenu();
-    
-    const div = document.createElement('div');
-    div.className = 'context-menu';
-    
-    items.forEach(item => {
-        const itm = document.createElement('div');
-        itm.className = 'context-menu-item' + (item.danger ? ' danger' : '');
-        itm.textContent = item.label;
-        itm.onclick = (ev) => {
-            ev.stopPropagation();
+            e.preventDefault();
+            e.stopPropagation();
             closeContextMenu();
-            setTimeout(() => item.action(), 50);
-        };
-        div.appendChild(itm);
-    });
-    
-    document.body.appendChild(div);
-    
-    setTimeout(() => {
-        const rect = div.getBoundingClientRect();
-        const viewportHeight = window.innerHeight;
-        const viewportWidth = window.innerWidth;
-        
-        // Obtenir la position du clic en coordonnées viewport
-        let x = e.clientX || (e.touches && e.touches[0].clientX) || 0;
-        let y = e.clientY || (e.touches && e.touches[0].clientY) || 0;
-        
-        // Calculer la position X (éviter le débordement à droite)
-        let finalX = x + 10;
-        if (finalX + rect.width > viewportWidth - 10) {
-            finalX = viewportWidth - rect.width - 10;
+            
+            const div = document.createElement('div');
+            div.className = 'context-menu';
+            
+            items.forEach(item => {
+                const itm = document.createElement('div');
+                itm.className = 'context-menu-item' + (item.danger ? ' danger' : '');
+                itm.textContent = item.label;
+                itm.onclick = (ev) => {
+                    ev.stopPropagation();
+                    closeContextMenu();
+                    setTimeout(() => item.action(), 50);
+                };
+                div.appendChild(itm);
+            });
+            
+            document.body.appendChild(div);
+            
+            setTimeout(() => {
+                const rect = div.getBoundingClientRect();
+                const viewportHeight = window.innerHeight;
+                const viewportWidth = window.innerWidth;
+                
+                let x = e.clientX || (e.touches && e.touches[0].clientX) || 0;
+                let y = e.clientY || (e.touches && e.touches[0].clientY) || 0;
+                
+                let finalX = x + 10;
+                if (finalX + rect.width > viewportWidth - 10) {
+                    finalX = viewportWidth - rect.width - 10;
+                }
+                finalX = Math.max(10, finalX);
+                
+                let finalY = y + 10;
+                if (finalY + rect.height > viewportHeight - 10) {
+                    finalY = y - rect.height - 10;
+                }
+                if (finalY < 10) {
+                    finalY = 10;
+                }
+                
+                div.style.left = finalX + 'px';
+                div.style.top = finalY + 'px';
+            }, 10);
         }
-        finalX = Math.max(10, finalX);
-        
-        // Calculer la position Y (afficher au-dessus si pas assez d'espace en-dessous)
-        let finalY = y + 10;
-        if (finalY + rect.height > viewportHeight - 10) {
-            finalY = y - rect.height - 10;
-        }
-        // Si toujours pas assez d'espace, placer en haut de l'écran
-        if (finalY < 10) {
-            finalY = 10;
-        }
-        
-        // Utiliser position fixed avec clientX/Y au lieu de pageX/Y
-        div.style.left = finalX + 'px';
-        div.style.top = finalY + 'px';
-    }, 10);
-}
 
         function highlight(text) {
             if (!searchQuery || !text) return text;
@@ -751,11 +979,10 @@
         }
 
         function matches(text) {
-    if (!text) return !searchQuery;
-    // Nettoyer le HTML pour la recherche
-    const cleanText = text.replace(/<[^>]*>/g, '').toLowerCase();
-    return !searchQuery || cleanText.includes(searchQuery);
-}
+            if (!text) return !searchQuery;
+            const cleanText = text.replace(/<[^>]*>/g, '').toLowerCase();
+            return !searchQuery || cleanText.includes(searchQuery);
+        }
 
         function findSub(catId, subId, parentSubs = null) {
             const cat = data.categories.find(c => c.id === catId);
@@ -781,31 +1008,27 @@
             if (sub) { sub.expanded = !sub.expanded; render(); }
         }
 
-        function renderSubs(subs, catId, level = 1, parentPath = '') {
-    return subs.map((sub, idx) => {
-        // Fonction récursive pour vérifier les matches dans toute la hiérarchie
-        function hasMatchRecursive(subcategory) {
-            // Vérifier le nom de la sous-catégorie
-            if (matches(subcategory.name)) return true;
-            
-            // Vérifier les versets
-            if (subcategory.verses && subcategory.verses.some(v => matches(v.ref) || matches(v.note || ''))) return true;
-            
-            // Vérifier récursivement les sous-sous-catégories
-            if (subcategory.subcategories && subcategory.subcategories.length > 0) {
-                return subcategory.subcategories.some(s => hasMatchRecursive(s));
-            }
-            
-            return false;
+        function renderFormattedNote(note) {
+            if (!note) return '';
+            return note.replace(/\n/g, '<br>');
         }
-        
-        const hasMatch = hasMatchRecursive(sub);
-        if (!hasMatch && searchQuery) return '';
-                const currentPath = parentPath ? `${parentPath}-${idx}` : `${idx}`;
+
+        function renderSubs(subs, catId, level = 1, parentPath = '') {
+            return subs.map((sub, idx) => {
+                function hasMatchRecursive(subcategory) {
+                    if (matches(subcategory.name)) return true;
+                    if (subcategory.verses && subcategory.verses.some(v => matches(v.ref) || matches(v.note || ''))) return true;
+                    if (subcategory.subcategories && subcategory.subcategories.length > 0) {
+                        return subcategory.subcategories.some(s => hasMatchRecursive(s));
+                    }
+                    return false;
+                }
                 
-                const onClickAction = level === 2 
-                    ? `if(!dragMode)openSubsubPage(${catId}, ${sub.id})` 
-                    : `if(!dragMode)toggleSub(${catId}, ${sub.id})`;
+                const hasMatch = hasMatchRecursive(sub);
+                if (!hasMatch && searchQuery) return '';
+                
+                const currentPath = parentPath ? `${parentPath}-${idx}` : `${idx}`;
+                const onClickAction = level === 2 ? `if(!dragMode)openSubsubPage(${catId}, ${sub.id})` : `if(!dragMode)toggleSub(${catId}, ${sub.id})`;
                 
                 return `<div class="subcategory ${level === 2 ? 'level-2' : ''}" data-cat-id="${catId}" data-sub-id="${sub.id}" data-sub-path="${currentPath}" data-level="${level}">
                     <div class="subcategory-header" onclick="${onClickAction}">
@@ -827,16 +1050,16 @@
                                 <div class="verse-content">
                                     ${dragMode ? '<span class="drag-handle" draggable="true">☰</span>' : ''}
                                     <div style="flex:1;">
-    <div class="verse-ref">${highlight(v.ref)}</div>
-    ${v.note ? `<div class="verse-note">${highlight(renderFormattedNote(v.note))}</div>` : ''}
-    ${v.attachments && v.attachments.length > 0 ? `<div class="verse-attachments">${v.attachments.map((att, attIdx) => {
-        if (att.type === 'application/pdf') {
-            return `<div class="attachment-pdf" onclick="window.open('${att.data}', '_blank')">📄</div>`;
-        } else {
-            return `<img src="${att.data}" class="attachment-thumb" onclick="openImageViewer('${att.data}')" alt="Attachment ${attIdx + 1}">`;
-        }
-    }).join('')}</div>` : ''}
-</div>
+                                        <div class="verse-ref">${highlight(v.ref)}</div>
+                                        ${v.note ? `<div class="verse-note">${highlight(renderFormattedNote(v.note))}</div>` : ''}
+                                        ${v.attachments && v.attachments.length > 0 ? `<div class="verse-attachments">${v.attachments.map((att, attIdx) => {
+                                            if (att.type === 'application/pdf') {
+                                                return `<div class="attachment-pdf" onclick="window.open('${att.data}', '_blank')">📄</div>`;
+                                            } else {
+                                                return `<img src="${att.data}" class="attachment-thumb" onclick="openImageViewer('${att.data}')" alt="Attachment ${attIdx + 1}">`;
+                                            }
+                                        }).join('')}</div>` : ''}
+                                    </div>
                                 </div>
                                 <button class="icon-btn ${readOnlyMode ? 'hidden' : ''}" onclick="event.stopPropagation(); showVerseMenu(event, ${catId}, ${sub.id}, ${v.id})">⋮</button>
                             </div>`;
@@ -848,10 +1071,8 @@
 
         function openSubsubPage(catId, subId) {
             if (dragMode) return;
-            
             const sub = findSub(catId, subId);
             if (!sub) return;
-            
             if (document.getElementById('subsubPage').classList.contains('active')) return;
             
             document.getElementById('pageTitle').textContent = sub.name;
@@ -860,26 +1081,23 @@
                 return `<div class="verse-item" data-cat-id="${catId}" data-sub-id="${sub.id}" data-verse-id="${v.id}" data-verse-index="${vIdx}">
                     <div class="verse-content">
                         <div style="flex:1;">
-    <div class="verse-ref">${v.ref}</div>
-   ${v.note ? `<div class="verse-note">${renderFormattedNote(v.note)}</div>` : ''}
-    ${v.attachments && v.attachments.length > 0 ? `<div class="verse-attachments">${v.attachments.map((att, attIdx) => {
-        if (att.type === 'application/pdf') {
-            return `<div class="attachment-pdf" onclick="window.open('${att.data}', '_blank')">📄</div>`;
-        } else {
-            return `<img src="${att.data}" class="attachment-thumb" onclick="openImageViewer('${att.data}')" alt="Attachment ${attIdx + 1}">`;
-        }
-    }).join('')}</div>` : ''}
-</div>
+                            <div class="verse-ref">${v.ref}</div>
+                            ${v.note ? `<div class="verse-note">${renderFormattedNote(v.note)}</div>` : ''}
+                            ${v.attachments && v.attachments.length > 0 ? `<div class="verse-attachments">${v.attachments.map((att, attIdx) => {
+                                if (att.type === 'application/pdf') {
+                                    return `<div class="attachment-pdf" onclick="window.open('${att.data}', '_blank')">📄</div>`;
+                                } else {
+                                    return `<img src="${att.data}" class="attachment-thumb" onclick="openImageViewer('${att.data}')" alt="Attachment ${attIdx + 1}">`;
+                                }
+                            }).join('')}</div>` : ''}
+                        </div>
                     </div>
                     <button class="icon-btn ${readOnlyMode ? 'hidden' : ''}" onclick="event.stopPropagation(); showVerseMenu(event, ${catId}, ${sub.id}, ${v.id})">⋮</button>
                 </div>`;
             }).join('');
             
             document.getElementById('pageContent').innerHTML = content || '<div class="empty-state"><p>Aucun verset</p></div>';
-            
-            setTimeout(() => {
-                document.getElementById('subsubPage').classList.add('active');
-            }, 50);
+            setTimeout(() => document.getElementById('subsubPage').classList.add('active'), 50);
         }
 
         function closePage() {
@@ -906,1054 +1124,932 @@
             showMenu(e, items);
         }
 
-     function showVerseMenu(e, catId, subId, verseId) {
-    showMenu(e, [
-        { label: dragMode ? '✓ Réorganiser' : 'Réorganiser', action: () => toggleDragMode() },
-        { label: 'Modifier', action: () => openEditVerseModal(catId, subId, verseId) },
-        { label: 'Supprimer', action: () => deleteVerse(catId, subId, verseId), danger: true }
-    ]);
-}
-
-function render() {
-    const container = document.getElementById('categoriesContainer');
-    if (data.categories.length === 0) {
-        container.innerHTML = '';
-        document.getElementById('emptyState').style.display = 'block';
-        return;
-    }
-    document.getElementById('emptyState').style.display = 'none';
-    container.innerHTML = data.categories.map((cat, idx) => {
-        const hasMatch = matches(cat.name) || cat.subcategories.some(s => matches(s.name) || s.verses.some(v => matches(v.ref) || matches(v.note || '')));
-        if (!hasMatch && searchQuery) return '';
-        return `<div class="category-card" data-cat-index="${idx}" data-cat-id="${cat.id}">
-            <div class="category-header" onclick="if(!dragMode)toggleCat(${cat.id})">
-                <div class="category-title-wrapper">
-                    ${dragMode ? '<span class="drag-handle" draggable="true">☰</span>' : ''}
-                    <div class="category-title">${highlight(cat.name)}</div>
-                </div>
-                <div style="display:flex;align-items:center;gap:12px;">
-                    <button class="icon-btn ${readOnlyMode ? 'hidden' : ''}" onclick="event.stopPropagation(); showCatMenu(event, ${cat.id})">⋮</button>
-                    <span class="chevron">${cat.expanded ? '▼' : '▶'}</span>
-                </div>
-            </div>
-            <div class="category-content ${cat.expanded ? 'expanded' : ''}">
-                ${renderSubs(cat.subcategories, cat.id)}
-            </div>
-        </div>`;
-    }).join('');
-    
-    if (dragMode) setupDragDrop();
-}
-
-function openModal(id) { 
-    document.getElementById(id).classList.add('show'); 
-    // Focus automatique sur le premier champ de saisie
-    setTimeout(() => {
-        const modal = document.getElementById(id);
-        const firstInput = modal.querySelector('input[type="text"], textarea');
-        if (firstInput) firstInput.focus();
-    }, 100);
-}
-function closeModal(id) { document.getElementById(id).classList.remove('show'); }
-
-function getSubcategoryByPath(catId, path) {
-    const cat = data.categories.find(c => c.id === catId);
-    if (!cat) return null;
-    
-    const indices = path.split('-').map(n => parseInt(n));
-    let current = cat.subcategories;
-    let parent = cat.subcategories;
-    
-    for (let i = 0; i < indices.length; i++) {
-        const idx = indices[i];
-        if (!current[idx]) return null;
-        
-        if (i === indices.length - 1) {
-            return { parent: parent, index: idx, item: current[idx] };
-        } else {
-            parent = current[idx].subcategories;
-            current = current[idx].subcategories;
+        function showVerseMenu(e, catId, subId, verseId) {
+            showMenu(e, [
+                { label: dragMode ? '✓ Réorganiser' : 'Réorganiser', action: () => toggleDragMode() },
+                { label: 'Modifier', action: () => openEditVerseModal(catId, subId, verseId) },
+                { label: 'Supprimer', action: () => deleteVerse(catId, subId, verseId), danger: true }
+            ]);
         }
-    }
-    return null;
-}
 
-function setupDragDrop() {
-    let touchStartY = 0;
-    let touchStartX = 0;
-    let isDragging = false;
-    
-    // Catégories
-    const catHandles = document.querySelectorAll('.category-card > .category-header .drag-handle');
-    catHandles.forEach(handle => {
-        const card = handle.closest('.category-card');
-        
-        // Desktop drag & drop
-        handle.setAttribute('draggable', 'true');
-        
-        handle.addEventListener('dragstart', (e) => {
-            draggedItem = { 
-                type: 'category', 
-                index: parseInt(card.dataset.catIndex)
-            };
-            e.dataTransfer.effectAllowed = 'move';
-            setTimeout(() => card.classList.add('dragging'), 0);
-        });
-        
-        handle.addEventListener('dragend', () => {
-            card.classList.remove('dragging');
-            draggedItem = null;
-        });
-        
-        // Mobile touch events
-        handle.addEventListener('touchstart', (e) => {
-            if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
-                e.preventDefault();
+        function render() {
+            const container = document.getElementById('categoriesContainer');
+            if (data.categories.length === 0) {
+                container.innerHTML = '';
+                document.getElementById('emptyState').style.display = 'block';
+                return;
             }
-            touchStartY = e.touches[0].clientY;
-            touchStartX = e.touches[0].clientX;
-            isDragging = true;
-            draggedItem = { 
-                type: 'category', 
-                index: parseInt(card.dataset.catIndex)
-            };
-            card.classList.add('dragging');
-        });
-        
-        handle.addEventListener('touchend', (e) => {
-            if (!isDragging) return;
-            e.preventDefault();
-            card.classList.remove('dragging');
+            document.getElementById('emptyState').style.display = 'none';
+            container.innerHTML = data.categories.map((cat, idx) => {
+                const hasMatch = matches(cat.name) || cat.subcategories.some(s => matches(s.name) || s.verses.some(v => matches(v.ref) || matches(v.note || '')));
+                if (!hasMatch && searchQuery) return '';
+                return `<div class="category-card" data-cat-index="${idx}" data-cat-id="${cat.id}">
+                    <div class="category-header" onclick="if(!dragMode)toggleCat(${cat.id})">
+                        <div class="category-title-wrapper">
+                            ${dragMode ? '<span class="drag-handle" draggable="true">☰</span>' : ''}
+                            <div class="category-title">${highlight(cat.name)}</div>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:12px;">
+                            <button class="icon-btn ${readOnlyMode ? 'hidden' : ''}" onclick="event.stopPropagation(); showCatMenu(event, ${cat.id})">⋮</button>
+                            <span class="chevron">${cat.expanded ? '▼' : '▶'}</span>
+                        </div>
+                    </div>
+                    <div class="category-content ${cat.expanded ? 'expanded' : ''}">
+                        ${renderSubs(cat.subcategories, cat.id)}
+                    </div>
+                </div>`;
+            }).join('');
             
-            const touch = e.changedTouches[0];
-            const dropTarget = document.elementFromPoint(touch.clientX, touch.clientY);
-            const targetCard = dropTarget?.closest('.category-card');
-            
-            if (targetCard && draggedItem?.type === 'category') {
-                const toIndex = parseInt(targetCard.dataset.catIndex);
-                const fromIndex = draggedItem.index;
-                if (fromIndex !== toIndex) {
-                    const [moved] = data.categories.splice(fromIndex, 1);
-                    data.categories.splice(toIndex, 0, moved);
-                    saveData();
-                    render();
-                }
-            }
-            
-            draggedItem = null;
-            isDragging = false;
-        });
-    });
-    
-    const cats = document.querySelectorAll('.category-card');
-    cats.forEach(card => {
-        card.addEventListener('dragover', (e) => {
-            if (draggedItem?.type === 'category') {
-                e.preventDefault();
-            }
-        });
-        
-        card.addEventListener('drop', (e) => {
-            e.preventDefault();
-            if (draggedItem?.type === 'category') {
-                const toIndex = parseInt(card.dataset.catIndex);
-                const fromIndex = draggedItem.index;
-                if (fromIndex !== toIndex) {
-                    const [moved] = data.categories.splice(fromIndex, 1);
-                    data.categories.splice(toIndex, 0, moved);
-                    saveData();
-                    render();
-                }
-            }
-        });
-    });
-
-    // Sous-catégories
-    const subHandles = document.querySelectorAll('.subcategory > .subcategory-header .drag-handle');
-    subHandles.forEach(handle => {
-        const subDiv = handle.closest('.subcategory');
-        
-        // Desktop drag & drop
-        handle.setAttribute('draggable', 'true');
-        
-        handle.addEventListener('dragstart', (e) => {
-            draggedItem = { 
-                type: 'subcategory', 
-                catId: parseInt(subDiv.dataset.catId),
-                path: subDiv.dataset.subPath,
-                level: parseInt(subDiv.dataset.level)
-            };
-            e.dataTransfer.effectAllowed = 'move';
-            setTimeout(() => subDiv.classList.add('dragging'), 0);
-        });
-        
-        handle.addEventListener('dragend', () => {
-            subDiv.classList.remove('dragging');
-            document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
-            draggedItem = null;
-        });
-        
-        // Mobile touch events
-        handle.addEventListener('touchstart', (e) => {
-            if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
-                e.preventDefault();
-            }
-            touchStartY = e.touches[0].clientY;
-            touchStartX = e.touches[0].clientX;
-            isDragging = true;
-            draggedItem = { 
-                type: 'subcategory', 
-                catId: parseInt(subDiv.dataset.catId),
-                path: subDiv.dataset.subPath,
-                level: parseInt(subDiv.dataset.level)
-            };
-            subDiv.classList.add('dragging');
-        });
-        
-        handle.addEventListener('touchend', (e) => {
-            if (!isDragging) return;
-            e.preventDefault();
-            subDiv.classList.remove('dragging');
-            document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
-            
-            const touch = e.changedTouches[0];
-            const dropTarget = document.elementFromPoint(touch.clientX, touch.clientY);
-            const targetSubDiv = dropTarget?.closest('.subcategory');
-            
-            if (targetSubDiv && draggedItem?.type === 'subcategory') {
-                const toCatId = parseInt(targetSubDiv.dataset.catId);
-                const toPath = targetSubDiv.dataset.subPath;
-                const toLevel = parseInt(targetSubDiv.dataset.level);
-                
-                if (draggedItem.catId === toCatId && draggedItem.level === toLevel && draggedItem.path !== toPath) {
-                    const fromData = getSubcategoryByPath(draggedItem.catId, draggedItem.path);
-                    const toData = getSubcategoryByPath(toCatId, toPath);
-                    
-                    if (fromData && toData && fromData.parent === toData.parent) {
-                        const [moved] = fromData.parent.splice(fromData.index, 1);
-                        const adjustedIndex = fromData.index < toData.index ? toData.index : toData.index;
-                        fromData.parent.splice(adjustedIndex, 0, moved);
-                        saveData();
-                        render();
-                    }
-                }
-            }
-            
-            draggedItem = null;
-            isDragging = false;
-        });
-    });
-    
-    const subs = document.querySelectorAll('.subcategory');
-    subs.forEach(subDiv => {
-        subDiv.addEventListener('dragover', (e) => {
-            if (draggedItem?.type === 'subcategory') {
-                const targetCatId = parseInt(subDiv.dataset.catId);
-                const targetLevel = parseInt(subDiv.dataset.level);
-                if (draggedItem.catId === targetCatId && draggedItem.level === targetLevel) {
-                    e.preventDefault();
-                    subDiv.classList.add('drag-over');
-                }
-            }
-        });
-        
-        subDiv.addEventListener('dragleave', () => {
-            subDiv.classList.remove('drag-over');
-        });
-        
-        subDiv.addEventListener('drop', (e) => {
-            e.preventDefault();
-            subDiv.classList.remove('drag-over');
-            
-            if (draggedItem?.type === 'subcategory') {
-                const toCatId = parseInt(subDiv.dataset.catId);
-                const toPath = subDiv.dataset.subPath;
-                const toLevel = parseInt(subDiv.dataset.level);
-                
-                if (draggedItem.catId === toCatId && draggedItem.level === toLevel && draggedItem.path !== toPath) {
-                    const fromData = getSubcategoryByPath(draggedItem.catId, draggedItem.path);
-                    const toData = getSubcategoryByPath(toCatId, toPath);
-                    
-                    if (fromData && toData && fromData.parent === toData.parent) {
-                        const [moved] = fromData.parent.splice(fromData.index, 1);
-                        const adjustedIndex = fromData.index < toData.index ? toData.index : toData.index;
-                        fromData.parent.splice(adjustedIndex, 0, moved);
-                        saveData();
-                        render();
-                    }
-                }
-            }
-        });
-    });
-
-    // Versets
-    const verseHandles = document.querySelectorAll('.verse-item .drag-handle');
-    verseHandles.forEach(handle => {
-        const verseDiv = handle.closest('.verse-item');
-        
-        // Desktop drag & drop
-        handle.setAttribute('draggable', 'true');
-        
-        handle.addEventListener('dragstart', (e) => {
-            draggedItem = {
-                type: 'verse',
-                catId: parseInt(verseDiv.dataset.catId),
-                subId: parseInt(verseDiv.dataset.subId),
-                verseId: parseInt(verseDiv.dataset.verseId),
-                index: parseInt(verseDiv.dataset.verseIndex)
-            };
-            e.dataTransfer.effectAllowed = 'move';
-            setTimeout(() => verseDiv.classList.add('dragging'), 0);
-        });
-        
-        handle.addEventListener('dragend', () => {
-            verseDiv.classList.remove('dragging');
-            document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
-            draggedItem = null;
-        });
-        
-        // Mobile touch events
-        handle.addEventListener('touchstart', (e) => {
-            if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
-                e.preventDefault();
-            }
-            touchStartY = e.touches[0].clientY;
-            touchStartX = e.touches[0].clientX;
-            isDragging = true;
-            draggedItem = {
-                type: 'verse',
-                catId: parseInt(verseDiv.dataset.catId),
-                subId: parseInt(verseDiv.dataset.subId),
-                verseId: parseInt(verseDiv.dataset.verseId),
-                index: parseInt(verseDiv.dataset.verseIndex)
-            };
-            verseDiv.classList.add('dragging');
-        });
-        
-        handle.addEventListener('touchend', (e) => {
-            if (!isDragging) return;
-            e.preventDefault();
-            verseDiv.classList.remove('dragging');
-            document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
-            
-            const touch = e.changedTouches[0];
-            const dropTarget = document.elementFromPoint(touch.clientX, touch.clientY);
-            const targetVerseDiv = dropTarget?.closest('.verse-item');
-            
-            if (targetVerseDiv && draggedItem?.type === 'verse') {
-                const toCatId = parseInt(targetVerseDiv.dataset.catId);
-                const toSubId = parseInt(targetVerseDiv.dataset.subId);
-                const toIndex = parseInt(targetVerseDiv.dataset.verseIndex);
-                
-                if (draggedItem.catId === toCatId && draggedItem.subId === toSubId && draggedItem.index !== toIndex) {
-                    const sub = findSub(toCatId, toSubId);
-                    if (sub) {
-                        const [moved] = sub.verses.splice(draggedItem.index, 1);
-                        sub.verses.splice(toIndex, 0, moved);
-                        saveData();
-                        render();
-                    }
-                }
-            }
-            
-            draggedItem = null;
-            isDragging = false;
-        });
-    });
-    
-    const verses = document.querySelectorAll('.verse-item');
-    verses.forEach(verseDiv => {
-        verseDiv.addEventListener('dragover', (e) => {
-            if (draggedItem?.type === 'verse') {
-                const targetCatId = parseInt(verseDiv.dataset.catId);
-                const targetSubId = parseInt(verseDiv.dataset.subId);
-                if (draggedItem.catId === targetCatId && draggedItem.subId === targetSubId) {
-                    e.preventDefault();
-                    verseDiv.classList.add('drag-over');
-                }
-            }
-        });
-        
-        verseDiv.addEventListener('dragleave', () => {
-            verseDiv.classList.remove('drag-over');
-        });
-        
-        verseDiv.addEventListener('drop', (e) => {
-            e.preventDefault();
-            verseDiv.classList.remove('drag-over');
-            
-            if (draggedItem?.type === 'verse') {
-                const toCatId = parseInt(verseDiv.dataset.catId);
-                const toSubId = parseInt(verseDiv.dataset.subId);
-                const toIndex = parseInt(verseDiv.dataset.verseIndex);
-                
-                if (draggedItem.catId === toCatId && draggedItem.subId === toSubId && draggedItem.index !== toIndex) {
-                    const sub = findSub(toCatId, toSubId);
-                    if (sub) {
-                        const [moved] = sub.verses.splice(draggedItem.index, 1);
-                        sub.verses.splice(toIndex, 0, moved);
-                        saveData();
-                        render();
-                    }
-                }
-            }
-        });
-    });
-}
-
-function addCategory() {
-    const name = document.getElementById('categoryName').value.trim();
-    if (!name) return;
-    data.categories.push({ id: Date.now(), name, expanded: true, subcategories: [], lastModified: Date.now() });
-    saveData();
-    render();
-    closeModal('addCategoryModal');
-    document.getElementById('categoryName').value = '';
-}
-
-function openEditCatModal(catId) {
-    editItem = { type: 'cat', id: catId };
-    const cat = data.categories.find(c => c.id === catId);
-    document.getElementById('editCategoryName').value = cat.name;
-    openModal('editCategoryModal');
-}
-
-function saveEditCategory() {
-    const cat = data.categories.find(c => c.id === editItem.id);
-    if (cat) { 
-        cat.name = document.getElementById('editCategoryName').value.trim(); 
-        cat.lastModified = Date.now();
-        saveData(); 
-        render(); 
-    }
-    closeModal('editCategoryModal');
-}
-
-function openAddSubModal(catId, parentSubId = null) {
-    currentCat = catId;
-    currentSub = parentSubId;
-    document.getElementById('subcategoryName').value = '';
-    document.getElementById('subModalTitle').textContent = parentSubId ? 'Nouvelle Sous-sous-catégorie' : 'Nouvelle Sous-catégorie';
-    openModal('addSubcategoryModal');
-}
-
-function addSubcategory() {
-    const name = document.getElementById('subcategoryName').value.trim();
-    if (!name) return;
-    if (currentSub) {
-        const parentSub = findSub(currentCat, currentSub);
-        if (parentSub) {
-            if (!parentSub.subcategories) parentSub.subcategories = [];
-            parentSub.subcategories.push({ id: Date.now(), name, expanded: true, verses: [], subcategories: [], lastModified: Date.now() });
-            parentSub.lastModified = Date.now();
+            if (dragMode) setupDragDrop();
         }
-    } else {
-        const cat = data.categories.find(c => c.id === currentCat);
-        if (cat) {
-            cat.subcategories.push({ id: Date.now(), name, expanded: true, verses: [], subcategories: [], lastModified: Date.now() });
-            cat.lastModified = Date.now();
+
+        function openModal(id) { 
+            document.getElementById(id).classList.add('show'); 
+            setTimeout(() => {
+                const modal = document.getElementById(id);
+                const firstInput = modal.querySelector('input[type="text"], textarea');
+                if (firstInput) firstInput.focus();
+            }, 100);
         }
-    }
-    saveData();
-    render();
-    closeModal('addSubcategoryModal');
-}
-
-function openEditSubModal(catId, subId) {
-    editItem = { type: 'sub', catId, id: subId };
-    const sub = findSub(catId, subId);
-    if (sub) {
-        document.getElementById('editSubcategoryName').value = sub.name;
-        openModal('editSubcategoryModal');
-    }
-}
-
-function saveEditSubcategory() {
-    const sub = findSub(editItem.catId, editItem.id);
-    if (sub) { 
-        sub.name = document.getElementById('editSubcategoryName').value.trim(); 
-        sub.lastModified = Date.now();
-        saveData(); 
-        render(); 
-    }
-    closeModal('editSubcategoryModal');
-}
-
-function openAddVerseModal(catId, subId) {
-    currentCat = catId;
-    currentSub = subId;
-    document.getElementById('verseRef').value = '';
-    document.getElementById('verseNote').innerHTML = '';
-    document.getElementById('verseFiles').value = '';
-    document.getElementById('addFilesPreview').innerHTML = '';
-    tempAttachments = [];
-    openModal('addVerseModal');
-}
-
-function addVerse() {
-    const ref = document.getElementById('verseRef').value.trim();
-    const noteHTML = document.getElementById('verseNote').innerHTML.trim();
-    const note = noteHTML.replace(/<br\s*\/?>/gi, '\n');
-    if (!ref) return;
-    const sub = findSub(currentCat, currentSub);
-    if (sub) { 
-        sub.verses.push({ 
-            id: Date.now(), 
-            ref, 
-            note, 
-            attachments: [...tempAttachments],
-            lastModified: Date.now()
-        });
-        sub.lastModified = Date.now();
-        saveData(); 
-        render(); 
-    }
-    closeModal('addVerseModal');
-    tempAttachments = [];
-}
-
-function openEditVerseModal(catId, subId, verseId) {
-    editItem = { type: 'verse', catId, subId, id: verseId };
-    const sub = findSub(catId, subId);
-    if (sub) {
-        const verse = sub.verses.find(v => v.id === verseId);
-        if (verse) {
-            document.getElementById('editVerseRef').value = verse.ref;
-            const noteHTML = (verse.note || '').replace(/\n/g, '<br>');
-            document.getElementById('editVerseNote').innerHTML = noteHTML;
-            document.getElementById('editVerseFiles').value = '';
-            tempAttachments = verse.attachments ? [...verse.attachments] : [];
-            displayEditAttachments();
-            openModal('editVerseModal');
+        
+        function closeModal(id) { 
+            document.getElementById(id).classList.remove('show'); 
         }
-    }
-}
 
-function saveEditVerse() {
-    const sub = findSub(editItem.catId, editItem.subId);
-    if (sub) {
-        const verse = sub.verses.find(v => v.id === editItem.id);
-        if (verse) {
-            verse.ref = document.getElementById('editVerseRef').value.trim();
-            const noteHTML = document.getElementById('editVerseNote').innerHTML.trim();
-            verse.note = noteHTML.replace(/<br\s*\/?>/gi, '\n');
-            verse.attachments = [...tempAttachments];
-            verse.lastModified = Date.now();
-            sub.lastModified = Date.now();
+        function addCategory() {
+            const name = document.getElementById('categoryName').value.trim();
+            if (!name) return;
+            data.categories.push({ id: Date.now(), name, expanded: true, subcategories: [], lastModified: Date.now() });
             saveData();
             render();
+            closeModal('addCategoryModal');
+            document.getElementById('categoryName').value = '';
         }
-    }
-    closeModal('editVerseModal');
-    tempAttachments = [];
-}
 
-function deleteCat(catId) {
-    if (confirm('Supprimer cette catégorie ?')) {
-        data.categories = data.categories.filter(c => c.id !== catId);
-        saveData();
-        render();
-    }
-}
+        function openEditCatModal(catId) {
+            editItem = { type: 'cat', id: catId };
+            const cat = data.categories.find(c => c.id === catId);
+            document.getElementById('editCategoryName').value = cat.name;
+            openModal('editCategoryModal');
+        }
 
-function deleteSubRec(subs, subId) {
-    for (let i = 0; i < subs.length; i++) {
-        if (subs[i].id === subId) { subs.splice(i, 1); return true; }
-        if (subs[i].subcategories?.length > 0 && deleteSubRec(subs[i].subcategories, subId)) return true;
-    }
-    return false;
-}
+        function saveEditCategory() {
+            const cat = data.categories.find(c => c.id === editItem.id);
+            if (cat) { 
+                cat.name = document.getElementById('editCategoryName').value.trim(); 
+                cat.lastModified = Date.now();
+                saveData(); 
+                render(); 
+            }
+            closeModal('editCategoryModal');
+        }
 
-function deleteSub(catId, subId) {
-    if (confirm('Supprimer cette sous-catégorie ?')) {
-        const cat = data.categories.find(c => c.id === catId);
-        if (cat) { deleteSubRec(cat.subcategories, subId); saveData(); render(); }
-    }
-}
+        function openAddSubModal(catId, parentSubId = null) {
+            currentCat = catId;
+            currentSub = parentSubId;
+            document.getElementById('subcategoryName').value = '';
+            document.getElementById('subModalTitle').textContent = parentSubId ? 'Nouvelle Sous-sous-catégorie' : 'Nouvelle Sous-catégorie';
+            openModal('addSubcategoryModal');
+        }
 
-function deleteVerse(catId, subId, verseId) {
-    const sub = findSub(catId, subId);
-    if (sub) { sub.verses = sub.verses.filter(v => v.id !== verseId); saveData(); render(); }
-}
+        function addSubcategory() {
+            const name = document.getElementById('subcategoryName').value.trim();
+            if (!name) return;
+            if (currentSub) {
+                const parentSub = findSub(currentCat, currentSub);
+                if (parentSub) {
+                    if (!parentSub.subcategories) parentSub.subcategories = [];
+                    parentSub.subcategories.push({ id: Date.now(), name, expanded: true, verses: [], subcategories: [], lastModified: Date.now() });
+                    parentSub.lastModified = Date.now();
+                }
+            } else {
+                const cat = data.categories.find(c => c.id === currentCat);
+                if (cat) {
+                    cat.subcategories.push({ id: Date.now(), name, expanded: true, verses: [], subcategories: [], lastModified: Date.now() });
+                    cat.lastModified = Date.now();
+                }
+            }
+            saveData();
+            render();
+            closeModal('addSubcategoryModal');
+        }
 
-function exportData() {
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = `index-biblique-${new Date().toISOString().split('T')[0]}.json`;
-    a.click();
-}
+        function openEditSubModal(catId, subId) {
+            editItem = { type: 'sub', catId, id: subId };
+            const sub = findSub(catId, subId);
+            if (sub) {
+                document.getElementById('editSubcategoryName').value = sub.name;
+                openModal('editSubcategoryModal');
+            }
+        }
+
+        function saveEditSubcategory() {
+            const sub = findSub(editItem.catId, editItem.id);
+            if (sub) { 
+                sub.name = document.getElementById('editSubcategoryName').value.trim(); 
+                sub.lastModified = Date.now();
+                saveData(); 
+                render(); 
+            }
+            closeModal('editSubcategoryModal');
+        }
+
+        function openAddVerseModal(catId, subId) {
+            currentCat = catId;
+            currentSub = subId;
+            document.getElementById('verseRef').value = '';
+            document.getElementById('verseNote').innerHTML = '';
+            document.getElementById('verseFiles').value = '';
+            document.getElementById('addFilesPreview').innerHTML = '';
+            tempAttachments = [];
+            openModal('addVerseModal');
+        }
+
+        function addVerse() {
+            const ref = document.getElementById('verseRef').value.trim();
+            const noteHTML = document.getElementById('verseNote').innerHTML.trim();
+            const note = noteHTML.replace(/<br\s*\/?>/gi, '\n');
+            if (!ref) return;
+            const sub = findSub(currentCat, currentSub);
+            if (sub) { 
+                sub.verses.push({ 
+                    id: Date.now(), 
+                    ref, 
+                    note, 
+                    attachments: [...tempAttachments],
+                    lastModified: Date.now()
+                });
+                sub.lastModified = Date.now();
+                saveData(); 
+                render(); 
+            }
+            closeModal('addVerseModal');
+            tempAttachments = [];
+        }
+
+        function openEditVerseModal(catId, subId, verseId) {
+            editItem = { type: 'verse', catId, subId, id: verseId };
+            const sub = findSub(catId, subId);
+            if (sub) {
+                const verse = sub.verses.find(v => v.id === verseId);
+                if (verse) {
+                    document.getElementById('editVerseRef').value = verse.ref;
+                    const noteHTML = (verse.note || '').replace(/\n/g, '<br>');
+                    document.getElementById('editVerseNote').innerHTML = noteHTML;
+                    document.getElementById('editVerseFiles').value = '';
+                    tempAttachments = verse.attachments ? [...verse.attachments] : [];
+                    displayEditAttachments();
+                    openModal('editVerseModal');
+                }
+            }
+        }
+
+        function saveEditVerse() {
+            const sub = findSub(editItem.catId, editItem.subId);
+            if (sub) {
+                const verse = sub.verses.find(v => v.id === editItem.id);
+                if (verse) {
+                    verse.ref = document.getElementById('editVerseRef').value.trim();
+                    const noteHTML = document.getElementById('editVerseNote').innerHTML.trim();
+                    verse.note = noteHTML.replace(/<br\s*\/?>/gi, '\n');
+                    verse.attachments = [...tempAttachments];
+                    verse.lastModified = Date.now();
+                    sub.lastModified = Date.now();
+                    saveData();
+                    render();
+                }
+            }
+            closeModal('editVerseModal');
+            tempAttachments = [];
+        }
+
+        function deleteCat(catId) {
+            if (confirm('Supprimer cette catégorie ?')) {
+                data.categories = data.categories.filter(c => c.id !== catId);
+                saveData();
+                render();
+            }
+        }
+
+        function deleteSubRec(subs, subId) {
+            for (let i = 0; i < subs.length; i++) {
+                if (subs[i].id === subId) { subs.splice(i, 1); return true; }
+                if (subs[i].subcategories?.length > 0 && deleteSubRec(subs[i].subcategories, subId)) return true;
+            }
+            return false;
+        }
+
+        function deleteSub(catId, subId) {
+            if (confirm('Supprimer cette sous-catégorie ?')) {
+                const cat = data.categories.find(c => c.id === catId);
+                if (cat) { deleteSubRec(cat.subcategories, subId); saveData(); render(); }
+            }
+        }
+
+        function deleteVerse(catId, subId, verseId) {
+            const sub = findSub(catId, subId);
+            if (sub) { sub.verses = sub.verses.filter(v => v.id !== verseId); saveData(); render(); }
+        }
+
+        function exportData() {
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `index-biblique-${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+        }
 
         function checkStorageSize() {
-    try {
-        const jsonString = JSON.stringify(data);
-        const sizeInBytes = jsonString.length;
-        const sizeInKB = (sizeInBytes / 1024).toFixed(2);
-        const sizeInMB = (sizeInBytes / 1024 / 1024).toFixed(2);
-        const percentUsed = ((sizeInBytes / (5 * 1024 * 1024)) * 100).toFixed(1);
-        
-        // Fonction récursive pour compter les fichiers
-        function countFilesRecursive(subcategories) {
-            let imgCount = 0;
-            let pdfCountLocal = 0;
-            
-            subcategories.forEach(sub => {
-                // Compter dans les versets de cette sous-catégorie
-                if (sub.verses) {
-                    sub.verses.forEach(v => {
-                        if (v.attachments) {
-                            v.attachments.forEach(att => {
-                                if (att.type.startsWith('image/')) imgCount++;
-                                if (att.type === 'application/pdf') pdfCountLocal++;
+            try {
+                const jsonString = JSON.stringify(data);
+                const sizeInBytes = jsonString.length;
+                const sizeInKB = (sizeInBytes / 1024).toFixed(2);
+                const sizeInMB = (sizeInBytes / 1024 / 1024).toFixed(2);
+                const percentUsed = ((sizeInBytes / (5 * 1024 * 1024)) * 100).toFixed(1);
+                
+                function countFilesRecursive(subcategories) {
+                    let imgCount = 0;
+                    let pdfCountLocal = 0;
+                    
+                    subcategories.forEach(sub => {
+                        if (sub.verses) {
+                            sub.verses.forEach(v => {
+                                if (v.attachments) {
+                                    v.attachments.forEach(att => {
+                                        if (att.type.startsWith('image/')) imgCount++;
+                                        if (att.type === 'application/pdf') pdfCountLocal++;
+                                    });
+                                }
                             });
+                        }
+                        if (sub.subcategories && sub.subcategories.length > 0) {
+                            const subCounts = countFilesRecursive(sub.subcategories);
+                            imgCount += subCounts.images;
+                            pdfCountLocal += subCounts.pdfs;
+                        }
+                    });
+                    
+                    return { images: imgCount, pdfs: pdfCountLocal };
+                }
+                
+                let imageCount = 0;
+                let pdfCount = 0;
+                
+                data.categories.forEach(cat => {
+                    const counts = countFilesRecursive(cat.subcategories);
+                    imageCount += counts.images;
+                    pdfCount += counts.pdfs;
+                });
+                
+                alert(`📊 INFORMATIONS DE STOCKAGE\n\n` +
+                      `Taille: ${sizeInKB} KB (${sizeInMB} MB)\n` +
+                      `Utilisation: ${percentUsed}% de la limite\n` +
+                      `Limite navigateur: ~5 MB\n\n` +
+                      `📎 Fichiers attachés:\n` +
+                      `Images: ${imageCount}\n` +
+                      `PDF: ${pdfCount}\n\n` +
+                      `${percentUsed > 80 ? '⚠️ ATTENTION: Proche de la limite !' : '✅ Espace suffisant'}`);
+            } catch (err) {
+                alert('❌ Erreur lors du calcul de la taille');
+                console.error(err);
+            }
+        }
+        
+        let pendingImportData = null;
+
+        function importData(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    try {
+                        pendingImportData = JSON.parse(ev.target.result);
+                        openModal('mergeModal');
+                    } catch (err) {
+                        alert('❌ Erreur lors de l\'import');
+                        console.error(err);
+                    }
+                };
+                reader.readAsText(file);
+            }
+        }
+
+        function confirmMerge(shouldMerge) {
+            closeModal('mergeModal');
+            
+            try {
+                if (shouldMerge) {
+                    mergeData(pendingImportData);
+                } else {
+                    data = JSON.parse(JSON.stringify(pendingImportData));
+                }
+                
+                const jsonString = JSON.stringify(data);
+                const sizeInMB = (jsonString.length / 1024 / 1024).toFixed(2);
+                
+                if (jsonString.length > 4 * 1024 * 1024) {
+                    throw new Error(`Les données sont trop volumineuses (${sizeInMB} MB).`);
+                }
+                
+                localStorage.setItem(STORAGE_KEY, jsonString);
+                const verification = localStorage.getItem(STORAGE_KEY);
+                if (!verification) {
+                    throw new Error('La sauvegarde a échoué');
+                }
+                
+                data = JSON.parse(verification);
+                render();
+                
+                alert(shouldMerge ? '✅ Données fusionnées avec succès !' : '✅ Données remplacées avec succès !');
+                    
+            } catch (err) {
+                console.error('❌ Erreur:', err);
+                alert('❌ Erreur lors de l\'import:\n\n' + err.message);
+                
+                try {
+                    const oldData = localStorage.getItem(STORAGE_KEY);
+                    if (oldData) {
+                        data = JSON.parse(oldData);
+                        render();
+                    }
+                } catch (restoreErr) {
+                    console.error('Impossible de restaurer les anciennes données');
+                }
+            }
+            
+            pendingImportData = null;
+            document.getElementById('importFile').value = '';
+        }
+
+        function cancelImport() {
+            closeModal('mergeModal');
+            pendingImportData = null;
+            document.getElementById('importFile').value = '';
+        }
+
+        function mergeData(importedData) {
+            if (!importedData.categories) return;
+            
+            importedData.categories.forEach(importedCat => {
+                const existingCat = data.categories.find(c => c.id === importedCat.id);
+                
+                if (existingCat) {
+                    mergeCategoryData(existingCat, importedCat);
+                } else {
+                    data.categories.push(importedCat);
+                }
+            });
+        }
+
+        function mergeCategoryData(existing, imported) {
+            if (imported.lastModified && (!existing.lastModified || imported.lastModified > existing.lastModified)) {
+                existing.name = imported.name;
+                existing.lastModified = imported.lastModified;
+            }
+            
+            if (imported.subcategories) {
+                if (!existing.subcategories) existing.subcategories = [];
+                
+                imported.subcategories.forEach(importedSub => {
+                    const existingSub = findSubInArray(existing.subcategories, importedSub.id);
+                    
+                    if (existingSub) {
+                        mergeSubcategoryData(existingSub, importedSub);
+                    } else {
+                        existing.subcategories.push(importedSub);
+                    }
+                });
+            }
+        }
+
+        function mergeSubcategoryData(existing, imported) {
+            if (imported.lastModified && (!existing.lastModified || imported.lastModified > existing.lastModified)) {
+                existing.name = imported.name;
+                existing.lastModified = imported.lastModified;
+            }
+            
+            if (imported.verses) {
+                if (!existing.verses) existing.verses = [];
+                
+                imported.verses.forEach(importedVerse => {
+                    const existingVerse = existing.verses.find(v => v.id === importedVerse.id);
+                    
+                    if (existingVerse) {
+                        if (importedVerse.lastModified && (!existingVerse.lastModified || importedVerse.lastModified > existingVerse.lastModified)) {
+                            existingVerse.ref = importedVerse.ref;
+                            existingVerse.note = importedVerse.note;
+                            existingVerse.attachments = importedVerse.attachments;
+                            existingVerse.lastModified = importedVerse.lastModified;
+                        }
+                    } else {
+                        existing.verses.push(importedVerse);
+                    }
+                });
+            }
+            
+            if (imported.subcategories) {
+                if (!existing.subcategories) existing.subcategories = [];
+                
+                imported.subcategories.forEach(importedSubSub => {
+                    const existingSubSub = findSubInArray(existing.subcategories, importedSubSub.id);
+                    
+                    if (existingSubSub) {
+                        mergeSubcategoryData(existingSubSub, importedSubSub);
+                    } else {
+                        existing.subcategories.push(importedSubSub);
+                    }
+                });
+            }
+        }
+
+        function findSubInArray(subsArray, subId) {
+            for (let sub of subsArray) {
+                if (sub.id === subId) return sub;
+                if (sub.subcategories?.length > 0) {
+                    const found = findSubInArray(sub.subcategories, subId);
+                    if (found) return found;
+                }
+            }
+            return null;
+        }
+        
+        function handleFileSelect(event, mode) {
+            const files = event.target.files;
+            if (!files.length) return;
+            
+            Array.from(files).forEach(file => {
+                if (file.type === 'application/pdf') {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const attachment = {
+                            name: file.name,
+                            type: file.type,
+                            data: e.target.result
+                        };
+                        tempAttachments.push(attachment);
+                        if (mode === 'add') {
+                            displayAddAttachments();
+                        } else {
+                            displayEditAttachments();
+                        }
+                    };
+                    reader.readAsDataURL(file);
+                } 
+                else if (file.type.startsWith('image/')) {
+                    compressImage(file, (compressedData) => {
+                        const attachment = {
+                            name: file.name,
+                            type: file.type,
+                            data: compressedData
+                        };
+                        tempAttachments.push(attachment);
+                        if (mode === 'add') {
+                            displayAddAttachments();
+                        } else {
+                            displayEditAttachments();
                         }
                     });
                 }
-                // Récursion pour les sous-sous-catégories
-                if (sub.subcategories && sub.subcategories.length > 0) {
-                    const subCounts = countFilesRecursive(sub.subcategories);
-                    imgCount += subCounts.images;
-                    pdfCountLocal += subCounts.pdfs;
-                }
             });
-            
-            return { images: imgCount, pdfs: pdfCountLocal };
         }
-        
-        // Compter tous les fichiers
-        let imageCount = 0;
-        let pdfCount = 0;
-        
-        data.categories.forEach(cat => {
-            const counts = countFilesRecursive(cat.subcategories);
-            imageCount += counts.images;
-            pdfCount += counts.pdfs;
-        });
-        
-        alert(`📊 INFORMATIONS DE STOCKAGE\n\n` +
-              `Taille: ${sizeInKB} KB (${sizeInMB} MB)\n` +
-              `Utilisation: ${percentUsed}% de la limite\n` +
-              `Limite navigateur: ~5 MB\n\n` +
-              `📎 Fichiers attachés:\n` +
-              `Images: ${imageCount}\n` +
-              `PDF: ${pdfCount}\n\n` +
-              `${percentUsed > 80 ? '⚠️ ATTENTION: Proche de la limite !' : '✅ Espace suffisant'}`);
-    } catch (err) {
-        alert('❌ Erreur lors du calcul de la taille');
-        console.error(err);
-    }
-}
-        
-let pendingImportData = null;
 
-function importData(e) {
-    const file = e.target.files[0];
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = (ev) => {
-            try {
-                pendingImportData = JSON.parse(ev.target.result);
-                openModal('mergeModal');
-            } catch (err) {
-                alert('❌ Erreur lors de l\'import');
-                console.error(err);
-            }
-        };
-        reader.readAsText(file);
-    }
-}
-
-function confirmMerge(shouldMerge) {
-    closeModal('mergeModal');
-    
-    try {
-        if (shouldMerge) {
-            mergeData(pendingImportData);
-            console.log('Fusion terminée');
-        } else {
-            data = JSON.parse(JSON.stringify(pendingImportData));
-            console.log('Remplacement terminé');
-        }
-        
-        // Calculer la taille des données
-        const jsonString = JSON.stringify(data);
-        const sizeInMB = (jsonString.length / 1024 / 1024).toFixed(2);
-        console.log(`Taille des données: ${sizeInMB} MB`);
-        
-        // Vérifier si la taille est raisonnable (< 4 MB pour être sûr)
-        if (jsonString.length > 4 * 1024 * 1024) {
-            throw new Error(`Les données sont trop volumineuses (${sizeInMB} MB). La limite du navigateur est d'environ 5 MB.\n\nConseil: Réduisez le nombre d'images ou leur qualité.`);
-        }
-        
-        // Tenter la sauvegarde
-        localStorage.setItem(STORAGE_KEY, jsonString);
-        console.log('✅ Sauvegarde réussie');
-        
-        // Vérification
-        const verification = localStorage.getItem(STORAGE_KEY);
-        if (!verification) {
-            throw new Error('La sauvegarde a échoué - vérification impossible');
-        }
-        
-        // Recharger depuis le localStorage
-        data = JSON.parse(verification);
-        render();
-        
-        alert(shouldMerge ? 
-            `✅ Données fusionnées avec succès !\n\nTaille: ${sizeInMB} MB` : 
-            `✅ Données remplacées avec succès !\n\nTaille: ${sizeInMB} MB`);
-            
-    } catch (err) {
-        console.error('❌ Erreur:', err);
-        
-        // Message spécifique pour quota dépassé
-        if (err.name === 'QuotaExceededError' || err.message.includes('quota')) {
-            const sizeInMB = (JSON.stringify(data).length / 1024 / 1024).toFixed(2);
-            alert(`❌ QUOTA DÉPASSÉ !\n\nVos données (${sizeInMB} MB) dépassent la limite du navigateur (~5 MB).\n\n💡 Solutions:\n1. Réduisez le nombre d'images attachées\n2. Compressez vos images avant de les ajouter\n3. Utilisez moins de fichiers PDF\n4. Exportez régulièrement vos données en plusieurs fichiers`);
-        } else {
-            alert('❌ Erreur lors de l\'import:\n\n' + err.message);
-        }
-        
-        // Restaurer les données précédentes
-        try {
-            const oldData = localStorage.getItem(STORAGE_KEY);
-            if (oldData) {
-                data = JSON.parse(oldData);
-                render();
-            }
-        } catch (restoreErr) {
-            console.error('Impossible de restaurer les anciennes données');
-        }
-    }
-    
-    pendingImportData = null;
-    document.getElementById('importFile').value = '';
-}
-
-function cancelImport() {
-    closeModal('mergeModal');
-    pendingImportData = null;
-    document.getElementById('importFile').value = ''; // Réinitialise le sélecteur de fichier
-}
-
-function mergeData(importedData) {
-    if (!importedData.categories) return;
-    
-    // Parcourir toutes les catégories importées
-    importedData.categories.forEach(importedCat => {
-        const existingCat = data.categories.find(c => c.id === importedCat.id);
-        
-        if (existingCat) {
-            // La catégorie existe déjà, fusionner
-            mergeCategoryData(existingCat, importedCat);
-        } else {
-            // Nouvelle catégorie, l'ajouter
-            data.categories.push(importedCat);
-        }
-    });
-}
-
-function mergeCategoryData(existing, imported) {
-    // Mettre à jour si la version importée est plus récente
-    if (imported.lastModified && (!existing.lastModified || imported.lastModified > existing.lastModified)) {
-        existing.name = imported.name;
-        existing.lastModified = imported.lastModified;
-    }
-    
-    // Fusionner les sous-catégories
-    if (imported.subcategories) {
-        if (!existing.subcategories) existing.subcategories = [];
-        
-        imported.subcategories.forEach(importedSub => {
-            const existingSub = findSubInArray(existing.subcategories, importedSub.id);
-            
-            if (existingSub) {
-                mergeSubcategoryData(existingSub, importedSub);
-            } else {
-                existing.subcategories.push(importedSub);
-            }
-        });
-    }
-}
-
-function mergeSubcategoryData(existing, imported) {
-    // Mettre à jour si la version importée est plus récente
-    if (imported.lastModified && (!existing.lastModified || imported.lastModified > existing.lastModified)) {
-        existing.name = imported.name;
-        existing.lastModified = imported.lastModified;
-    }
-    
-    // Fusionner les versets
-    if (imported.verses) {
-        if (!existing.verses) existing.verses = [];
-        
-        imported.verses.forEach(importedVerse => {
-            const existingVerse = existing.verses.find(v => v.id === importedVerse.id);
-            
-            if (existingVerse) {
-                // Le verset existe, garder la version la plus récente
-                if (importedVerse.lastModified && (!existingVerse.lastModified || importedVerse.lastModified > existingVerse.lastModified)) {
-                    existingVerse.ref = importedVerse.ref;
-                    existingVerse.note = importedVerse.note;
-                    existingVerse.attachments = importedVerse.attachments;
-                    existingVerse.lastModified = importedVerse.lastModified;
-                }
-            } else {
-                // Nouveau verset, l'ajouter
-                existing.verses.push(importedVerse);
-            }
-        });
-    }
-    
-    // Fusionner les sous-sous-catégories
-    if (imported.subcategories) {
-        if (!existing.subcategories) existing.subcategories = [];
-        
-        imported.subcategories.forEach(importedSubSub => {
-            const existingSubSub = findSubInArray(existing.subcategories, importedSubSub.id);
-            
-            if (existingSubSub) {
-                mergeSubcategoryData(existingSubSub, importedSubSub);
-            } else {
-                existing.subcategories.push(importedSubSub);
-            }
-        });
-    }
-}
-
-function findSubInArray(subsArray, subId) {
-    for (let sub of subsArray) {
-        if (sub.id === subId) return sub;
-        if (sub.subcategories?.length > 0) {
-            const found = findSubInArray(sub.subcategories, subId);
-            if (found) return found;
-        }
-    }
-    return null;
-}
-        
-        function handleFileSelect(event, mode) {
-    const files = event.target.files;
-    if (!files.length) return;
-    
-    Array.from(files).forEach(file => {
-        // Si c'est un PDF, pas de compression
-        if (file.type === 'application/pdf') {
+        function compressImage(file, callback) {
             const reader = new FileReader();
             reader.onload = (e) => {
-                const attachment = {
-                    name: file.name,
-                    type: file.type,
-                    data: e.target.result
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const MAX_WIDTH = 1200;
+                    const MAX_HEIGHT = 1200;
+                    
+                    let width = img.width;
+                    let height = img.height;
+                    
+                    if (width > height) {
+                        if (width > MAX_WIDTH) {
+                            height = height * (MAX_WIDTH / width);
+                            width = MAX_WIDTH;
+                        }
+                    } else {
+                        if (height > MAX_HEIGHT) {
+                            width = width * (MAX_HEIGHT / height);
+                            height = MAX_HEIGHT;
+                        }
+                    }
+                    
+                    canvas.width = width;
+                    canvas.height = height;
+                    
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+                    
+                    const compressedData = canvas.toDataURL('image/jpeg', 0.8);
+                    callback(compressedData);
                 };
-                tempAttachments.push(attachment);
-                if (mode === 'add') {
-                    displayAddAttachments();
-                } else {
-                    displayEditAttachments();
-                }
+                img.src = e.target.result;
             };
             reader.readAsDataURL(file);
-        } 
-        // Si c'est une image, compresser
-        else if (file.type.startsWith('image/')) {
-            compressImage(file, (compressedData) => {
-                const attachment = {
-                    name: file.name,
-                    type: file.type,
-                    data: compressedData
-                };
-                tempAttachments.push(attachment);
-                if (mode === 'add') {
-                    displayAddAttachments();
-                } else {
-                    displayEditAttachments();
+        }
+
+        function displayAddAttachments() {
+            const container = document.getElementById('addFilesPreview');
+            container.innerHTML = tempAttachments.map((att, idx) => {
+                const isImage = att.type.startsWith('image/');
+                const isPdf = att.type === 'application/pdf';
+                const sizeKB = (att.data.length / 1024).toFixed(1);
+                return `<div class="attached-file-item">
+                    ${isImage ? `<img src="${att.data}" class="attached-file-preview" alt="${att.name}">` : 
+                      isPdf ? `<div class="attached-file-preview" style="background: var(--bg-tertiary); display: flex; align-items: center; justify-content: center; font-size: 20px;">📄</div>` : ''}
+                    <div class="attached-file-info">
+                        <div class="attached-file-name">${att.name}</div>
+                        <div>${sizeKB} KB ${isImage ? '✓ compressé' : ''}</div>
+                    </div>
+                    <button class="remove-file-btn" onclick="removeAttachment(${idx}, 'add')">×</button>
+                </div>`;
+            }).join('');
+        }
+
+        function displayEditAttachments() {
+            const container = document.getElementById('editFilesPreview');
+            container.innerHTML = tempAttachments.map((att, idx) => {
+                const isImage = att.type.startsWith('image/');
+                const isPdf = att.type === 'application/pdf';
+                const sizeKB = (att.data.length / 1024).toFixed(1);
+                return `<div class="attached-file-item">
+                    ${isImage ? `<img src="${att.data}" class="attached-file-preview" alt="${att.name}">` : 
+                      isPdf ? `<div class="attached-file-preview" style="background: var(--bg-tertiary); display: flex; align-items: center; justify-content: center; font-size: 20px;">📄</div>` : ''}
+                    <div class="attached-file-info">
+                        <div class="attached-file-name">${att.name}</div>
+                        <div>${sizeKB} KB ${isImage ? '✓ compressé' : ''}</div>
+                    </div>
+                    <button class="remove-file-btn" onclick="removeAttachment(${idx}, 'edit')">×</button>
+                </div>`;
+            }).join('');
+        }
+
+        function removeAttachment(index, mode) {
+            tempAttachments.splice(index, 1);
+            if (mode === 'add') {
+                displayAddAttachments();
+            } else {
+                displayEditAttachments();
+            }
+        }
+
+        function openImageViewer(src) {
+            document.getElementById('imageViewerContent').src = src;
+            document.getElementById('imageViewer').classList.add('show');
+        }
+
+        function closeImageViewer() {
+            document.getElementById('imageViewer').classList.remove('show');
+        }
+
+        function toggleFormat(editorId, format) {
+            const editor = document.getElementById(editorId);
+            editor.focus();
+            
+            if (format === 'bold') {
+                document.execCommand('bold', false, null);
+            } else if (format === 'italic') {
+                document.execCommand('italic', false, null);
+            } else if (format === 'underline') {
+                document.execCommand('underline', false, null);
+            }
+            
+            updateFormatButtons(editorId);
+        }
+
+        function updateFormatButtons(editorId) {
+            const toolbar = document.getElementById(editorId).previousElementSibling;
+            if (!toolbar || !toolbar.classList.contains('formatting-toolbar')) return;
+            
+            const buttons = toolbar.querySelectorAll('.format-btn');
+            buttons.forEach(btn => {
+                const title = btn.getAttribute('title');
+                if (title === 'Gras') {
+                    btn.classList.toggle('active', document.queryCommandState('bold'));
+                } else if (title === 'Italique') {
+                    btn.classList.toggle('active', document.queryCommandState('italic'));
+                } else if (title === 'Souligné') {
+                    btn.classList.toggle('active', document.queryCommandState('underline'));
                 }
             });
         }
-    });
-}
 
-function compressImage(file, callback) {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-        const img = new Image();
-        img.onload = () => {
-            const canvas = document.createElement('canvas');
-            
-            // Définir la largeur maximale (1200px est un bon compromis)
-            const MAX_WIDTH = 1200;
-            const MAX_HEIGHT = 1200;
-            
-            let width = img.width;
-            let height = img.height;
-            
-            // Calculer les nouvelles dimensions en gardant le ratio
-            if (width > height) {
-                if (width > MAX_WIDTH) {
-                    height = height * (MAX_WIDTH / width);
-                    width = MAX_WIDTH;
+        function handleEditorKeydown(event, editorId) {
+            if (event.key === 'Enter' && event.ctrlKey) {
+                event.preventDefault();
+                if (editorId === 'verseNote') {
+                    addVerse();
+                } else if (editorId === 'editVerseNote') {
+                    saveEditVerse();
                 }
-            } else {
-                if (height > MAX_HEIGHT) {
-                    width = width * (MAX_HEIGHT / height);
-                    height = MAX_HEIGHT;
-                }
+                return;
             }
             
-            canvas.width = width;
-            canvas.height = height;
-            
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0, width, height);
-            
-            // Convertir en JPEG avec qualité 0.8 (bon compromis qualité/taille)
-            const compressedData = canvas.toDataURL('image/jpeg', 0.8);
-            
-            // Calculer la réduction
-            const originalSize = e.target.result.length;
-            const compressedSize = compressedData.length;
-            const reduction = ((1 - compressedSize / originalSize) * 100).toFixed(0);
-            
-            console.log(`📸 Image compressée: ${file.name}`);
-            console.log(`   Original: ${(originalSize / 1024).toFixed(1)} KB`);
-            console.log(`   Compressé: ${(compressedSize / 1024).toFixed(1)} KB`);
-            console.log(`   Réduction: ${reduction}%`);
-            
-            callback(compressedData);
-        };
-        img.src = e.target.result;
-    };
-    reader.readAsDataURL(file);
-}
-
-function displayAddAttachments() {
-    const container = document.getElementById('addFilesPreview');
-    container.innerHTML = tempAttachments.map((att, idx) => {
-        const isImage = att.type.startsWith('image/');
-        const isPdf = att.type === 'application/pdf';
-        const sizeKB = (att.data.length / 1024).toFixed(1);
-        return `<div class="attached-file-item">
-            ${isImage ? `<img src="${att.data}" class="attached-file-preview" alt="${att.name}">` : 
-              isPdf ? `<div class="attached-file-preview" style="background: var(--bg-tertiary); display: flex; align-items: center; justify-content: center; font-size: 20px;">📄</div>` : ''}
-            <div class="attached-file-info">
-                <div class="attached-file-name">${att.name}</div>
-                <div>${sizeKB} KB ${isImage ? '✓ compressé' : ''}</div>
-            </div>
-            <button class="remove-file-btn" onclick="removeAttachment(${idx}, 'add')">×</button>
-        </div>`;
-    }).join('');
-}
-
-function displayEditAttachments() {
-    const container = document.getElementById('editFilesPreview');
-    container.innerHTML = tempAttachments.map((att, idx) => {
-        const isImage = att.type.startsWith('image/');
-        const isPdf = att.type === 'application/pdf';
-        const sizeKB = (att.data.length / 1024).toFixed(1);
-        return `<div class="attached-file-item">
-            ${isImage ? `<img src="${att.data}" class="attached-file-preview" alt="${att.name}">` : 
-              isPdf ? `<div class="attached-file-preview" style="background: var(--bg-tertiary); display: flex; align-items: center; justify-content: center; font-size: 20px;">📄</div>` : ''}
-            <div class="attached-file-info">
-                <div class="attached-file-name">${att.name}</div>
-                <div>${sizeKB} KB ${isImage ? '✓ compressé' : ''}</div>
-            </div>
-            <button class="remove-file-btn" onclick="removeAttachment(${idx}, 'edit')">×</button>
-        </div>`;
-    }).join('');
-}
-
-function removeAttachment(index, mode) {
-    tempAttachments.splice(index, 1);
-    if (mode === 'add') {
-        displayAddAttachments();
-    } else {
-        displayEditAttachments();
-    }
-}
-
-function openImageViewer(src) {
-    document.getElementById('imageViewerContent').src = src;
-    document.getElementById('imageViewer').classList.add('show');
-}
-
-function closeImageViewer() {
-    document.getElementById('imageViewer').classList.remove('show');
-}
-        let currentFormatState = {
-    bold: false,
-    italic: false,
-    underline: false
-};
-
-function toggleFormat(editorId, format) {
-    const editor = document.getElementById(editorId);
-    editor.focus();
-    
-    // Activer/désactiver le format
-    if (format === 'bold') {
-        document.execCommand('bold', false, null);
-    } else if (format === 'italic') {
-        document.execCommand('italic', false, null);
-    } else if (format === 'underline') {
-        document.execCommand('underline', false, null);
-    }
-    
-    // Mettre à jour l'état visuel du bouton
-    updateFormatButtons(editorId);
-}
-
-function updateFormatButtons(editorId) {
-    const toolbar = document.getElementById(editorId).previousElementSibling;
-    if (!toolbar || !toolbar.classList.contains('formatting-toolbar')) return;
-    
-    const buttons = toolbar.querySelectorAll('.format-btn');
-    buttons.forEach(btn => {
-        const title = btn.getAttribute('title');
-        if (title === 'Gras') {
-            btn.classList.toggle('active', document.queryCommandState('bold'));
-        } else if (title === 'Italique') {
-            btn.classList.toggle('active', document.queryCommandState('italic'));
-        } else if (title === 'Souligné') {
-            btn.classList.toggle('active', document.queryCommandState('underline'));
+            setTimeout(() => updateFormatButtons(editorId), 10);
         }
-    });
-}
 
-function handleEditorKeydown(event, editorId) {
-    // Ctrl+Enter pour soumettre
-    if (event.key === 'Enter' && event.ctrlKey) {
-        event.preventDefault();
-        if (editorId === 'verseNote') {
-            addVerse();
-        } else if (editorId === 'editVerseNote') {
-            saveEditVerse();
+        function getSubcategoryByPath(catId, path) {
+            const cat = data.categories.find(c => c.id === catId);
+            if (!cat) return null;
+            
+            const indices = path.split('-').map(n => parseInt(n));
+            let current = cat.subcategories;
+            let parent = cat.subcategories;
+            
+            for (let i = 0; i < indices.length; i++) {
+                const idx = indices[i];
+                if (!current[idx]) return null;
+                
+                if (i === indices.length - 1) {
+                    return { parent: parent, index: idx, item: current[idx] };
+                } else {
+                    parent = current[idx].subcategories;
+                    current = current[idx].subcategories;
+                }
+            }
+            return null;
         }
-        return;
-    }
-    
-    // Mettre à jour les boutons après un court délai pour que le formatage soit appliqué
-    setTimeout(() => updateFormatButtons(editorId), 10);
-}
 
-// Mettre à jour les boutons quand on clique dans l'éditeur
-document.addEventListener('DOMContentLoaded', () => {
-    ['verseNote', 'editVerseNote'].forEach(editorId => {
-        const editor = document.getElementById(editorId);
-        if (editor) {
-            editor.addEventListener('mouseup', () => updateFormatButtons(editorId));
-            editor.addEventListener('keyup', () => updateFormatButtons(editorId));
-            editor.addEventListener('touchend', () => updateFormatButtons(editorId));
+        function setupDragDrop() {
+            let touchStartY = 0;
+            let touchStartX = 0;
+            let isDragging = false;
+            
+            // Catégories
+            const catHandles = document.querySelectorAll('.category-card > .category-header .drag-handle');
+            catHandles.forEach(handle => {
+                const card = handle.closest('.category-card');
+                handle.setAttribute('draggable', 'true');
+                
+                handle.addEventListener('dragstart', (e) => {
+                    draggedItem = { type: 'category', index: parseInt(card.dataset.catIndex) };
+                    e.dataTransfer.effectAllowed = 'move';
+                    setTimeout(() => card.classList.add('dragging'), 0);
+                });
+                
+                handle.addEventListener('dragend', () => {
+                    card.classList.remove('dragging');
+                    draggedItem = null;
+                });
+                
+                handle.addEventListener('touchstart', (e) => {
+                    if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') e.preventDefault();
+                    touchStartY = e.touches[0].clientY;
+                    touchStartX = e.touches[0].clientX;
+                    isDragging = true;
+                    draggedItem = { type: 'category', index: parseInt(card.dataset.catIndex) };
+                    card.classList.add('dragging');
+                });
+                
+                handle.addEventListener('touchend', (e) => {
+                    if (!isDragging) return;
+                    e.preventDefault();
+                    card.classList.remove('dragging');
+                    const touch = e.changedTouches[0];
+                    const dropTarget = document.elementFromPoint(touch.clientX, touch.clientY);
+                    const targetCard = dropTarget?.closest('.category-card');
+                    if (targetCard && draggedItem?.type === 'category') {
+                        const toIndex = parseInt(targetCard.dataset.catIndex);
+                        const fromIndex = draggedItem.index;
+                        if (fromIndex !== toIndex) {
+                            const [moved] = data.categories.splice(fromIndex, 1);
+                            data.categories.splice(toIndex, 0, moved);
+                            saveData();
+                            render();
+                        }
+                    }
+                    draggedItem = null;
+                    isDragging = false;
+                });
+            });
+            
+            const cats = document.querySelectorAll('.category-card');
+            cats.forEach(card => {
+                card.addEventListener('dragover', (e) => {
+                    if (draggedItem?.type === 'category') e.preventDefault();
+                });
+                card.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    if (draggedItem?.type === 'category') {
+                        const toIndex = parseInt(card.dataset.catIndex);
+                        const fromIndex = draggedItem.index;
+                        if (fromIndex !== toIndex) {
+                            const [moved] = data.categories.splice(fromIndex, 1);
+                            data.categories.splice(toIndex, 0, moved);
+                            saveData();
+                            render();
+                        }
+                    }
+                });
+            });
+
+            // Sous-catégories
+            const subHandles = document.querySelectorAll('.subcategory > .subcategory-header .drag-handle');
+            subHandles.forEach(handle => {
+                const subDiv = handle.closest('.subcategory');
+                handle.setAttribute('draggable', 'true');
+                
+                handle.addEventListener('dragstart', (e) => {
+                    draggedItem = { 
+                        type: 'subcategory', 
+                        catId: parseInt(subDiv.dataset.catId),
+                        path: subDiv.dataset.subPath,
+                        level: parseInt(subDiv.dataset.level)
+                    };
+                    e.dataTransfer.effectAllowed = 'move';
+                    setTimeout(() => subDiv.classList.add('dragging'), 0);
+                });
+                
+                handle.addEventListener('dragend', () => {
+                    subDiv.classList.remove('dragging');
+                    document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+                    draggedItem = null;
+                });
+                
+                handle.addEventListener('touchstart', (e) => {
+                    if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') e.preventDefault();
+                    touchStartY = e.touches[0].clientY;
+                    touchStartX = e.touches[0].clientX;
+                    isDragging = true;
+                    draggedItem = { 
+                        type: 'subcategory', 
+                        catId: parseInt(subDiv.dataset.catId),
+                        path: subDiv.dataset.subPath,
+                        level: parseInt(subDiv.dataset.level)
+                    };
+                    subDiv.classList.add('dragging');
+                });
+                
+                handle.addEventListener('touchend', (e) => {
+                    if (!isDragging) return;
+                    e.preventDefault();
+                    subDiv.classList.remove('dragging');
+                    document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+                    const touch = e.changedTouches[0];
+                    const dropTarget = document.elementFromPoint(touch.clientX, touch.clientY);
+                    const targetSubDiv = dropTarget?.closest('.subcategory');
+                    if (targetSubDiv && draggedItem?.type === 'subcategory') {
+                        const toCatId = parseInt(targetSubDiv.dataset.catId);
+                        const toPath = targetSubDiv.dataset.subPath;
+                        const toLevel = parseInt(targetSubDiv.dataset.level);
+                        if (draggedItem.catId === toCatId && draggedItem.level === toLevel && draggedItem.path !== toPath) {
+                            const fromData = getSubcategoryByPath(draggedItem.catId, draggedItem.path);
+                            const toData = getSubcategoryByPath(toCatId, toPath);
+                            if (fromData && toData && fromData.parent === toData.parent) {
+                                const [moved] = fromData.parent.splice(fromData.index, 1);
+                                const adjustedIndex = fromData.index < toData.index ? toData.index : toData.index;
+                                fromData.parent.splice(adjustedIndex, 0, moved);
+                                saveData();
+                                render();
+                            }
+                        }
+                    }
+                    draggedItem = null;
+                    isDragging = false;
+                });
+            });
+            
+            const subs = document.querySelectorAll('.subcategory');
+            subs.forEach(subDiv => {
+                subDiv.addEventListener('dragover', (e) => {
+                    if (draggedItem?.type === 'subcategory') {
+                        const targetCatId = parseInt(subDiv.dataset.catId);
+                        const targetLevel = parseInt(subDiv.dataset.level);
+                        if (draggedItem.catId === targetCatId && draggedItem.level === targetLevel) {
+                            e.preventDefault();
+                            subDiv.classList.add('drag-over');
+                        }
+                    }
+                });
+                subDiv.addEventListener('dragleave', () => {
+                    subDiv.classList.remove('drag-over');
+                });
+                subDiv.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    subDiv.classList.remove('drag-over');
+                    if (draggedItem?.type === 'subcategory') {
+                        const toCatId = parseInt(subDiv.dataset.catId);
+                        const toPath = subDiv.dataset.subPath;
+                        const toLevel = parseInt(subDiv.dataset.level);
+                        if (draggedItem.catId === toCatId && draggedItem.level === toLevel && draggedItem.path !== toPath) {
+                            const fromData = getSubcategoryByPath(draggedItem.catId, draggedItem.path);
+                            const toData = getSubcategoryByPath(toCatId, toPath);
+                            if (fromData && toData && fromData.parent === toData.parent) {
+                                const [moved] = fromData.parent.splice(fromData.index, 1);
+                                const adjustedIndex = fromData.index < toData.index ? toData.index : toData.index;
+                                fromData.parent.splice(adjustedIndex, 0, moved);
+                                saveData();
+                                render();
+                            }
+                        }
+                    }
+                });
+            });
+
+            // Versets
+            const verseHandles = document.querySelectorAll('.verse-item .drag-handle');
+            verseHandles.forEach(handle => {
+                const verseDiv = handle.closest('.verse-item');
+                handle.setAttribute('draggable', 'true');
+                
+                handle.addEventListener('dragstart', (e) => {
+                    draggedItem = {
+                        type: 'verse',
+                        catId: parseInt(verseDiv.dataset.catId),
+                        subId: parseInt(verseDiv.dataset.subId),
+                        verseId: parseInt(verseDiv.dataset.verseId),
+                        index: parseInt(verseDiv.dataset.verseIndex)
+                    };
+                    e.dataTransfer.effectAllowed = 'move';
+                    setTimeout(() => verseDiv.classList.add('dragging'), 0);
+                });
+                
+                handle.addEventListener('dragend', () => {
+                    verseDiv.classList.remove('dragging');
+                    document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+                    draggedItem = null;
+                });
+                
+                handle.addEventListener('touchstart', (e) => {
+                    if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') e.preventDefault();
+                    touchStartY = e.touches[0].clientY;
+                    touchStartX = e.touches[0].clientX;
+                    isDragging = true;
+                    draggedItem = {
+                        type: 'verse',
+                        catId: parseInt(verseDiv.dataset.catId),
+                        subId: parseInt(verseDiv.dataset.subId),
+                        verseId: parseInt(verseDiv.dataset.verseId),
+                        index: parseInt(verseDiv.dataset.verseIndex)
+                    };
+                    verseDiv.classList.add('dragging');
+                });
+                
+                handle.addEventListener('touchend', (e) => {
+                    if (!isDragging) return;
+                    e.preventDefault();
+                    verseDiv.classList.remove('dragging');
+                    document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+                    const touch = e.changedTouches[0];
+                    const dropTarget = document.elementFromPoint(touch.clientX, touch.clientY);
+                    const targetVerseDiv = dropTarget?.closest('.verse-item');
+                    if (targetVerseDiv && draggedItem?.type === 'verse') {
+                        const toCatId = parseInt(targetVerseDiv.dataset.catId);
+                        const toSubId = parseInt(targetVerseDiv.dataset.subId);
+                        const toIndex = parseInt(targetVerseDiv.dataset.verseIndex);
+                        if (draggedItem.catId === toCatId && draggedItem.subId === toSubId && draggedItem.index !== toIndex) {
+                            const sub = findSub(toCatId, toSubId);
+                            if (sub) {
+                                const [moved] = sub.verses.splice(draggedItem.index, 1);
+                                sub.verses.splice(toIndex, 0, moved);
+                                saveData();
+                                render();
+                            }
+                        }
+                    }
+                    draggedItem = null;
+                    isDragging = false;
+                });
+            });
+            
+            const verses = document.querySelectorAll('.verse-item');
+            verses.forEach(verseDiv => {
+                verseDiv.addEventListener('dragover', (e) => {
+                    if (draggedItem?.type === 'verse') {
+                        const targetCatId = parseInt(verseDiv.dataset.catId);
+                        const targetSubId = parseInt(verseDiv.dataset.subId);
+                        if (draggedItem.catId === targetCatId && draggedItem.subId === targetSubId) {
+                            e.preventDefault();
+                            verseDiv.classList.add('drag-over');
+                        }
+                    }
+                });
+                verseDiv.addEventListener('dragleave', () => {
+                    verseDiv.classList.remove('drag-over');
+                });
+                verseDiv.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    verseDiv.classList.remove('drag-over');
+                    if (draggedItem?.type === 'verse') {
+                        const toCatId = parseInt(verseDiv.dataset.catId);
+                        const toSubId = parseInt(verseDiv.dataset.subId);
+                        const toIndex = parseInt(verseDiv.dataset.verseIndex);
+                        if (draggedItem.catId === toCatId && draggedItem.subId === toSubId && draggedItem.index !== toIndex) {
+                            const sub = findSub(toCatId, toSubId);
+                            if (sub) {
+                                const [moved] = sub.verses.splice(draggedItem.index, 1);
+                                sub.verses.splice(toIndex, 0, moved);
+                                saveData();
+                                render();
+                            }
+                        }
+                    }
+                });
+            });
         }
-    });
-});
-
-
-function renderFormattedNote(note) {
-    if (!note) return '';
-    // Le HTML est déjà formaté depuis contenteditable
-    return note.replace(/\n/g, '<br>');
-}
     </script>
 </body>
 </html>
