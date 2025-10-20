@@ -3,7 +3,7 @@
     {
       "id": 1760737670977,
       "name": "VP",
-      "expanded": true,
+      "expanded": false,
       "subcategories": [
         {
           "id": 1760739828014,
@@ -14,7 +14,7 @@
             {
               "id": 1760765390877,
               "name": "Precedent biblique",
-              "expanded": false,
+              "expanded": true,
               "verses": [
                 {
                   "id": 1760766638236,
@@ -37,7 +37,7 @@
             {
               "id": 1760765420442,
               "name": "Attitude envers",
-              "expanded": false,
+              "expanded": true,
               "verses": [
                 {
                   "id": 1760765489839,
@@ -131,14 +131,14 @@
         {
           "id": 1760737727161,
           "name": "Levitique",
-          "expanded": false,
+          "expanded": true,
           "verses": [],
           "subcategories": []
         },
         {
           "id": 1760737736343,
           "name": "Nombres",
-          "expanded": true,
+          "expanded": false,
           "verses": [],
           "subcategories": []
         },
@@ -669,7 +669,7 @@
           "name": "Ce qui se passera avant",
           "verses": [],
           "subcategories": [],
-          "expanded": false
+          "expanded": true
         },
         {
           "id": 1759772559192,
@@ -697,12 +697,12 @@
     {
       "id": 1760900187695,
       "name": "Image",
-      "expanded": false,
+      "expanded": true,
       "subcategories": [
         {
           "id": 1760900258162,
           "name": "Amarguedon",
-          "expanded": true,
+          "expanded": false,
           "verses": [
             {
               "id": 1760901390005,
