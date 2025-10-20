@@ -3,7 +3,7 @@
     {
       "id": 1760737670977,
       "name": "VP",
-      "expanded": false,
+      "expanded": true,
       "subcategories": [
         {
           "id": 1760739828014,
@@ -72,8 +72,17 @@
           "id": 1760739890214,
           "name": "Découragement",
           "expanded": false,
-          "verses": [],
-          "subcategories": []
+          "verses": [
+            {
+              "id": 1760996235030,
+              "ref": "Ps 18:29",
+              "note": "<span class=\"style-l\" style=\"-webkit-text-size-adjust: auto; display: block; text-indent: -3em; padding-left: 3em; caret-color: rgb(255, 255, 255); color: rgb(255, 255, 255); font-family: WTClearText, serif;\">Avec ton aide, je peux attaquer une bande de pillards&nbsp;;</span><span class=\"newblock\" style=\"-webkit-text-size-adjust: auto; display: block; height: 0px; caret-color: rgb(255, 255, 255); color: rgb(255, 255, 255); font-family: WTClearText, serif;\"></span><span class=\"style-z\" style=\"-webkit-text-size-adjust: auto; display: block; margin: 0.2em 1em; text-indent: -1em; padding-left: 2.5em; caret-color: rgb(255, 255, 255); color: rgb(255, 255, 255); font-family: WTClearText, serif;\">grâce à la puissance de Dieu, je peux escalader une muraille.</span>",
+              "attachments": [],
+              "lastModified": 1760996235030
+            }
+          ],
+          "subcategories": [],
+          "lastModified": 1760996235030
         },
         {
           "id": 1760739907688,
