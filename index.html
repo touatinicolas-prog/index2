@@ -1486,9 +1486,27 @@ const content = btoa(unescape(encodeURIComponent(JSON.stringify(dataToSync, null
         }
 
         function toggleCat(catId) {
-            const cat = data.categories.find(c => c.id === catId);
-            if (cat) { cat.expanded = !cat.expanded; render(); }
+    const cat = data.categories.find(c => c.id === catId);
+    if (cat) {
+        cat.expanded = !cat.expanded;
+        
+        // ✅ Si on referme la catégorie, refermer toutes les sous-catégories
+        if (!cat.expanded) {
+            function collapseAllSubs(subcategories) {
+                if (!subcategories) return;
+                subcategories.forEach(sub => {
+                    sub.expanded = false;
+                    if (sub.subcategories && sub.subcategories.length > 0) {
+                        collapseAllSubs(sub.subcategories); // Récursif pour les sous-sous-catégories
+                    }
+                });
+            }
+            collapseAllSubs(cat.subcategories);
         }
+        
+        render();
+    }
+}
 
         function toggleSub(catId, subId) {
             const sub = findSub(catId, subId);
