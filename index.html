@@ -1015,44 +1015,79 @@ function applyDeletions() {
             console.log('🔑 SHA récupéré:', remoteSha);
             
             try {
-    const decodedContent = decodeURIComponent(escape(atob(fileData.content.replace(/\n/g, ''))));
-    remoteData = JSON.parse(decodedContent);
-    console.log('☁️ Données GitHub récupérées');
+    // Décoder le contenu Base64 de GitHub
+    const base64Content = fileData.content.replace(/\n/g, '');
+    let decodedContent;
     
-    // Gérer l'ancien format (juste categories) et le nouveau format (avec deletedItems)
-    if (remoteData.categories) {
-        // Nouveau format
-        console.log('📊 Nombre de catégories GitHub:', remoteData.categories?.length);
-        console.log('📊 Suppressions GitHub:', remoteData.deletedItems);
-        
-        // Fusionner les suppressions de GitHub avec les suppressions locales
-if (remoteData.deletedItems) {
-    // Garder les suppressions les plus récentes
-    mergeDeletedItems(remoteData.deletedItems);
-    // Appliquer les suppressions aux données locales
-    applyDeletions();
-}
-    } else {
-        // Ancien format (compatibilité)
-        remoteData = { categories: remoteData, deletedItems: { categories: [], subcategories: [], verses: [] } };
+    try {
+        // Méthode de décodage plus robuste
+        decodedContent = decodeURIComponent(escape(atob(base64Content)));
+    } catch (base64Error) {
+        console.error('❌ Erreur décodage Base64:', base64Error);
+        // Tentative alternative
+        try {
+            const binaryString = atob(base64Content);
+            const bytes = new Uint8Array(binaryString.length);
+            for (let i = 0; i < binaryString.length; i++) {
+                bytes[i] = binaryString.charCodeAt(i);
+            }
+            const decoder = new TextDecoder('utf-8');
+            decodedContent = decoder.decode(bytes);
+        } catch (altError) {
+            console.error('❌ Échec décodage alternatif:', altError);
+            throw new Error('Impossible de décoder le contenu Base64');
+        }
     }
     
-    console.log('📊 Nombre de catégories locales (avant merge):', data.categories.length);
-    mergeData(remoteData);
-                console.log('📊 Nombre de catégories locales (avant merge):', data.categories.length);
-                mergeData(remoteData);
-        // Appliquer les suppressions après la fusion
-                applyDeletions();
-                console.log('✅ Fusion terminée');
-                console.log('✅ Fusion terminée');
-                console.log('📊 Nombre de catégories locales (après merge):', data.categories.length);
-            } catch (decodeError) {
-                console.error('❌ Erreur de décodage:', decodeError);
-                throw new Error('Impossible de décoder les données GitHub');
-            }
-        } else {
-            console.log('⚠️ Fichier non trouvé sur GitHub, création...');
+    // Parser le JSON
+    remoteData = JSON.parse(decodedContent);
+    console.log('☁️ Données GitHub récupérées avec succès');
+    
+    // Normaliser le format des données
+    if (!remoteData.categories) {
+        // Ancien format : remoteData est directement un tableau de catégories
+        console.log('📦 Ancien format détecté, conversion...');
+        remoteData = {
+            categories: Array.isArray(remoteData) ? remoteData : [],
+            deletedItems: { categories: [], subcategories: [], verses: [] }
+        };
+    } else {
+        // Nouveau format : vérifier que deletedItems existe
+        if (!remoteData.deletedItems) {
+            console.log('📦 Format partiel détecté, ajout de deletedItems...');
+            remoteData.deletedItems = { categories: [], subcategories: [], verses: [] };
         }
+    }
+    
+    console.log('📊 GitHub: ', remoteData.categories?.length, 'catégories');
+    console.log('📊 Suppressions GitHub:', remoteData.deletedItems);
+    console.log('📊 Local (avant merge):', data.categories.length, 'catégories');
+    
+    // Fusionner les suppressions de GitHub avec les suppressions locales
+    if (remoteData.deletedItems) {
+        mergeDeletedItems(remoteData.deletedItems);
+    }
+    
+    // Fusionner les données
+    mergeData(remoteData);
+    
+    // Appliquer les suppressions après la fusion
+    applyDeletions();
+    
+    console.log('✅ Fusion terminée');
+    console.log('📊 Local (après merge):', data.categories.length, 'catégories');
+    
+} catch (decodeError) {
+    console.error('❌ Erreur complète:', decodeError);
+    console.error('Stack:', decodeError.stack);
+    
+    // Message d'erreur plus détaillé
+    if (decodeError instanceof SyntaxError) {
+        throw new Error('Fichier GitHub corrompu (JSON invalide). Utilisez "🔧 Réparer GitHub"');
+    } else {
+        throw new Error('Erreur lecture GitHub: ' + decodeError.message);
+    }
+}
         
         // 2. Envoyer les données fusionnées ET les suppressions vers GitHub
 const dataToSync = {
@@ -1082,24 +1117,36 @@ console.log('📤 Envoi vers GitHub (données + suppressions)...');
         console.log('📡 Réponse sauvegarde:', saveResponse.status);
         
         if (saveResponse.ok) {
-            lastSyncTime = new Date();
-            updateSyncStatus('synced', `Synchronisé à ${lastSyncTime.toLocaleTimeString('fr-FR')}`);
-            await saveToIndexedDB(STORAGE_KEY, data); // ✅ Sauvegarde IndexedDB
-            console.log('✅ Synchronisation réussie !');
-            if (showMessages) alert('✅ Synchronisation réussie !');
+    lastSyncTime = new Date();
+    window.__syncRetryCount = 0; // ✅ Réinitialiser le compteur après succès
+    updateSyncStatus('synced', `Synchronisé à ${lastSyncTime.toLocaleTimeString('fr-FR')}`);
+    await saveToIndexedDB(STORAGE_KEY, data);
+    await saveDeletedItemsToIndexedDB(); // ✅ Sauvegarder aussi deletedItems
+    console.log('✅ Synchronisation réussie !');
             render();
         } else {
     const errorData = await saveResponse.json();
-    console.error('❌ Erreur de sauvegarde:', errorData);
+    console.error('❌ Erreur de sauvegarde GitHub:', errorData);
 
-    // 🔁 Si conflit SHA, retenter une fois automatiquement
+    // 🔁 Si conflit SHA, retenter automatiquement (avec limite de 3 tentatives)
     if (errorData.message && errorData.message.includes('does not match')) {
-        console.warn('⚠️ Conflit SHA détecté — nouvelle tentative...');
-        await new Promise(r => setTimeout(r, 1500)); // petite pause
-        return await syncWithGithub(showMessages); // retente une seule fois
+        console.warn('⚠️ Conflit SHA détecté — rechargement et nouvelle tentative...');
+        
+        // Marquer qu'on est en train de résoudre un conflit
+        if (!window.__syncRetryCount) window.__syncRetryCount = 0;
+        window.__syncRetryCount++;
+        
+        if (window.__syncRetryCount <= 3) {
+            await new Promise(r => setTimeout(r, 2000)); // pause de 2s
+            return await syncWithGithub(showMessages); // retente
+        } else {
+            window.__syncRetryCount = 0;
+            throw new Error('Conflit de synchronisation après 3 tentatives. Utilisez "🔧 Réparer GitHub"');
+        }
     }
 
     throw new Error(errorData.message || 'Erreur lors de la sauvegarde');
+}
 }
 
         
