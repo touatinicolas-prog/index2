@@ -915,10 +915,12 @@ async function getIndexedDBSize() {
         console.log('📊 Suppressions GitHub:', remoteData.deletedItems);
         
         // Fusionner les suppressions de GitHub avec les suppressions locales
-        if (remoteData.deletedItems) {
-            // Garder les suppressions les plus récentes
-            mergeDeletedItems(remoteData.deletedItems);
-        }
+if (remoteData.deletedItems) {
+    // Garder les suppressions les plus récentes
+    mergeDeletedItems(remoteData.deletedItems);
+    // Appliquer les suppressions aux données locales
+    applyDeletions();
+}
     } else {
         // Ancien format (compatibilité)
         remoteData = { categories: remoteData, deletedItems: { categories: [], subcategories: [], verses: [] } };
@@ -926,6 +928,11 @@ async function getIndexedDBSize() {
     
     console.log('📊 Nombre de catégories locales (avant merge):', data.categories.length);
     mergeData(remoteData);
+                console.log('📊 Nombre de catégories locales (avant merge):', data.categories.length);
+                mergeData(remoteData);
+        // Appliquer les suppressions après la fusion
+                applyDeletions();
+                console.log('✅ Fusion terminée');
                 console.log('✅ Fusion terminée');
                 console.log('📊 Nombre de catégories locales (après merge):', data.categories.length);
             } catch (decodeError) {
@@ -1993,6 +2000,57 @@ function mergeSubcategoryData(existing, imported) {
     // Sauvegarder les suppressions fusionnées
     localStorage.setItem('deletedItems', JSON.stringify(deletedItems));
     console.log('✅ Suppressions fusionnées');
+}
+        function applyDeletions() {
+    console.log('🗑️ Application des suppressions aux données locales...');
+    
+    // Supprimer les catégories marquées comme supprimées
+    deletedItems.categories.forEach(del => {
+        const index = data.categories.findIndex(c => c.id === del.id);
+        if (index !== -1) {
+            console.log(`🗑️ Suppression de la catégorie ${del.id}`);
+            data.categories.splice(index, 1);
+        }
+    });
+    
+    // Supprimer les sous-catégories et versets marqués comme supprimés
+    data.categories.forEach(cat => {
+        applyDeletionsRecursive(cat.subcategories);
+    });
+    
+    console.log('✅ Suppressions appliquées');
+}
+
+function applyDeletionsRecursive(subcategories) {
+    if (!subcategories) return;
+    
+    // Supprimer les sous-catégories marquées
+    for (let i = subcategories.length - 1; i >= 0; i--) {
+        const sub = subcategories[i];
+        const wasDeleted = deletedItems.subcategories.find(d => d.id === sub.id);
+        if (wasDeleted) {
+            console.log(`   🗑️ Suppression de la sous-catégorie ${sub.id}`);
+            subcategories.splice(i, 1);
+            continue;
+        }
+        
+        // Supprimer les versets marqués
+        if (sub.verses) {
+            for (let j = sub.verses.length - 1; j >= 0; j--) {
+                const verse = sub.verses[j];
+                const verseDeleted = deletedItems.verses.find(d => d.id === verse.id);
+                if (verseDeleted) {
+                    console.log(`   🗑️ Suppression du verset ${verse.id}`);
+                    sub.verses.splice(j, 1);
+                }
+            }
+        }
+        
+        // Récursion pour les sous-sous-catégories
+        if (sub.subcategories && sub.subcategories.length > 0) {
+            applyDeletionsRecursive(sub.subcategories);
+        }
+    }
 }
 
 function findSubInArray(subsArray, subId) {
