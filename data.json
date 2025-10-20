@@ -105,7 +105,7 @@
             {
               "id": 1760986535164,
               "name": "Chapitre 3",
-              "expanded": true,
+              "expanded": false,
               "verses": [
                 {
                   "id": 1760986821693,
@@ -138,7 +138,7 @@
         {
           "id": 1760737736343,
           "name": "Nombres",
-          "expanded": true,
+          "expanded": false,
           "verses": [],
           "subcategories": []
         },
@@ -327,13 +327,13 @@
         {
           "id": 1760739393609,
           "name": "Jonas",
-          "expanded": true,
+          "expanded": false,
           "verses": [],
           "subcategories": [
             {
               "id": 1760910184295,
               "name": "Chapitre 3",
-              "expanded": true,
+              "expanded": false,
               "verses": [
                 {
                   "id": 1760910414467,
@@ -592,7 +592,7 @@
     {
       "id": 1760739953938,
       "name": "Grande tribulation",
-      "expanded": false,
+      "expanded": true,
       "subcategories": [
         {
           "id": 1760739970048,
@@ -669,7 +669,7 @@
           "name": "Ce qui se passera avant",
           "verses": [],
           "subcategories": [],
-          "expanded": false
+          "expanded": true
         },
         {
           "id": 1759772559192,
