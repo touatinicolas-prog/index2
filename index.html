@@ -759,73 +759,75 @@
         }
 
         async function syncWithGithub(showMessages = false) {
-            if (!githubToken) {
-                updateSyncStatus('error', 'Token manquant - Configurez dans ⚙️');
-                return;
-            }
-            
-            if (isSyncing) return;
-            isSyncing = true;
-            updateSyncStatus('syncing', 'Synchronisation...');
-            
-            try {
-                const response = await fetch(
-                    `https://api.github.com/repos/${GITHUB_CONFIG.username}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.filepath}`,
-                    {
-                        headers: {
-                            'Authorization': `token ${githubToken}`,
-                            'Accept': 'application/vnd.github.v3+json'
-                        }
-                    }
-                );
-                
-                let remoteSha = null;
-                let remoteData = null;
-                
-                if (response.ok) {
-                    const fileData = await response.json();
-                    remoteSha = fileData.sha;
-                    const content = atob(fileData.content);
-                    remoteData = JSON.parse(content);
-                    mergeData(remoteData);
+    if (!githubToken) {
+        updateSyncStatus('error', 'Token manquant - Configurez dans ⚙️');
+        return;
+    }
+    
+    if (isSyncing) return;
+    isSyncing = true;
+    updateSyncStatus('syncing', 'Synchronisation...');
+    
+    try {
+        // 1. Récupérer les données de GitHub
+        const response = await fetch(
+            `https://api.github.com/repos/${GITHUB_CONFIG.username}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.filepath}`,
+            {
+                headers: {
+                    'Authorization': `token ${githubToken}`,
+                    'Accept': 'application/vnd.github.v3+json'
                 }
-                
-                const content = btoa(unescape(encodeURIComponent(JSON.stringify(data, null, 2))));
-                
-                const saveResponse = await fetch(
-                    `https://api.github.com/repos/${GITHUB_CONFIG.username}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.filepath}`,
-                    {
-                        method: 'PUT',
-                        headers: {
-                            'Authorization': `token ${githubToken}`,
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            message: `Mise à jour depuis ${navigator.userAgent.includes('iPhone') ? 'iPhone' : 'iPad'} - ${new Date().toLocaleString('fr-FR')}`,
-                            content: content,
-                            sha: remoteSha,
-                            branch: GITHUB_CONFIG.branch
-                        })
-                    }
-                );
-                
-                if (saveResponse.ok) {
-                    lastSyncTime = new Date();
-                    updateSyncStatus('synced', `Synchronisé à ${lastSyncTime.toLocaleTimeString('fr-FR')}`);
-                    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-                    if (showMessages) alert('✅ Synchronisation réussie !');
-                } else {
-                    throw new Error('Erreur lors de la sauvegarde');
-                }
-                
-            } catch (error) {
-                console.error('Erreur de synchronisation:', error);
-                updateSyncStatus('error', 'Erreur de synchronisation');
-                if (showMessages) alert('❌ Erreur de synchronisation: ' + error.message);
-            } finally {
-                isSyncing = false;
             }
+        );
+        
+        let remoteSha = null;
+        let remoteData = null;
+        
+        if (response.ok) {
+            const fileData = await response.json();
+            remoteSha = fileData.sha;
+            const content = atob(fileData.content);
+            remoteData = JSON.parse(content);
         }
+        
+        // 2. Sauvegarder NOS données locales sur GitHub EN PREMIER
+        const content = btoa(unescape(encodeURIComponent(JSON.stringify(data, null, 2))));
+        
+        const saveResponse = await fetch(
+            `https://api.github.com/repos/${GITHUB_CONFIG.username}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.filepath}`,
+            {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `token ${githubToken}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    message: `Mise à jour depuis ${navigator.userAgent.includes('iPhone') ? 'iPhone' : 'iPad'} - ${new Date().toLocaleString('fr-FR')}`,
+                    content: content,
+                    sha: remoteSha,
+                    branch: GITHUB_CONFIG.branch
+                })
+            }
+        );
+        
+        if (saveResponse.ok) {
+            lastSyncTime = new Date();
+            updateSyncStatus('synced', `Synchronisé à ${lastSyncTime.toLocaleTimeString('fr-FR')}`);
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+            if (showMessages) alert('✅ Synchronisation réussie !');
+        } else {
+            const errorData = await saveResponse.json();
+            throw new Error(errorData.message || 'Erreur lors de la sauvegarde');
+        }
+        
+    } catch (error) {
+        console.error('Erreur de synchronisation:', error);
+        updateSyncStatus('error', 'Erreur de synchronisation');
+        if (showMessages) alert('❌ Erreur de synchronisation: ' + error.message);
+    } finally {
+        isSyncing = false;
+    }
+}
 
         function manualSync() {
             syncWithGithub(true);
