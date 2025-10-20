@@ -769,7 +769,7 @@
     updateSyncStatus('syncing', 'Synchronisation...');
     
     try {
-        // 1. Récupérer les données de GitHub
+        // 1. Récupérer le SHA du fichier actuel sur GitHub
         const response = await fetch(
             `https://api.github.com/repos/${GITHUB_CONFIG.username}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.filepath}`,
             {
@@ -781,16 +781,13 @@
         );
         
         let remoteSha = null;
-        let remoteData = null;
         
         if (response.ok) {
             const fileData = await response.json();
             remoteSha = fileData.sha;
-            const content = atob(fileData.content);
-            remoteData = JSON.parse(content);
         }
         
-        // 2. Sauvegarder NOS données locales sur GitHub EN PREMIER
+        // 2. Envoyer NOS données locales directement (sans fusion)
         const content = btoa(unescape(encodeURIComponent(JSON.stringify(data, null, 2))));
         
         const saveResponse = await fetch(
