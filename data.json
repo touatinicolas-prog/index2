@@ -131,7 +131,7 @@
         {
           "id": 1760737727161,
           "name": "Levitique",
-          "expanded": true,
+          "expanded": false,
           "verses": [],
           "subcategories": []
         },
@@ -669,7 +669,7 @@
           "name": "Ce qui se passera avant",
           "verses": [],
           "subcategories": [],
-          "expanded": true
+          "expanded": false
         },
         {
           "id": 1759772559192,
@@ -718,16 +718,7 @@
               "lastModified": 1760901390005
             }
           ],
-          "subcategories": [
-            {
-              "id": 1760989221973,
-              "name": "Test",
-              "expanded": true,
-              "verses": [],
-              "subcategories": [],
-              "lastModified": 1760989221973
-            }
-          ],
+          "subcategories": [],
           "lastModified": 1760989221973
         }
       ],
@@ -736,7 +727,12 @@
   ],
   "deletedItems": {
     "categories": [],
-    "subcategories": [],
+    "subcategories": [
+      {
+        "id": 1760989221973,
+        "deletedAt": 1760989247048
+      }
+    ],
     "verses": []
   }
 }
