@@ -94,7 +94,7 @@
     {
       "id": 1760737684816,
       "name": "Perles Perso",
-      "expanded": true,
+      "expanded": false,
       "subcategories": [
         {
           "id": 1760737699041,
@@ -131,7 +131,7 @@
         {
           "id": 1760737727161,
           "name": "Levitique",
-          "expanded": false,
+          "expanded": true,
           "verses": [],
           "subcategories": []
         },
@@ -697,12 +697,12 @@
     {
       "id": 1760900187695,
       "name": "Image",
-      "expanded": false,
+      "expanded": true,
       "subcategories": [
         {
           "id": 1760900258162,
           "name": "Amarguedon",
-          "expanded": true,
+          "expanded": false,
           "verses": [
             {
               "id": 1760901390005,
@@ -718,8 +718,17 @@
               "lastModified": 1760901390005
             }
           ],
-          "subcategories": [],
-          "lastModified": 1760901390005
+          "subcategories": [
+            {
+              "id": 1760989221973,
+              "name": "Test",
+              "expanded": true,
+              "verses": [],
+              "subcategories": [],
+              "lastModified": 1760989221973
+            }
+          ],
+          "lastModified": 1760989221973
         }
       ],
       "lastModified": 1760901406420
