@@ -94,12 +94,12 @@
     {
       "id": 1760737684816,
       "name": "Perles Perso",
-      "expanded": false,
+      "expanded": true,
       "subcategories": [
         {
           "id": 1760737699041,
           "name": "Genèse",
-          "expanded": false,
+          "expanded": true,
           "verses": [
             {
               "id": 1760902756229,
@@ -109,8 +109,17 @@
               "lastModified": 1760902756229
             }
           ],
-          "subcategories": [],
-          "lastModified": 1760902756229
+          "subcategories": [
+            {
+              "id": 1760986535164,
+              "name": "Chapitre 3",
+              "expanded": true,
+              "verses": [],
+              "subcategories": [],
+              "lastModified": 1760986535164
+            }
+          ],
+          "lastModified": 1760986535164
         },
         {
           "id": 1760737714996,
@@ -660,7 +669,7 @@
           "name": "Ce qui se passera avant",
           "verses": [],
           "subcategories": [],
-          "expanded": true
+          "expanded": false
         },
         {
           "id": 1759772559192,
@@ -693,7 +702,7 @@
         {
           "id": 1760900258162,
           "name": "Amarguedon",
-          "expanded": true,
+          "expanded": false,
           "verses": [
             {
               "id": 1760901390005,
