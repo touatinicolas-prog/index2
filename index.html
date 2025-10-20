@@ -904,13 +904,28 @@ async function getIndexedDBSize() {
             console.log('🔑 SHA récupéré:', remoteSha);
             
             try {
-                const decodedContent = decodeURIComponent(escape(atob(fileData.content.replace(/\n/g, ''))));
-                remoteData = JSON.parse(decodedContent);
-                console.log('☁️ Données GitHub récupérées');
-                console.log('📊 Nombre de catégories GitHub:', remoteData.categories?.length);
-                console.log('📊 Nombre de catégories locales (avant merge):', data.categories.length);
-                
-                mergeData(remoteData);
+    const decodedContent = decodeURIComponent(escape(atob(fileData.content.replace(/\n/g, ''))));
+    remoteData = JSON.parse(decodedContent);
+    console.log('☁️ Données GitHub récupérées');
+    
+    // Gérer l'ancien format (juste categories) et le nouveau format (avec deletedItems)
+    if (remoteData.categories) {
+        // Nouveau format
+        console.log('📊 Nombre de catégories GitHub:', remoteData.categories?.length);
+        console.log('📊 Suppressions GitHub:', remoteData.deletedItems);
+        
+        // Fusionner les suppressions de GitHub avec les suppressions locales
+        if (remoteData.deletedItems) {
+            // Garder les suppressions les plus récentes
+            mergeDeletedItems(remoteData.deletedItems);
+        }
+    } else {
+        // Ancien format (compatibilité)
+        remoteData = { categories: remoteData, deletedItems: { categories: [], subcategories: [], verses: [] } };
+    }
+    
+    console.log('📊 Nombre de catégories locales (avant merge):', data.categories.length);
+    mergeData(remoteData);
                 console.log('✅ Fusion terminée');
                 console.log('📊 Nombre de catégories locales (après merge):', data.categories.length);
             } catch (decodeError) {
@@ -921,9 +936,13 @@ async function getIndexedDBSize() {
             console.log('⚠️ Fichier non trouvé sur GitHub, création...');
         }
         
-        // 2. Envoyer les données fusionnées vers GitHub
-        const content = btoa(unescape(encodeURIComponent(JSON.stringify(data, null, 2))));
-        console.log('📤 Envoi vers GitHub...');
+        // 2. Envoyer les données fusionnées ET les suppressions vers GitHub
+const dataToSync = {
+    categories: data.categories,
+    deletedItems: deletedItems
+};
+const content = btoa(unescape(encodeURIComponent(JSON.stringify(dataToSync, null, 2))));
+console.log('📤 Envoi vers GitHub (données + suppressions)...');
         
         const saveResponse = await fetch(
             `https://api.github.com/repos/${GITHUB_CONFIG.username}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.filepath}`,
@@ -1116,8 +1135,12 @@ async function forceUploadToGithub() {
         
         console.log('📱 Données locales chargées:', localData.categories.length, 'catégories');
         
-        // 3. Forcer l'upload vers GitHub
-        const content = btoa(unescape(encodeURIComponent(JSON.stringify(localData, null, 2))));
+        // 3. Forcer l'upload vers GitHub (avec suppressions)
+const dataToSync = {
+    categories: localData.categories,
+    deletedItems: deletedItems
+};
+const content = btoa(unescape(encodeURIComponent(JSON.stringify(dataToSync, null, 2))));
         
         const saveResponse = await fetch(
             `https://api.github.com/repos/${GITHUB_CONFIG.username}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.filepath}`,
@@ -1928,6 +1951,48 @@ function mergeSubcategoryData(existing, imported) {
     deletedItems.verses = deletedItems.verses.filter(d => d.deletedAt > thirtyDaysAgo);
     
     localStorage.setItem('deletedItems', JSON.stringify(deletedItems));
+}
+        function mergeDeletedItems(remoteDeletedItems) {
+    console.log('🔀 Fusion des suppressions...');
+    
+    // Fusionner les catégories supprimées
+    remoteDeletedItems.categories?.forEach(remoteDel => {
+        const existingDel = deletedItems.categories.find(d => d.id === remoteDel.id);
+        if (!existingDel) {
+            // Nouvelle suppression de GitHub
+            console.log(`🗑️ Ajout suppression catégorie ${remoteDel.id} depuis GitHub`);
+            deletedItems.categories.push(remoteDel);
+        } else if (remoteDel.deletedAt > existingDel.deletedAt) {
+            // Suppression GitHub plus récente
+            existingDel.deletedAt = remoteDel.deletedAt;
+        }
+    });
+    
+    // Fusionner les sous-catégories supprimées
+    remoteDeletedItems.subcategories?.forEach(remoteDel => {
+        const existingDel = deletedItems.subcategories.find(d => d.id === remoteDel.id);
+        if (!existingDel) {
+            console.log(`🗑️ Ajout suppression sous-catégorie ${remoteDel.id} depuis GitHub`);
+            deletedItems.subcategories.push(remoteDel);
+        } else if (remoteDel.deletedAt > existingDel.deletedAt) {
+            existingDel.deletedAt = remoteDel.deletedAt;
+        }
+    });
+    
+    // Fusionner les versets supprimés
+    remoteDeletedItems.verses?.forEach(remoteDel => {
+        const existingDel = deletedItems.verses.find(d => d.id === remoteDel.id);
+        if (!existingDel) {
+            console.log(`🗑️ Ajout suppression verset ${remoteDel.id} depuis GitHub`);
+            deletedItems.verses.push(remoteDel);
+        } else if (remoteDel.deletedAt > existingDel.deletedAt) {
+            existingDel.deletedAt = remoteDel.deletedAt;
+        }
+    });
+    
+    // Sauvegarder les suppressions fusionnées
+    localStorage.setItem('deletedItems', JSON.stringify(deletedItems));
+    console.log('✅ Suppressions fusionnées');
 }
 
 function findSubInArray(subsArray, subId) {
