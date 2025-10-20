@@ -1553,12 +1553,15 @@ console.log('🔧 Réparation - Encodage robuste appliqué');
                 if (!hasMatch && searchQuery) return '';
                 
                 const currentPath = parentPath ? `${parentPath}-${idx}` : `${idx}`;
-                const onClickAction = level === 2 ? `if(!dragMode)openSubsubPage(${catId}, ${sub.id})` : `if(!dragMode)toggleSub(${catId}, ${sub.id})`;
+                // Si niveau 2 OU si niveau 1 sans sous-sous-catégories → ouvrir une page
+                const hasSubSubcategories = sub.subcategories && sub.subcategories.length > 0;
+                const shouldOpenPage = level === 2 || (level === 1 && !hasSubSubcategories);
+                const onClickAction = shouldOpenPage ? `if(!dragMode)openSubsubPage(${catId}, ${sub.id})` : `if(!dragMode)toggleSub(${catId}, ${sub.id})`;
                 // Calculer le nombre de sous-catégories et versets
-const subCount = sub.subcategories?.length || 0;
-const verseCount = sub.verses?.length || 0;
-const totalCount = subCount + verseCount;
-const countText = subCount > 0 ? `${subCount} sous · ${verseCount} versets` : `${verseCount} verset${verseCount > 1 ? 's' : ''}`;
+                const subCount = sub.subcategories?.length || 0;
+                const verseCount = sub.verses?.length || 0;
+                const totalCount = subCount + verseCount;
+                const countText = subCount > 0 ? `${subCount} sous · ${verseCount} versets` : `${verseCount} verset${verseCount > 1 ? 's' : ''}`;
                 return `<div class="subcategory ${level === 2 ? 'level-2' : ''}" data-cat-id="${catId}" data-sub-id="${sub.id}" data-sub-path="${currentPath}" data-level="${level}">
                     <div class="subcategory-header" onclick="${onClickAction}">
                         <div class="subcategory-title-wrapper">
@@ -1570,7 +1573,7 @@ const countText = subCount > 0 ? `${subCount} sous · ${verseCount} versets` : `
                         </div>
                         <div style="display:flex;align-items:center;gap:12px;">
                             <button class="icon-btn ${readOnlyMode ? 'hidden' : ''}" onclick="event.stopPropagation(); showSubMenu(event, ${catId}, ${sub.id}, ${level})">⋮</button>
-                            ${level === 2 ? '<span class="chevron">→</span>' : `<span class="chevron">${sub.expanded ? '▼' : '▶'}</span>`}
+                            ${shouldOpenPage ? '<span class="chevron">→</span>' : `<span class="chevron">${sub.expanded ? '▼' : '▶'}</span>`}
                         </div>
                     </div>
                     ${level === 2 ? '' : `<div class="subcategory-content ${sub.expanded ? 'expanded' : ''}">
