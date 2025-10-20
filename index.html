@@ -954,24 +954,31 @@ function mergeDeletedItems(remoteDeleted) {
 function applyDeletions() {
     if (!deletedItems) return;
 
-    // Supprimer les catégories supprimées
-    data.categories = data.categories.filter(cat =>
-        !deletedItems.categories.some(d => d.id === cat.id)
-    );
-
-    // Nettoyer récursivement les sous-catégories
+    // 1. Définition de la fonction de nettoyage récursive (Corrigée)
     function cleanSubcategories(subs) {
+        if (!subs) return []; // Sécurité
+
         return subs
+            // Étape 1: Filtrer les sous-catégories de ce niveau qui sont marquées pour suppression
             .filter(sub => !deletedItems.subcategories.some(d => d.id === sub.id))
-            .map(sub => ({
+            .map(sub => ({ // <-- Syntaxe d'objet de map() correcte
                 ...sub,
-                verses: sub.verses
-                    ? sub.verses.filter(v => !deletedItems.verses.some(d => d.id === v.id))
-                    : [],
-                subcategories: sub.sub
-          }
-      )}
+                // Étape 2: Filtrer les versets supprimés à l'intérieur de cette sous-catégorie
+                verses: sub.verses ? sub.verses.filter(v => !deletedItems.verses.some(d => d.id === v.id)) : [],
+                // Étape 3: Appel récursif correct pour les niveaux inférieurs
+                subcategories: cleanSubcategories(sub.subcategories) 
+            })); // <-- Fermeture de map() correcte
     }
+
+    // 2. Supprimer les catégories de niveau 1
+    data.categories = data.categories.filter(cat => !deletedItems.categories.some(d => d.id === cat.id) );
+
+    // 3. APPLIQUER le nettoyage récursif à toutes les catégories restantes
+    data.categories = data.categories.map(cat => ({
+        ...cat,
+        subcategories: cleanSubcategories(cat.subcategories)
+    }));
+}
 
         async function syncWithGithub(showMessages = false) {
     if (!githubToken) {
