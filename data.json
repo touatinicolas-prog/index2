@@ -601,7 +601,7 @@
     {
       "id": 1760739953938,
       "name": "Grande tribulation",
-      "expanded": true,
+      "expanded": false,
       "subcategories": [
         {
           "id": 1760739970048,
@@ -669,41 +669,6 @@
       ]
     },
     {
-      "id": 1759772530026,
-      "name": "Grande tribulations",
-      "expanded": false,
-      "subcategories": [
-        {
-          "id": 1759772547057,
-          "name": "Ce qui se passera avant",
-          "verses": [],
-          "subcategories": [],
-          "expanded": false
-        },
-        {
-          "id": 1759772559192,
-          "name": "Ce qui se passera pendant",
-          "verses": [],
-          "subcategories": [
-            {
-              "id": 1760737432207,
-              "name": "Avant",
-              "expanded": false,
-              "verses": [
-                {
-                  "id": 1760737467621,
-                  "ref": "Test",
-                  "note": "Même si la Bible ne parle pas précisément de la situation conjugale de Jésus, elle indique clairement qu’il n’était pas marié a. Examinez les points suivants :\n\n  La Bible parle souvent de la famille de Jésus et des femmes qui l’ont accompagné durant son ministère et qui sont restées près de lui lors de son exécution (Matthieu 12:46, 47 ; Marc 3:31, 32 ; 15:40 ; Luc 8:2, 3, 19, 20 ; Jean 19:25). Cependant, elle ne dit jamais qu’il avait une femme. Si la Bible ne dit absolument rien sur le sujet, c’est très probablement parce qu’il n’a jamais été marié.\n\n  À propos de ceux qui restent célibataires pour se dépenser davantage au service de Dieu, Jésus a déclaré à ses disciples : « Si quelqu’un peut accepter [le célibat], qu’il l’accepte » (Matthieu 19:10-12). Il a donné l’exemple aux chrétiens qui décident de ne pas se marier pour servir Dieu plus pleinement (Jean 13:15 ; 1 Corinthiens 7:32-38)."
-                }
-              ],
-              "subcategories": []
-            }
-          ],
-          "expanded": false
-        }
-      ]
-    },
-    {
       "id": 1760900187695,
       "name": "Image",
       "expanded": false,
@@ -739,6 +704,10 @@
       {
         "id": 1760993930463,
         "deletedAt": 1760993969866
+      },
+      {
+        "id": 1759772530026,
+        "deletedAt": 1760996813003
       }
     ],
     "subcategories": [
