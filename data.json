@@ -94,7 +94,7 @@
     {
       "id": 1760737684816,
       "name": "Perles Perso",
-      "expanded": true,
+      "expanded": false,
       "subcategories": [
         {
           "id": 1760737699041,
@@ -714,6 +714,13 @@
         }
       ],
       "lastModified": 1760901406420
+    },
+    {
+      "id": 1760947866029,
+      "name": "Test GitHub",
+      "expanded": true,
+      "subcategories": [],
+      "lastModified": 1760947866029
     }
   ]
 }
