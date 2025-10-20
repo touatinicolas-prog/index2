@@ -723,26 +723,15 @@
         }
       ],
       "lastModified": 1760901406420
-    },
-    {
-      "id": 1760993930463,
-      "name": "Test",
-      "expanded": true,
-      "subcategories": [
-        {
-          "id": 1760993950432,
-          "name": "Test",
-          "expanded": true,
-          "verses": [],
-          "subcategories": [],
-          "lastModified": 1760993950432
-        }
-      ],
-      "lastModified": 1760993950432
     }
   ],
   "deletedItems": {
-    "categories": [],
+    "categories": [
+      {
+        "id": 1760993930463,
+        "deletedAt": 1760993969866
+      }
+    ],
     "subcategories": [
       {
         "id": 1760989221973,
