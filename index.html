@@ -785,6 +785,48 @@ function saveToIndexedDB(key, value) {
     });
 }
 
+        // Sauvegarder deletedItems dans IndexedDB
+async function saveDeletedItemsToIndexedDB() {
+    try {
+        await saveToIndexedDB('deletedItems', deletedItems);
+        localStorage.setItem('deletedItems', JSON.stringify(deletedItems)); // fallback localStorage (optionnel)
+        console.log('💾 deletedItems sauvegardé dans IndexedDB');
+    } catch (err) {
+        console.error('❌ Erreur sauvegarde deletedItems:', err);
+    }
+}
+
+// Charger deletedItems depuis IndexedDB (avec migration depuis localStorage si nécessaire)
+async function loadDeletedItemsFromIndexedDB() {
+    try {
+        const stored = await loadFromIndexedDB('deletedItems');
+        if (stored) {
+            deletedItems = stored;
+            console.log('📖 deletedItems chargé depuis IndexedDB');
+        } else {
+            // Migration depuis localStorage si présent
+            const ls = localStorage.getItem('deletedItems');
+            if (ls) {
+                try {
+                    deletedItems = JSON.parse(ls);
+                    await saveDeletedItemsToIndexedDB();
+                    localStorage.removeItem('deletedItems');
+                    console.log('🔄 deletedItems migré depuis localStorage vers IndexedDB');
+                } catch (err) {
+                    console.warn('⚠️ deletedItems localStorage invalide, on part des valeurs par défaut');
+                    deletedItems = { categories: [], subcategories: [], verses: [] };
+                }
+            } else {
+                deletedItems = { categories: [], subcategories: [], verses: [] };
+            }
+        }
+    } catch (err) {
+        console.error('❌ Erreur chargement deletedItems:', err);
+        deletedItems = { categories: [], subcategories: [], verses: [] };
+    }
+}
+
+
 // Lire depuis IndexedDB
 function loadFromIndexedDB(key) {
     return new Promise((resolve, reject) => {
@@ -824,7 +866,8 @@ async function getIndexedDBSize() {
         let currentCat = null, currentSub = null, editItem = null, searchQuery = '', readOnlyMode = false;
         let dragMode = false, draggedItem = null;
         let tempAttachments = [];
-        let deletedItems = JSON.parse(localStorage.getItem('deletedItems') || '{"categories":[],"subcategories":[],"verses":[]}');
+        let deletedItems = { categories: [], subcategories: [], verses: [] }; // valeur par défaut
+
 
         async function loadData() {
     try {
@@ -852,6 +895,9 @@ async function getIndexedDBSize() {
         async function saveData() {
     try {
         await saveToIndexedDB(STORAGE_KEY, data);
+        // Sauvegarder deletedItems aussi
+        await saveDeletedItemsToIndexedDB();
+
         if (githubToken && !isSyncing) {
             syncWithGithub(false);
         }
@@ -861,6 +907,7 @@ async function getIndexedDBSize() {
     }
 }
 
+
         // Fonctions GitHub Sync
         function updateSyncStatus(status, text) {
             const indicator = document.getElementById('syncIndicator');
@@ -868,6 +915,60 @@ async function getIndexedDBSize() {
             indicator.className = 'sync-indicator ' + status;
             statusText.textContent = text;
         }
+
+        // ========================================================
+// 🔄 Gestion des suppressions synchronisées (merge & apply)
+// ========================================================
+
+// ✅ Fusionne les suppressions distantes (GitHub) avec les locales
+function mergeDeletedItems(remoteDeleted) {
+    if (!remoteDeleted) return;
+
+    const types = ['categories', 'subcategories', 'verses'];
+
+    types.forEach(type => {
+        const localMap = new Map(deletedItems[type].map(item => [item.id, item]));
+        const remoteMap = new Map(remoteDeleted[type].map(item => [item.id, item]));
+
+        // Fusionner les deux sources
+        remoteMap.forEach((remoteItem, id) => {
+            const localItem = localMap.get(id);
+            if (!localItem) {
+                // Suppression uniquement sur GitHub → l'ajouter
+                localMap.set(id, remoteItem);
+            } else {
+                // Si les deux existent → garder la plus récente
+                if (remoteItem.deletedAt > localItem.deletedAt) {
+                    localMap.set(id, remoteItem);
+                }
+            }
+        });
+
+        deletedItems[type] = Array.from(localMap.values());
+    });
+
+    console.log('🔄 deletedItems fusionné depuis GitHub');
+}
+
+// ✅ Applique les suppressions (catégories, sous-catégories, versets)
+function applyDeletions() {
+    if (!deletedItems) return;
+
+    // Supprimer les catégories supprimées
+    data.categories = data.categories.filter(cat =>
+        !deletedItems.categories.some(d => d.id === cat.id)
+    );
+
+    // Nettoyer récursivement les sous-catégories
+    function cleanSubcategories(subs) {
+        return subs
+            .filter(sub => !deletedItems.subcategories.some(d => d.id === sub.id))
+            .map(sub => ({
+                ...sub,
+                verses: sub.verses
+                    ? sub.verses.filter(v => !deletedItems.verses.some(d => d.id === v.id))
+                    : [],
+                subcategories: sub.sub
 
         async function syncWithGithub(showMessages = false) {
     if (!githubToken) {
@@ -1047,11 +1148,16 @@ console.log('📤 Envoi vers GitHub (données + suppressions)...');
     try {
         // Initialiser IndexedDB d'abord
         await initDB();
+
+        
         
         // Charger les données
         await loadData();
         // Nettoyer les anciennes suppressions
 cleanOldDeletions();
+        // Après initDB()
+await loadDeletedItemsFromIndexedDB();
+
         render();
         
         if (!githubToken) {
@@ -1604,21 +1710,33 @@ const content = btoa(unescape(encodeURIComponent(JSON.stringify(dataToSync, null
             tempAttachments = [];
         }
 
-        function deleteCat(catId) {
-    if (confirm('Supprimer cette catégorie ?')) {
-        // Marquer comme supprimée
-        deletedItems.categories.push({
-            id: catId,
-            deletedAt: Date.now()
-        });
-        localStorage.setItem('deletedItems', JSON.stringify(deletedItems));
-        
-        // Supprimer localement
-        data.categories = data.categories.filter(c => c.id !== catId);
-        saveData();
-        render();
+        async function deleteCat(catId) {
+    if (!confirm('Supprimer cette catégorie ?')) return;
+
+    // Marquer comme supprimée
+    deletedItems.categories.push({
+        id: catId,
+        deletedAt: Date.now()
+    });
+
+    // Sauvegarder deletedItems dans IndexedDB
+    await saveDeletedItemsToIndexedDB();
+
+    // Supprimer localement
+    data.categories = data.categories.filter(c => c.id !== catId);
+    await saveData(); // saveData fait déjà saveToIndexedDB et déclenche éventuellement sync
+    render();
+
+    // Forcer une sync rapide vers GitHub (propager la suppression)
+    if (githubToken) {
+        try {
+            await syncWithGithub(false);
+        } catch (err) {
+            console.warn('⚠️ Sync après suppression échouée:', err);
+        }
     }
 }
+
 
         function deleteSubRec(subs, subId) {
             for (let i = 0; i < subs.length; i++) {
@@ -1628,43 +1746,64 @@ const content = btoa(unescape(encodeURIComponent(JSON.stringify(dataToSync, null
             return false;
         }
 
-        function deleteSub(catId, subId) {
-    if (confirm('Supprimer cette sous-catégorie ?')) {
-        // Marquer comme supprimée
-        deletedItems.subcategories.push({
-            id: subId,
-            deletedAt: Date.now()
-        });
-        localStorage.setItem('deletedItems', JSON.stringify(deletedItems));
-        
-        // Supprimer localement
-        const cat = data.categories.find(c => c.id === catId);
-        if (cat) { 
-            deleteSubRec(cat.subcategories, subId); 
-            saveData(); 
-            render(); 
+        // ✅ Nouvelle version de deleteSub
+async function deleteSub(catId, subId) {
+    if (!confirm('Supprimer cette sous-catégorie ?')) return;
+
+    // 1️⃣ Marquer comme supprimée
+    deletedItems.subcategories.push({
+        id: subId,
+        deletedAt: Date.now()
+    });
+
+    // 2️⃣ Sauvegarder les suppressions dans IndexedDB
+    await saveDeletedItemsToIndexedDB();
+
+    // 3️⃣ Supprimer localement la sous-catégorie (récursif)
+    const cat = data.categories.find(c => c.id === catId);
+    if (cat) {
+        deleteSubRec(cat.subcategories, subId);
+    }
+
+    // 4️⃣ Sauvegarder les nouvelles données localement et sync
+    await saveData();
+    render();
+
+    // 5️⃣ Forcer la synchronisation GitHub (propager suppression)
+    if (githubToken) {
+        try {
+            await syncWithGithub(false);
+        } catch (err) {
+            console.warn('⚠️ Sync après suppression échouée:', err);
         }
     }
 }
 
-        function deleteVerse(catId, subId, verseId) {
-    if (confirm('Supprimer ce verset ?')) {
-        // Marquer comme supprimée
-        deletedItems.verses.push({
-            id: verseId,
-            deletedAt: Date.now()
-        });
-        localStorage.setItem('deletedItems', JSON.stringify(deletedItems));
-        
-        // Supprimer localement
-        const sub = findSub(catId, subId);
-        if (sub) { 
-            sub.verses = sub.verses.filter(v => v.id !== verseId); 
-            saveData(); 
-            render(); 
-        }
+
+        async function deleteVerse(catId, subId, verseId) {
+    if (!confirm('Supprimer ce verset ?')) return;
+
+    // Marquer comme supprimée
+    deletedItems.verses.push({
+        id: verseId,
+        deletedAt: Date.now()
+    });
+
+    await saveDeletedItemsToIndexedDB();
+
+    // Supprimer localement
+    const sub = findSub(catId, subId);
+    if (sub) { 
+        sub.verses = sub.verses.filter(v => v.id !== verseId); 
+        await saveData(); 
+        render(); 
+    }
+
+    if (githubToken) {
+        try { await syncWithGithub(false); } catch (err) { console.warn('⚠️ Sync après suppression échouée:', err); }
     }
 }
+
 
         function exportData() {
             const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
