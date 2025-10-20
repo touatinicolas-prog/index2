@@ -100,15 +100,7 @@
           "id": 1760737699041,
           "name": "Genèse",
           "expanded": true,
-          "verses": [
-            {
-              "id": 1760902756229,
-              "ref": "Genèse 3:18",
-              "note": "",
-              "attachments": [],
-              "lastModified": 1760902756229
-            }
-          ],
+          "verses": [],
           "subcategories": [
             {
               "id": 1760986535164,
@@ -749,6 +741,11 @@
       }
     ],
     "subcategories": [],
-    "verses": []
+    "verses": [
+      {
+        "id": 1760902756229,
+        "deletedAt": 1760986550030
+      }
+    ]
   }
 }
