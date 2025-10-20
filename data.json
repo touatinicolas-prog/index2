@@ -94,12 +94,12 @@
     {
       "id": 1760737684816,
       "name": "Perles Perso",
-      "expanded": true,
+      "expanded": false,
       "subcategories": [
         {
           "id": 1760737699041,
           "name": "Genèse",
-          "expanded": true,
+          "expanded": false,
           "verses": [
             {
               "id": 1760902756229,
@@ -660,7 +660,7 @@
           "name": "Ce qui se passera avant",
           "verses": [],
           "subcategories": [],
-          "expanded": false
+          "expanded": true
         },
         {
           "id": 1759772559192,
@@ -693,7 +693,7 @@
         {
           "id": 1760900258162,
           "name": "Amarguedon",
-          "expanded": false,
+          "expanded": true,
           "verses": [
             {
               "id": 1760901390005,
