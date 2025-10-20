@@ -728,8 +728,17 @@
       "id": 1760993930463,
       "name": "Test",
       "expanded": true,
-      "subcategories": [],
-      "lastModified": 1760993930463
+      "subcategories": [
+        {
+          "id": 1760993950432,
+          "name": "Test",
+          "expanded": true,
+          "verses": [],
+          "subcategories": [],
+          "lastModified": 1760993950432
+        }
+      ],
+      "lastModified": 1760993950432
     }
   ],
   "deletedItems": {
