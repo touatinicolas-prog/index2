@@ -131,7 +131,7 @@
         {
           "id": 1760737727161,
           "name": "Levitique",
-          "expanded": false,
+          "expanded": true,
           "verses": [],
           "subcategories": []
         },
@@ -669,7 +669,7 @@
           "name": "Ce qui se passera avant",
           "verses": [],
           "subcategories": [],
-          "expanded": false
+          "expanded": true
         },
         {
           "id": 1759772559192,
