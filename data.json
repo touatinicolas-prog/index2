@@ -106,9 +106,17 @@
               "id": 1760986535164,
               "name": "Chapitre 3",
               "expanded": true,
-              "verses": [],
+              "verses": [
+                {
+                  "id": 1760986821693,
+                  "ref": "Genèse 3:18",
+                  "note": "Le «&nbsp;<u style=\"font-style: italic;\">nous »</u>&nbsp;intègre l’idée que Jésus, quand Adam était encore parfait, avait déjà acquis la notion du bien et du mal et été en quelques sorte capable d’établir des normes comme son père! Mais quelle Roi!!",
+                  "attachments": [],
+                  "lastModified": 1760986821693
+                }
+              ],
               "subcategories": [],
-              "lastModified": 1760986535164
+              "lastModified": 1760986821693
             }
           ],
           "lastModified": 1760986535164
