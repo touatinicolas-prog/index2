@@ -769,7 +769,7 @@
     updateSyncStatus('syncing', 'Synchronisation...');
     
     try {
-        // 1. Récupérer le SHA du fichier actuel sur GitHub
+        // 1. Récupérer les données depuis GitHub
         const response = await fetch(
             `https://api.github.com/repos/${GITHUB_CONFIG.username}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.filepath}`,
             {
@@ -781,13 +781,21 @@
         );
         
         let remoteSha = null;
+        let remoteData = null;
         
         if (response.ok) {
             const fileData = await response.json();
             remoteSha = fileData.sha;
+            
+            // Décoder le contenu Base64
+            const decodedContent = decodeURIComponent(escape(atob(fileData.content)));
+            remoteData = JSON.parse(decodedContent);
+            
+            // Fusionner les données distantes avec les données locales
+            mergeData(remoteData);
         }
         
-        // 2. Envoyer NOS données locales directement (sans fusion)
+        // 2. Envoyer les données fusionnées vers GitHub
         const content = btoa(unescape(encodeURIComponent(JSON.stringify(data, null, 2))));
         
         const saveResponse = await fetch(
@@ -799,7 +807,7 @@
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    message: `Mise à jour depuis ${navigator.userAgent.includes('iPhone') ? 'iPhone' : 'iPad'} - ${new Date().toLocaleString('fr-FR')}`,
+                    message: `Sync depuis ${navigator.userAgent.includes('iPhone') ? 'iPhone' : navigator.userAgent.includes('iPad') ? 'iPad' : 'Appareil'} - ${new Date().toLocaleString('fr-FR')}`,
                     content: content,
                     sha: remoteSha,
                     branch: GITHUB_CONFIG.branch
