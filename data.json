@@ -105,7 +105,7 @@
             {
               "id": 1760986535164,
               "name": "Chapitre 3",
-              "expanded": true,
+              "expanded": false,
               "verses": [
                 {
                   "id": 1760986821693,
@@ -131,7 +131,7 @@
         {
           "id": 1760737727161,
           "name": "Levitique",
-          "expanded": true,
+          "expanded": false,
           "verses": [],
           "subcategories": []
         },
@@ -327,13 +327,13 @@
         {
           "id": 1760739393609,
           "name": "Jonas",
-          "expanded": true,
+          "expanded": false,
           "verses": [],
           "subcategories": [
             {
               "id": 1760910184295,
               "name": "Chapitre 3",
-              "expanded": true,
+              "expanded": false,
               "verses": [
                 {
                   "id": 1760910414467,
@@ -697,7 +697,7 @@
     {
       "id": 1760900187695,
       "name": "Image",
-      "expanded": false,
+      "expanded": true,
       "subcategories": [
         {
           "id": 1760900258162,
