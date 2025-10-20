@@ -723,32 +723,140 @@
         let lastSyncTime = null;
         
         const STORAGE_KEY = 'monIndexBiblique';
+        // ============================================
+// INDEXEDDB STORAGE (Remplace localStorage)
+// ============================================
+
+const DB_NAME = 'MonIndexBibliqueDB';
+const DB_VERSION = 1;
+const STORE_NAME = 'data';
+
+let db = null;
+
+// Initialiser IndexedDB
+function initDB() {
+    return new Promise((resolve, reject) => {
+        const request = indexedDB.open(DB_NAME, DB_VERSION);
+        
+        request.onerror = () => {
+            console.error('❌ Erreur ouverture IndexedDB:', request.error);
+            reject(request.error);
+        };
+        
+        request.onsuccess = () => {
+            db = request.result;
+            console.log('✅ IndexedDB initialisée');
+            resolve(db);
+        };
+        
+        request.onupgradeneeded = (event) => {
+            const db = event.target.result;
+            if (!db.objectStoreNames.contains(STORE_NAME)) {
+                db.createObjectStore(STORE_NAME);
+                console.log('📦 ObjectStore créé');
+            }
+        };
+    });
+}
+
+// Sauvegarder dans IndexedDB
+function saveToIndexedDB(key, value) {
+    return new Promise((resolve, reject) => {
+        if (!db) {
+            reject(new Error('DB not initialized'));
+            return;
+        }
+        
+        const transaction = db.transaction([STORE_NAME], 'readwrite');
+        const store = transaction.objectStore(STORE_NAME);
+        const request = store.put(value, key);
+        
+        request.onsuccess = () => {
+            console.log('💾 Données sauvegardées dans IndexedDB');
+            resolve();
+        };
+        
+        request.onerror = () => {
+            console.error('❌ Erreur sauvegarde IndexedDB:', request.error);
+            reject(request.error);
+        };
+    });
+}
+
+// Lire depuis IndexedDB
+function loadFromIndexedDB(key) {
+    return new Promise((resolve, reject) => {
+        if (!db) {
+            reject(new Error('DB not initialized'));
+            return;
+        }
+        
+        const transaction = db.transaction([STORE_NAME], 'readonly');
+        const store = transaction.objectStore(STORE_NAME);
+        const request = store.get(key);
+        
+        request.onsuccess = () => {
+            console.log('📖 Données chargées depuis IndexedDB');
+            resolve(request.result);
+        };
+        
+        request.onerror = () => {
+            console.error('❌ Erreur lecture IndexedDB:', request.error);
+            reject(request.error);
+        };
+    });
+}
+
+// Calculer la taille des données dans IndexedDB
+async function getIndexedDBSize() {
+    try {
+        const storedData = await loadFromIndexedDB(STORAGE_KEY);
+        if (!storedData) return 0;
+        const jsonString = JSON.stringify(storedData);
+        return jsonString.length;
+    } catch (err) {
+        return 0;
+    }
+}
         let data = {categories: [{id: 1, name: 'Foi et Confiance', expanded: true, lastModified: Date.now(), subcategories: [{id: 11, name: 'Renforcer sa foi', expanded: true, lastModified: Date.now(), verses: [{id: 111, ref: 'Hébreux 11:1', note: 'Définition de la foi', attachments: [], lastModified: Date.now()}], subcategories: []}]}]};
         let currentCat = null, currentSub = null, editItem = null, searchQuery = '', readOnlyMode = false;
         let dragMode = false, draggedItem = null;
         let tempAttachments = [];
 
-        function loadData() {
-            try {
-                const stored = localStorage.getItem(STORAGE_KEY);
-                if (stored) {
-                    data = JSON.parse(stored);
-                }
-            } catch (err) {
-                console.error('Erreur lors du chargement des données:', err);
+        async function loadData() {
+    try {
+        // Essayer de charger depuis IndexedDB
+        const stored = await loadFromIndexedDB(STORAGE_KEY);
+        if (stored) {
+            data = stored;
+            console.log('✅ Données chargées depuis IndexedDB');
+        } else {
+            // Fallback : essayer localStorage (migration)
+            const localStorageData = localStorage.getItem(STORAGE_KEY);
+            if (localStorageData) {
+                data = JSON.parse(localStorageData);
+                console.log('🔄 Migration depuis localStorage vers IndexedDB...');
+                await saveToIndexedDB(STORAGE_KEY, data);
+                localStorage.removeItem(STORAGE_KEY); // Nettoyer localStorage
+                console.log('✅ Migration terminée');
             }
         }
+    } catch (err) {
+        console.error('❌ Erreur lors du chargement des données:', err);
+    }
+}
 
-        function saveData() {
-            try {
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-                if (githubToken && !isSyncing) {
-                    syncWithGithub(false);
-                }
-            } catch (err) {
-                console.error('Erreur lors de la sauvegarde des données:', err);
-            }
+        async function saveData() {
+    try {
+        await saveToIndexedDB(STORAGE_KEY, data);
+        if (githubToken && !isSyncing) {
+            syncWithGithub(false);
         }
+    } catch (err) {
+        console.error('❌ Erreur lors de la sauvegarde des données:', err);
+        alert('❌ Erreur de sauvegarde: ' + err.message);
+    }
+}
 
         // Fonctions GitHub Sync
         function updateSyncStatus(status, text) {
@@ -770,7 +878,6 @@
     
     try {
         console.log('🔄 Début de la synchronisation...');
-        console.log('📱 Données locales:', JSON.stringify(data).substring(0, 100) + '...');
         
         // 1. Récupérer les données depuis GitHub
         const response = await fetch(
@@ -793,15 +900,13 @@
             remoteSha = fileData.sha;
             console.log('🔑 SHA récupéré:', remoteSha);
             
-            // Décoder le contenu Base64
             try {
                 const decodedContent = decodeURIComponent(escape(atob(fileData.content.replace(/\n/g, ''))));
                 remoteData = JSON.parse(decodedContent);
-                console.log('☁️ Données GitHub récupérées:', JSON.stringify(remoteData).substring(0, 100) + '...');
+                console.log('☁️ Données GitHub récupérées');
                 console.log('📊 Nombre de catégories GitHub:', remoteData.categories?.length);
                 console.log('📊 Nombre de catégories locales (avant merge):', data.categories.length);
                 
-                // Fusionner les données distantes avec les données locales
                 mergeData(remoteData);
                 console.log('✅ Fusion terminée');
                 console.log('📊 Nombre de catégories locales (après merge):', data.categories.length);
@@ -839,10 +944,10 @@
         if (saveResponse.ok) {
             lastSyncTime = new Date();
             updateSyncStatus('synced', `Synchronisé à ${lastSyncTime.toLocaleTimeString('fr-FR')}`);
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+            await saveToIndexedDB(STORAGE_KEY, data); // ✅ Sauvegarde IndexedDB
             console.log('✅ Synchronisation réussie !');
             if (showMessages) alert('✅ Synchronisation réussie !');
-            render(); // IMPORTANT: Re-render pour afficher les nouvelles données
+            render();
         } else {
             const errorData = await saveResponse.json();
             console.error('❌ Erreur de sauvegarde:', errorData);
@@ -909,31 +1014,40 @@
             startAutoSync();
         }
 
-        window.addEventListener('DOMContentLoaded', () => {
-            loadData();
-            render();
-            
-            if (!githubToken) {
-                setTimeout(() => {
-                    openModal('githubConfigModal');
-                }, 2000);
-            } else {
-                syncWithGithub(false);
-                startAutoSync();
-            }
-            
-            setTimeout(() => document.getElementById('splash').classList.add('hide'), 1500);
-            
-            let timeout;
-            document.getElementById('searchInput').addEventListener('input', (e) => {
-                clearTimeout(timeout);
-                timeout = setTimeout(() => {
-                    searchQuery = e.target.value.toLowerCase().trim();
-                    render();
-                }, 300);
-            });
-            document.addEventListener('click', closeContextMenu);
+        window.addEventListener('DOMContentLoaded', async () => {
+    try {
+        // Initialiser IndexedDB d'abord
+        await initDB();
+        
+        // Charger les données
+        await loadData();
+        render();
+        
+        if (!githubToken) {
+            setTimeout(() => {
+                openModal('githubConfigModal');
+            }, 2000);
+        } else {
+            syncWithGithub(false);
+            startAutoSync();
+        }
+        
+        setTimeout(() => document.getElementById('splash').classList.add('hide'), 1500);
+        
+        let timeout;
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => {
+                searchQuery = e.target.value.toLowerCase().trim();
+                render();
+            }, 300);
         });
+        document.addEventListener('click', closeContextMenu);
+    } catch (err) {
+        console.error('❌ Erreur initialisation:', err);
+        alert('❌ Erreur lors de l\'initialisation de la base de données');
+    }
+});
 
         function closeContextMenu() {
             const existingMenus = document.querySelectorAll('.context-menu');
@@ -1390,61 +1504,64 @@
             a.click();
         }
 
-        function checkStorageSize() {
-            try {
-                const jsonString = JSON.stringify(data);
-                const sizeInBytes = jsonString.length;
-                const sizeInKB = (sizeInBytes / 1024).toFixed(2);
-                const sizeInMB = (sizeInBytes / 1024 / 1024).toFixed(2);
-                const percentUsed = ((sizeInBytes / (5 * 1024 * 1024)) * 100).toFixed(1);
-                
-                function countFilesRecursive(subcategories) {
-                    let imgCount = 0;
-                    let pdfCountLocal = 0;
-                    
-                    subcategories.forEach(sub => {
-                        if (sub.verses) {
-                            sub.verses.forEach(v => {
-                                if (v.attachments) {
-                                    v.attachments.forEach(att => {
-                                        if (att.type.startsWith('image/')) imgCount++;
-                                        if (att.type === 'application/pdf') pdfCountLocal++;
-                                    });
-                                }
+        async function checkStorageSize() {
+    try {
+        const sizeInBytes = await getIndexedDBSize();
+        const sizeInKB = (sizeInBytes / 1024).toFixed(2);
+        const sizeInMB = (sizeInBytes / 1024 / 1024).toFixed(2);
+        
+        // IndexedDB a une limite beaucoup plus élevée (généralement 1GB+)
+        const estimatedQuota = 1024; // MB (approximatif)
+        const percentUsed = ((sizeInBytes / (estimatedQuota * 1024 * 1024)) * 100).toFixed(1);
+        
+        function countFilesRecursive(subcategories) {
+            let imgCount = 0;
+            let pdfCountLocal = 0;
+            
+            subcategories.forEach(sub => {
+                if (sub.verses) {
+                    sub.verses.forEach(v => {
+                        if (v.attachments) {
+                            v.attachments.forEach(att => {
+                                if (att.type.startsWith('image/')) imgCount++;
+                                if (att.type === 'application/pdf') pdfCountLocal++;
                             });
                         }
-                        if (sub.subcategories && sub.subcategories.length > 0) {
-                            const subCounts = countFilesRecursive(sub.subcategories);
-                            imgCount += subCounts.images;
-                            pdfCountLocal += subCounts.pdfs;
-                        }
                     });
-                    
-                    return { images: imgCount, pdfs: pdfCountLocal };
                 }
-                
-                let imageCount = 0;
-                let pdfCount = 0;
-                
-                data.categories.forEach(cat => {
-                    const counts = countFilesRecursive(cat.subcategories);
-                    imageCount += counts.images;
-                    pdfCount += counts.pdfs;
-                });
-                
-                alert(`📊 INFORMATIONS DE STOCKAGE\n\n` +
-                      `Taille: ${sizeInKB} KB (${sizeInMB} MB)\n` +
-                      `Utilisation: ${percentUsed}% de la limite\n` +
-                      `Limite navigateur: ~5 MB\n\n` +
-                      `📎 Fichiers attachés:\n` +
-                      `Images: ${imageCount}\n` +
-                      `PDF: ${pdfCount}\n\n` +
-                      `${percentUsed > 80 ? '⚠️ ATTENTION: Proche de la limite !' : '✅ Espace suffisant'}`);
-            } catch (err) {
-                alert('❌ Erreur lors du calcul de la taille');
-                console.error(err);
-            }
+                if (sub.subcategories && sub.subcategories.length > 0) {
+                    const subCounts = countFilesRecursive(sub.subcategories);
+                    imgCount += subCounts.images;
+                    pdfCountLocal += subCounts.pdfs;
+                }
+            });
+            
+            return { images: imgCount, pdfs: pdfCountLocal };
         }
+        
+        let imageCount = 0;
+        let pdfCount = 0;
+        
+        data.categories.forEach(cat => {
+            const counts = countFilesRecursive(cat.subcategories);
+            imageCount += counts.images;
+            pdfCount += counts.pdfs;
+        });
+        
+        alert(`📊 INFORMATIONS DE STOCKAGE\n\n` +
+              `Type: IndexedDB (Navigateur)\n` +
+              `Taille: ${sizeInKB} KB (${sizeInMB} MB)\n` +
+              `Utilisation: ${percentUsed}% de la limite estimée\n` +
+              `Limite estimée: ~${estimatedQuota} MB\n\n` +
+              `📎 Fichiers attachés:\n` +
+              `Images: ${imageCount}\n` +
+              `PDF: ${pdfCount}\n\n` +
+              `${percentUsed > 80 ? '⚠️ ATTENTION: Proche de la limite !' : '✅ Espace suffisant'}`);
+    } catch (err) {
+        alert('❌ Erreur lors du calcul de la taille');
+        console.error(err);
+    }
+}
         
         let pendingImportData = null;
 
@@ -1465,52 +1582,46 @@
             }
         }
 
-        function confirmMerge(shouldMerge) {
-            closeModal('mergeModal');
-            
-            try {
-                if (shouldMerge) {
-                    mergeData(pendingImportData);
-                } else {
-                    data = JSON.parse(JSON.stringify(pendingImportData));
-                }
-                
-                const jsonString = JSON.stringify(data);
-                const sizeInMB = (jsonString.length / 1024 / 1024).toFixed(2);
-                
-                if (jsonString.length > 4 * 1024 * 1024) {
-                    throw new Error(`Les données sont trop volumineuses (${sizeInMB} MB).`);
-                }
-                
-                localStorage.setItem(STORAGE_KEY, jsonString);
-                const verification = localStorage.getItem(STORAGE_KEY);
-                if (!verification) {
-                    throw new Error('La sauvegarde a échoué');
-                }
-                
-                data = JSON.parse(verification);
-                render();
-                
-                alert(shouldMerge ? '✅ Données fusionnées avec succès !' : '✅ Données remplacées avec succès !');
-                    
-            } catch (err) {
-                console.error('❌ Erreur:', err);
-                alert('❌ Erreur lors de l\'import:\n\n' + err.message);
-                
-                try {
-                    const oldData = localStorage.getItem(STORAGE_KEY);
-                    if (oldData) {
-                        data = JSON.parse(oldData);
-                        render();
-                    }
-                } catch (restoreErr) {
-                    console.error('Impossible de restaurer les anciennes données');
-                }
-            }
-            
-            pendingImportData = null;
-            document.getElementById('importFile').value = '';
+        async function confirmMerge(shouldMerge) {
+    closeModal('mergeModal');
+    
+    try {
+        if (shouldMerge) {
+            mergeData(pendingImportData);
+        } else {
+            data = JSON.parse(JSON.stringify(pendingImportData));
         }
+        
+        await saveToIndexedDB(STORAGE_KEY, data);
+        const verification = await loadFromIndexedDB(STORAGE_KEY);
+        
+        if (!verification) {
+            throw new Error('La sauvegarde a échoué');
+        }
+        
+        data = verification;
+        render();
+        
+        alert(shouldMerge ? '✅ Données fusionnées avec succès !' : '✅ Données remplacées avec succès !');
+            
+    } catch (err) {
+        console.error('❌ Erreur:', err);
+        alert('❌ Erreur lors de l\'import:\n\n' + err.message);
+        
+        try {
+            const oldData = await loadFromIndexedDB(STORAGE_KEY);
+            if (oldData) {
+                data = oldData;
+                render();
+            }
+        } catch (restoreErr) {
+            console.error('Impossible de restaurer les anciennes données');
+        }
+    }
+    
+    pendingImportData = null;
+    document.getElementById('importFile').value = '';
+}
 
         function cancelImport() {
             closeModal('mergeModal');
