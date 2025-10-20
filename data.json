@@ -14,7 +14,7 @@
             {
               "id": 1760765390877,
               "name": "Precedent biblique",
-              "expanded": true,
+              "expanded": false,
               "verses": [
                 {
                   "id": 1760766638236,
@@ -37,7 +37,7 @@
             {
               "id": 1760765420442,
               "name": "Attitude envers",
-              "expanded": true,
+              "expanded": false,
               "verses": [
                 {
                   "id": 1760765489839,
@@ -131,14 +131,14 @@
         {
           "id": 1760737727161,
           "name": "Levitique",
-          "expanded": true,
+          "expanded": false,
           "verses": [],
           "subcategories": []
         },
         {
           "id": 1760737736343,
           "name": "Nombres",
-          "expanded": false,
+          "expanded": true,
           "verses": [],
           "subcategories": []
         },
@@ -669,7 +669,7 @@
           "name": "Ce qui se passera avant",
           "verses": [],
           "subcategories": [],
-          "expanded": true
+          "expanded": false
         },
         {
           "id": 1759772559192,
@@ -702,7 +702,7 @@
         {
           "id": 1760900258162,
           "name": "Amarguedon",
-          "expanded": false,
+          "expanded": true,
           "verses": [
             {
               "id": 1760901390005,
