@@ -1092,7 +1092,19 @@ function applyDeletions() {
     
     // Message d'erreur plus détaillé
     if (decodeError instanceof SyntaxError) {
-        throw new Error('Fichier GitHub corrompu (JSON invalide). Utilisez "🔧 Réparer GitHub"');
+        console.warn('⚠️ Fichier GitHub corrompu - Tentative de réparation automatique...');
+        
+        // 🔧 Réparation automatique : utiliser les données locales
+        if (confirm('Le fichier GitHub est corrompu.\n\nVoulez-vous le réparer automatiquement avec vos données locales ?')) {
+            try {
+                await forceUploadToGithub();
+                return; // Sortir de la fonction après réparation
+            } catch (repairError) {
+                throw new Error('Échec de la réparation automatique. Utilisez "🔧 Réparer GitHub" manuellement.');
+            }
+        } else {
+            throw new Error('Fichier GitHub corrompu (JSON invalide). Utilisez "🔧 Réparer GitHub"');
+        }
     } else {
         throw new Error('Erreur lecture GitHub: ' + decodeError.message);
     }
@@ -1103,7 +1115,20 @@ const dataToSync = {
     categories: data.categories,
     deletedItems: deletedItems
 };
-const content = btoa(unescape(encodeURIComponent(JSON.stringify(dataToSync, null, 2))));
+
+// ✅ Validation avant envoi
+let content;
+try {
+    const jsonString = JSON.stringify(dataToSync, null, 2);
+    JSON.parse(jsonString); // Vérifier que c'est du JSON valide
+    content = btoa(unescape(encodeURIComponent(jsonString)));
+    console.log('✅ JSON validé avant envoi');
+    console.log('📏 Taille du JSON:', (jsonString.length / 1024).toFixed(2), 'KB');
+} catch (validationError) {
+    console.error('❌ Données invalides détectées:', validationError);
+    throw new Error('Impossible de créer un JSON valide. Vérifiez vos données locales.');
+}
+
 console.log('📤 Envoi vers GitHub (données + suppressions)...');
         
         const saveResponse = await fetch(
