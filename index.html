@@ -559,7 +559,7 @@
                 <select class="form-input" id="autoSyncInterval">
                     <option value="0">Désactivée</option>
                     <option value="60000">Toutes les minutes</option>
-                    <option value="120000" selected>Toutes les 2 minutes</option>
+                    <option value="300000" selected>Toutes les 5 minutes</option>
                     <option value="300000">Toutes les 5 minutes</option>
                 </select>
             </div>
@@ -995,9 +995,17 @@ function applyDeletions() {
         return;
     }
     
-    if (isSyncing) return;
-    isSyncing = true;
-    updateSyncStatus('syncing', 'Synchronisation...');
+    if (isSyncing) {
+    console.log('⏸️ Sync déjà en cours, annulation...');
+    return;
+}
+isSyncing = true;
+updateSyncStatus('syncing', 'Synchronisation...');
+
+// ✅ Ajouter un délai aléatoire pour éviter les conflits multi-appareils
+const randomDelay = Math.floor(Math.random() * 2000); // 0-2 secondes
+await new Promise(resolve => setTimeout(resolve, randomDelay));
+console.log(`⏱️ Délai de ${randomDelay}ms appliqué pour éviter les conflits`);
     
     try {
         console.log('🔄 Début de la synchronisation...');
@@ -1092,10 +1100,21 @@ function applyDeletions() {
     
     // Message d'erreur plus détaillé
     if (decodeError instanceof SyntaxError) {
-        console.warn('⚠️ Fichier GitHub corrompu - Tentative de réparation automatique...');
+        console.warn('⚠️ Fichier GitHub corrompu détecté');
+        
+        // ✅ NE PAS proposer de réparation automatique si on vient de réparer
+        const lastRepairTime = localStorage.getItem('lastGithubRepair');
+        const now = Date.now();
+        const timeSinceLastRepair = lastRepairTime ? now - parseInt(lastRepairTime) : Infinity;
+        
+        if (timeSinceLastRepair < 60000) { // Moins d'1 minute depuis la dernière réparation
+            console.warn('⏸️ Réparation récente détectée, on attend...');
+            throw new Error('Fichier GitHub corrompu. Veuillez patienter 1 minute avant de resynchroniser.');
+        }
         
         // 🔧 Réparation automatique : utiliser les données locales
         if (confirm('Le fichier GitHub est corrompu.\n\nVoulez-vous le réparer automatiquement avec vos données locales ?')) {
+            localStorage.setItem('lastGithubRepair', now.toString());
             try {
                 await forceUploadToGithub();
                 return; // Sortir de la fonction après réparation
@@ -1394,6 +1413,7 @@ console.log('🔧 Réparation - Encodage robuste appliqué');
         
         if (saveResponse.ok) {
             lastSyncTime = new Date();
+            localStorage.setItem('lastGithubRepair', Date.now().toString());
             updateSyncStatus('synced', `Réparé à ${lastSyncTime.toLocaleTimeString('fr-FR')}`);
             console.log('✅ GitHub réparé avec succès !');
             alert('✅ GitHub réparé avec succès !\n\nVos données locales ont été uploadées sur GitHub.');
