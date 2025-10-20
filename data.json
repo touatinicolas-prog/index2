@@ -3,7 +3,7 @@
     {
       "id": 1760737670977,
       "name": "VP",
-      "expanded": false,
+      "expanded": true,
       "subcategories": [
         {
           "id": 1760739828014,
@@ -14,7 +14,7 @@
             {
               "id": 1760765390877,
               "name": "Precedent biblique",
-              "expanded": true,
+              "expanded": false,
               "verses": [
                 {
                   "id": 1760766638236,
@@ -37,7 +37,7 @@
             {
               "id": 1760765420442,
               "name": "Attitude envers",
-              "expanded": true,
+              "expanded": false,
               "verses": [
                 {
                   "id": 1760765489839,
