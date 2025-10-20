@@ -149,6 +149,15 @@
         }
         .subcategory-title-wrapper { display: flex; align-items: center; gap: 10px; flex: 1; }
         .subcategory-title { font-size: 16px; font-weight: 500; color: var(--accent); }
+.count-badge {
+    background: var(--bg-tertiary);
+    color: var(--text-secondary);
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+    margin-left: 8px;
+}
         .subcategory-content { display: none; margin-top: 8px; }
         .subcategory-content.expanded { display: block; }
         .verse-item {
@@ -1482,12 +1491,19 @@ const content = btoa(unescape(encodeURIComponent(JSON.stringify(dataToSync, null
                 
                 const currentPath = parentPath ? `${parentPath}-${idx}` : `${idx}`;
                 const onClickAction = level === 2 ? `if(!dragMode)openSubsubPage(${catId}, ${sub.id})` : `if(!dragMode)toggleSub(${catId}, ${sub.id})`;
-                
+                // Calculer le nombre de sous-catégories et versets
+const subCount = sub.subcategories?.length || 0;
+const verseCount = sub.verses?.length || 0;
+const totalCount = subCount + verseCount;
+const countText = subCount > 0 ? `${subCount} sous · ${verseCount} versets` : `${verseCount} verset${verseCount > 1 ? 's' : ''}`;
                 return `<div class="subcategory ${level === 2 ? 'level-2' : ''}" data-cat-id="${catId}" data-sub-id="${sub.id}" data-sub-path="${currentPath}" data-level="${level}">
                     <div class="subcategory-header" onclick="${onClickAction}">
                         <div class="subcategory-title-wrapper">
                             ${dragMode ? '<span class="drag-handle" draggable="true">☰</span>' : ''}
-                            <div class="subcategory-title">${highlight(sub.name)}</div>
+                            <div class="subcategory-title">
+                                ${highlight(sub.name)}
+                                 ${totalCount > 0 ? `<span class="count-badge">${countText}</span>` : ''}
+                            </div>
                         </div>
                         <div style="display:flex;align-items:center;gap:12px;">
                             <button class="icon-btn ${readOnlyMode ? 'hidden' : ''}" onclick="event.stopPropagation(); showSubMenu(event, ${catId}, ${sub.id}, ${level})">⋮</button>
