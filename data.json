@@ -14,7 +14,7 @@
             {
               "id": 1760765390877,
               "name": "Precedent biblique",
-              "expanded": true,
+              "expanded": false,
               "verses": [
                 {
                   "id": 1760766638236,
@@ -37,7 +37,7 @@
             {
               "id": 1760765420442,
               "name": "Attitude envers",
-              "expanded": true,
+              "expanded": false,
               "verses": [
                 {
                   "id": 1760765489839,
@@ -350,7 +350,7 @@
             {
               "id": 1760910184295,
               "name": "Chapitre 3",
-              "expanded": true,
+              "expanded": false,
               "verses": [
                 {
                   "id": 1760910414467,
