@@ -478,16 +478,6 @@
             color: var(--text-secondary);
         }
         .info-box strong { color: var(--text-primary); }
-        /* --- liens JW.org versets (clic sans modifier le style) --- */
-.verse-ref a,
-.verse-ref {
-  color: var(--accent);
-  text-decoration: none;
-  cursor: pointer;
-}
-.verse-ref:hover {
-  opacity: 0.8;
-}
     </style>
 </head>
 <body>
@@ -1614,7 +1604,8 @@ console.log('🔧 Réparation - Encodage robuste appliqué');
                             const vm = matches(v.ref) || matches(v.note || '');
                             if (!vm && searchQuery) return '';
                             return `<div class="verse-item" data-cat-id="${catId}" data-sub-id="${sub.id}" data-verse-id="${v.id}" data-verse-index="${vIdx}">
-                                <div class="verse-ref">${highlight(v.ref)}</div>
+                                <div class="verse-ref" onclick="openJWVerse('${v.ref}')">${highlight(v.ref)}</div>
+
                                         ${v.note ? `<div class="verse-note">${highlight(renderFormattedNote(v.note))}</div>` : ''}
                                         ${v.attachments && v.attachments.length > 0 ? `<div class="verse-attachments">${v.attachments.map((att, attIdx) => {
                                             if (att.type === 'application/pdf') {
@@ -1645,7 +1636,7 @@ console.log('🔧 Réparation - Encodage robuste appliqué');
                 return `<div class="verse-item" data-cat-id="${catId}" data-sub-id="${sub.id}" data-verse-id="${v.id}" data-verse-index="${vIdx}">
                     <div class="verse-content">
                         <div style="flex:1;">
-                            <div class="verse-ref" onclick="openJWVerse('${v.ref}')">${v.ref}</div>
+                            <div class="verse-ref">${v.ref}</div>
                             ${v.note ? `<div class="verse-note">${renderFormattedNote(v.note)}</div>` : ''}
                             ${v.attachments && v.attachments.length > 0 ? `<div class="verse-attachments">${v.attachments.map((att, attIdx) => {
                                 if (att.type === 'application/pdf') {
@@ -1667,26 +1658,6 @@ console.log('🔧 Réparation - Encodage robuste appliqué');
         function closePage() {
             document.getElementById('subsubPage').classList.remove('active');
         }
-        // ========================================================
-// 🔗 OUVERTURE AUTOMATIQUE DES VERSETS DANS JW LIBRARY
-// ========================================================
-function openJWVerse(ref) {
-  try {
-    // Nettoyer la référence (ex : "Jean 3:16")
-    const cleanRef = ref.trim();
-
-    // Construire un lien JW.org propre
-    // (Si JW Library est installée, le système la captera automatiquement)
-    const url = `https://www.jw.org/finder?wtlocale=F&bible=${encodeURIComponent(cleanRef)}`;
-
-    // Ouvrir dans un nouvel onglet ou via l’app JW Library
-    window.open(url, '_blank');
-  } catch (err) {
-    console.error('❌ Erreur ouverture verset JW Library :', err);
-    alert('Impossible d’ouvrir ce verset.');
-  }
-}
-
 
         function showCatMenu(e, catId) {
             showMenu(e, [
@@ -2877,8 +2848,17 @@ function findSubInArray(subsArray, subId) {
                 });
             });
         }
+        // Ouvre un verset JW Library / JW.org sans changer le style visuel
+function openJWVerse(ref) {
+  // Remplacer les espaces et deux-points pour la compatibilité URL
+  const cleanRef = ref.trim().replace(/\s+/g, '+').replace(':', '%3A');
+  
+  // Construire l’URL JW.org
+  const url = `https://www.jw.org/finder?wtlocale=F&bible=${encodeURIComponent(cleanRef)}`;
+  
+  // Ouvrir le lien (JW Library le captera si possible)
+  window.open(url, '_blank');
+}
     </script>
-</div>
-
-</body>
+    </body>
 </html>
