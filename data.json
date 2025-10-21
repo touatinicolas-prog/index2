@@ -8,7 +8,7 @@
         {
           "id": 1760739828014,
           "name": "Dueil",
-          "expanded": false,
+          "expanded": true,
           "verses": [],
           "subcategories": [
             {
@@ -57,21 +57,21 @@
         {
           "id": 1760739865393,
           "name": "Jeunes",
-          "expanded": false,
+          "expanded": true,
           "verses": [],
           "subcategories": []
         },
         {
           "id": 1760739879912,
           "name": "Agée",
-          "expanded": false,
+          "expanded": true,
           "verses": [],
           "subcategories": []
         },
         {
           "id": 1760739890214,
           "name": "Découragement",
-          "expanded": false,
+          "expanded": true,
           "verses": [
             {
               "id": 1760996235030,
@@ -87,14 +87,14 @@
         {
           "id": 1760739907688,
           "name": "Couples",
-          "expanded": false,
+          "expanded": true,
           "verses": [],
           "subcategories": []
         },
         {
           "id": 1760739920101,
           "name": "Célibataire",
-          "expanded": false,
+          "expanded": true,
           "verses": [],
           "subcategories": []
         }
@@ -103,13 +103,20 @@
     {
       "id": 1760737684816,
       "name": "Perles Perso",
-      "expanded": false,
+      "expanded": true,
       "subcategories": [
         {
           "id": 1760737699041,
           "name": "Genèse",
-          "expanded": false,
+          "expanded": true,
           "verses": [
+            {
+              "id": 1760902269200,
+              "ref": "Genèse 3:18",
+              "note": "",
+              "attachments": [],
+              "lastModified": 1760903060620
+            },
             {
               "id": 1760902756229,
               "ref": "Genèse 3:18",
@@ -141,210 +148,210 @@
         {
           "id": 1760737714996,
           "name": "Exode",
-          "expanded": false,
+          "expanded": true,
           "verses": [],
           "subcategories": []
         },
         {
           "id": 1760737727161,
           "name": "Levitique",
-          "expanded": false,
+          "expanded": true,
           "verses": [],
           "subcategories": []
         },
         {
           "id": 1760737736343,
           "name": "Nombres",
-          "expanded": false,
+          "expanded": true,
           "verses": [],
           "subcategories": []
         },
         {
           "id": 1760737744520,
           "name": "Josué",
-          "expanded": false,
+          "expanded": true,
           "verses": [],
           "subcategories": []
         },
         {
           "id": 1760737753846,
           "name": "Juges",
-          "expanded": false,
+          "expanded": true,
           "verses": [],
           "subcategories": []
         },
         {
           "id": 1760737763803,
           "name": "Ruth",
-          "expanded": false,
+          "expanded": true,
           "verses": [],
           "subcategories": []
         },
         {
           "id": 1760737809491,
           "name": "1 Samuel",
-          "expanded": false,
+          "expanded": true,
           "verses": [],
           "subcategories": []
         },
         {
           "id": 1760737818887,
           "name": "2 Samuel",
-          "expanded": false,
+          "expanded": true,
           "verses": [],
           "subcategories": []
         },
         {
           "id": 1760737836370,
           "name": "1 Rois",
-          "expanded": false,
+          "expanded": true,
           "verses": [],
           "subcategories": []
         },
         {
           "id": 1760737846306,
           "name": "2 Rois",
-          "expanded": false,
+          "expanded": true,
           "verses": [],
           "subcategories": []
         },
         {
           "id": 1760737859037,
           "name": "1 Chroniques",
-          "expanded": false,
+          "expanded": true,
           "verses": [],
           "subcategories": []
         },
         {
           "id": 1760737874311,
           "name": "2 Chroniques",
-          "expanded": false,
+          "expanded": true,
           "verses": [],
           "subcategories": []
         },
         {
           "id": 1760737885413,
           "name": "Esdras",
-          "expanded": false,
+          "expanded": true,
           "verses": [],
           "subcategories": []
         },
         {
           "id": 1760738886886,
           "name": "Nehemie",
-          "expanded": false,
+          "expanded": true,
           "verses": [],
           "subcategories": []
         },
         {
           "id": 1760738907022,
           "name": "Esther",
-          "expanded": false,
+          "expanded": true,
           "verses": [],
           "subcategories": []
         },
         {
           "id": 1760739195708,
           "name": "Job",
-          "expanded": false,
+          "expanded": true,
           "verses": [],
           "subcategories": []
         },
         {
           "id": 1760739227638,
           "name": "Psaumes",
-          "expanded": false,
+          "expanded": true,
           "verses": [],
           "subcategories": []
         },
         {
           "id": 1760739246632,
           "name": "Proverbes",
-          "expanded": false,
+          "expanded": true,
           "verses": [],
           "subcategories": []
         },
         {
           "id": 1760739261406,
           "name": "Ecclesiastes",
-          "expanded": false,
+          "expanded": true,
           "verses": [],
           "subcategories": []
         },
         {
           "id": 1760739274146,
           "name": "Chant de Salomon",
-          "expanded": false,
+          "expanded": true,
           "verses": [],
           "subcategories": []
         },
         {
           "id": 1760739283000,
           "name": "Isaïe",
-          "expanded": false,
+          "expanded": true,
           "verses": [],
           "subcategories": []
         },
         {
           "id": 1760739291116,
           "name": "Jérémie",
-          "expanded": false,
+          "expanded": true,
           "verses": [],
           "subcategories": []
         },
         {
           "id": 1760739303086,
           "name": "Lamentations",
-          "expanded": false,
+          "expanded": true,
           "verses": [],
           "subcategories": []
         },
         {
           "id": 1760739316289,
           "name": "Ezéchiel",
-          "expanded": false,
+          "expanded": true,
           "verses": [],
           "subcategories": []
         },
         {
           "id": 1760739326134,
           "name": "Daniel",
-          "expanded": false,
+          "expanded": true,
           "verses": [],
           "subcategories": []
         },
         {
           "id": 1760739345997,
           "name": "Osée",
-          "expanded": false,
+          "expanded": true,
           "verses": [],
           "subcategories": []
         },
         {
           "id": 1760739368330,
           "name": "Joël",
-          "expanded": false,
+          "expanded": true,
           "verses": [],
           "subcategories": []
         },
         {
           "id": 1760739376276,
           "name": "Amos",
-          "expanded": false,
+          "expanded": true,
           "verses": [],
           "subcategories": []
         },
         {
           "id": 1760739386960,
           "name": "Abdias",
-          "expanded": false,
+          "expanded": true,
           "verses": [],
           "subcategories": []
         },
         {
           "id": 1760739393609,
           "name": "Jonas",
-          "expanded": false,
+          "expanded": true,
           "verses": [],
           "subcategories": [
             {
@@ -369,242 +376,251 @@
         {
           "id": 1760739402532,
           "name": "Michée",
-          "expanded": false,
+          "expanded": true,
           "verses": [],
           "subcategories": []
         },
         {
           "id": 1760739410176,
           "name": "Nahum",
-          "expanded": false,
+          "expanded": true,
           "verses": [],
           "subcategories": []
         },
         {
           "id": 1760739422021,
           "name": "Habacuc",
-          "expanded": false,
+          "expanded": true,
           "verses": [],
           "subcategories": []
         },
         {
           "id": 1760739431660,
           "name": "Sophonie",
-          "expanded": false,
+          "expanded": true,
           "verses": [],
           "subcategories": []
         },
         {
           "id": 1760739438760,
           "name": "Agée",
-          "expanded": false,
+          "expanded": true,
           "verses": [],
           "subcategories": []
         },
         {
           "id": 1760739460000,
           "name": "Zacharie",
-          "expanded": false,
+          "expanded": true,
           "verses": [],
           "subcategories": []
         },
         {
           "id": 1760739471146,
           "name": "Malachie",
-          "expanded": false,
+          "expanded": true,
           "verses": [],
           "subcategories": []
         },
         {
           "id": 1760739484749,
           "name": "Matthieu",
-          "expanded": false,
+          "expanded": true,
           "verses": [],
           "subcategories": []
         },
         {
           "id": 1760739491066,
           "name": "Marc",
-          "expanded": false,
+          "expanded": true,
           "verses": [],
           "subcategories": []
         },
         {
           "id": 1760739497712,
           "name": "Luc",
-          "expanded": false,
+          "expanded": true,
           "verses": [],
           "subcategories": []
         },
         {
           "id": 1760739502008,
           "name": "Jean",
-          "expanded": false,
+          "expanded": true,
           "verses": [],
           "subcategories": []
         },
         {
           "id": 1760739509856,
           "name": "Actes",
-          "expanded": false,
+          "expanded": true,
           "verses": [],
           "subcategories": []
         },
         {
           "id": 1760739522388,
           "name": "Romains",
-          "expanded": false,
+          "expanded": true,
           "verses": [],
           "subcategories": []
         },
         {
           "id": 1760739549710,
           "name": "1 Corinthiens",
-          "expanded": false,
+          "expanded": true,
           "verses": [],
           "subcategories": []
         },
         {
           "id": 1760739567620,
           "name": "2 Corinthiens",
-          "expanded": false,
+          "expanded": true,
           "verses": [],
           "subcategories": []
         },
         {
           "id": 1760739575492,
           "name": "Galates",
-          "expanded": false,
+          "expanded": true,
           "verses": [],
           "subcategories": []
         },
         {
           "id": 1760739591250,
           "name": "Ephésiens",
-          "expanded": false,
+          "expanded": true,
           "verses": [],
           "subcategories": []
         },
         {
           "id": 1760739606897,
           "name": "Philippiens",
-          "expanded": false,
+          "expanded": true,
           "verses": [],
           "subcategories": []
         },
         {
           "id": 1760739617882,
           "name": "Colossiens",
-          "expanded": false,
+          "expanded": true,
           "verses": [],
           "subcategories": []
         },
         {
           "id": 1760739641866,
           "name": "1 Thessaloniciens",
-          "expanded": false,
+          "expanded": true,
           "verses": [],
           "subcategories": []
         },
         {
           "id": 1760739657542,
           "name": "2 Théssaloniciens",
-          "expanded": false,
+          "expanded": true,
           "verses": [],
           "subcategories": []
         },
         {
           "id": 1760739667682,
           "name": "1 Thimothée",
-          "expanded": false,
+          "expanded": true,
           "verses": [],
           "subcategories": []
         },
         {
           "id": 1760739676043,
           "name": "2 Thimothée",
-          "expanded": false,
+          "expanded": true,
           "verses": [],
           "subcategories": []
         },
         {
           "id": 1760739685730,
           "name": "1 Tites",
-          "expanded": false,
+          "expanded": true,
           "verses": [],
           "subcategories": []
         },
         {
           "id": 1760739709734,
           "name": "Philémon",
-          "expanded": false,
+          "expanded": true,
           "verses": [],
           "subcategories": []
         },
         {
           "id": 1760739718651,
           "name": "Hébreux",
-          "expanded": false,
+          "expanded": true,
           "verses": [],
           "subcategories": []
         },
         {
           "id": 1760739726792,
           "name": "Jacques",
-          "expanded": false,
+          "expanded": true,
           "verses": [],
           "subcategories": []
         },
         {
           "id": 1760739738227,
           "name": "1 Pierre",
-          "expanded": false,
+          "expanded": true,
           "verses": [],
           "subcategories": []
         },
         {
           "id": 1760739748614,
           "name": "2 Pierre",
-          "expanded": false,
+          "expanded": true,
           "verses": [],
           "subcategories": []
         },
         {
           "id": 1760739757201,
           "name": "1 Jean",
-          "expanded": false,
+          "expanded": true,
           "verses": [],
           "subcategories": []
         },
         {
           "id": 1760739763170,
           "name": "2 Jean",
-          "expanded": false,
+          "expanded": true,
           "verses": [],
           "subcategories": []
         },
         {
           "id": 1760739770257,
           "name": "3 Jean",
-          "expanded": false,
+          "expanded": true,
           "verses": [],
           "subcategories": []
         },
         {
           "id": 1760739777458,
           "name": "Jude",
-          "expanded": false,
+          "expanded": true,
           "verses": [],
           "subcategories": []
         },
         {
           "id": 1760739787998,
           "name": "Révélation",
-          "expanded": false,
+          "expanded": true,
           "verses": [],
           "subcategories": []
+        },
+        {
+          "id": 1760830678088,
+          "name": "Test",
+          "expanded": true,
+          "verses": [],
+          "subcategories": [],
+          "lastModified": 1760830678088
         }
-      ]
+      ],
+      "lastModified": 1760830678088
     },
     {
       "id": 1760739953938,
@@ -614,14 +630,14 @@
         {
           "id": 1760739970048,
           "name": "Ce qui se passera avant",
-          "expanded": false,
+          "expanded": true,
           "verses": [],
           "subcategories": []
         },
         {
           "id": 1760739986526,
           "name": "Ce qui se passera après",
-          "expanded": false,
+          "expanded": true,
           "verses": [],
           "subcategories": []
         }
