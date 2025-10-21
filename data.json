@@ -3,12 +3,12 @@
     {
       "id": 1760737670977,
       "name": "VP",
-      "expanded": false,
+      "expanded": true,
       "subcategories": [
         {
           "id": 1760739828014,
           "name": "Dueil",
-          "expanded": false,
+          "expanded": true,
           "verses": [],
           "subcategories": [
             {
