@@ -874,7 +874,7 @@ async function getIndexedDBSize() {
     }
 }
         let data = {categories: [{id: 1, name: 'Foi et Confiance', expanded: true, lastModified: Date.now(), subcategories: [{id: 11, name: 'Renforcer sa foi', expanded: true, lastModified: Date.now(), verses: [{id: 111, ref: 'Hébreux 11:1', note: 'Définition de la foi', attachments: [], lastModified: Date.now()}], subcategories: []}]}]};
-        let currentCat = null, currentSub = null, editItem = null, searchQuery = '', readOnlyMode = false;
+        let currentCat = null, currentSub = null, editItem = null, searchQuery = '', readOnlyMode = true;
         let dragMode = false, draggedItem = null;
         let tempAttachments = [];
         let deletedItems = { categories: [], subcategories: [], verses: [] }; // valeur par défaut
