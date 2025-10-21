@@ -14,7 +14,7 @@
             {
               "id": 1760765390877,
               "name": "Precedent biblique",
-              "expanded": true,
+              "expanded": false,
               "verses": [
                 {
                   "id": 1760766638236,
@@ -37,7 +37,7 @@
             {
               "id": 1760765420442,
               "name": "Attitude envers",
-              "expanded": true,
+              "expanded": false,
               "verses": [
                 {
                   "id": 1760765489839,
@@ -122,7 +122,7 @@
             {
               "id": 1760986535164,
               "name": "Chapitre 3",
-              "expanded": false,
+              "expanded": true,
               "verses": [
                 {
                   "id": 1760986821693,
@@ -155,7 +155,7 @@
         {
           "id": 1760737736343,
           "name": "Nombres",
-          "expanded": false,
+          "expanded": true,
           "verses": [],
           "subcategories": []
         },
@@ -344,7 +344,7 @@
         {
           "id": 1760739393609,
           "name": "Jonas",
-          "expanded": false,
+          "expanded": true,
           "verses": [],
           "subcategories": [
             {
