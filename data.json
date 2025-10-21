@@ -32,7 +32,7 @@
         {
           "id": 1760739828014,
           "name": "Dueil",
-          "expanded": true,
+          "expanded": false,
           "verses": [],
           "subcategories": [
             {
@@ -81,21 +81,21 @@
         {
           "id": 1760739865393,
           "name": "Jeunes",
-          "expanded": true,
+          "expanded": false,
           "verses": [],
           "subcategories": []
         },
         {
           "id": 1760739879912,
           "name": "Agée",
-          "expanded": true,
+          "expanded": false,
           "verses": [],
           "subcategories": []
         },
         {
           "id": 1760739890214,
           "name": "Découragement",
-          "expanded": true,
+          "expanded": false,
           "verses": [
             {
               "id": 1760996235030,
@@ -111,14 +111,14 @@
         {
           "id": 1760739907688,
           "name": "Couples",
-          "expanded": true,
+          "expanded": false,
           "verses": [],
           "subcategories": []
         },
         {
           "id": 1760739920101,
           "name": "Célibataire",
-          "expanded": true,
+          "expanded": false,
           "verses": [],
           "subcategories": []
         }
