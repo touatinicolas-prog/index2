@@ -1,7 +1,6 @@
 {
   "name": "Mon Index Biblique",
   "short_name": "Index Biblique",
-  "description": "Organisez et synchronisez vos versets bibliques",
   "icons": [
     {
       "src": "icon.png",
@@ -10,8 +9,5 @@
     }
   ],
   "start_url": "/",
-  "display": "standalone",
-  "background_color": "#1a1a1a",
-  "theme_color": "#4a90e2",
-  "orientation": "portrait"
+  "display": "standalone"
 }
