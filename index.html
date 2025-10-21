@@ -1614,8 +1614,7 @@ console.log('🔧 Réparation - Encodage robuste appliqué');
                             const vm = matches(v.ref) || matches(v.note || '');
                             if (!vm && searchQuery) return '';
                             return `<div class="verse-item" data-cat-id="${catId}" data-sub-id="${sub.id}" data-verse-id="${v.id}" data-verse-index="${vIdx}">
-                                <div class="verse-ref" onclick="openJWVerse('${v.ref}')">${highlight(v.ref)}</div>
-
+                                <div class="verse-ref">${highlight(v.ref)}</div>
                                         ${v.note ? `<div class="verse-note">${highlight(renderFormattedNote(v.note))}</div>` : ''}
                                         ${v.attachments && v.attachments.length > 0 ? `<div class="verse-attachments">${v.attachments.map((att, attIdx) => {
                                             if (att.type === 'application/pdf') {
@@ -1646,7 +1645,7 @@ console.log('🔧 Réparation - Encodage robuste appliqué');
                 return `<div class="verse-item" data-cat-id="${catId}" data-sub-id="${sub.id}" data-verse-id="${v.id}" data-verse-index="${vIdx}">
                     <div class="verse-content">
                         <div style="flex:1;">
-                            <div class="verse-ref">${v.ref}</div>
+                            <div class="verse-ref" onclick="openJWVerse('${v.ref}')">${v.ref}</div>
                             ${v.note ? `<div class="verse-note">${renderFormattedNote(v.note)}</div>` : ''}
                             ${v.attachments && v.attachments.length > 0 ? `<div class="verse-attachments">${v.attachments.map((att, attIdx) => {
                                 if (att.type === 'application/pdf') {
