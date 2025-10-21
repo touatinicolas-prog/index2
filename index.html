@@ -2858,17 +2858,6 @@ function findSubInArray(subsArray, subId) {
                 });
             });
         }
-        // Ouvre un verset JW Library / JW.org sans changer le style visuel
-function openJWVerse(ref) {
-  // Remplacer les espaces et deux-points pour la compatibilité URL
-  const cleanRef = ref.trim().replace(/\s+/g, '+').replace(':', '%3A');
-  
-  // Construire l’URL JW.org
-  const url = `https://www.jw.org/finder?wtlocale=F&bible=${encodeURIComponent(cleanRef)}`;
-  
-  // Ouvrir le lien (JW Library le captera si possible)
-  window.open(url, '_blank');
-}
     </script>
     <hr>
 <div style="padding: 20px;">
