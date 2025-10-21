@@ -1,33 +1,9 @@
 {
   "categories": [
     {
-      "id": 1,
-      "name": "Foi et Confiance",
-      "expanded": true,
-      "lastModified": 1761074632244,
-      "subcategories": [
-        {
-          "id": 11,
-          "name": "Renforcer sa foi",
-          "expanded": false,
-          "lastModified": 1761074632244,
-          "verses": [
-            {
-              "id": 111,
-              "ref": "Hébreux 11:1",
-              "note": "Définition de la foi",
-              "attachments": [],
-              "lastModified": 1761074632244
-            }
-          ],
-          "subcategories": []
-        }
-      ]
-    },
-    {
       "id": 1760737670977,
       "name": "VP",
-      "expanded": true,
+      "expanded": false,
       "subcategories": [
         {
           "id": 1760739828014,
@@ -135,25 +111,25 @@
           "expanded": false,
           "verses": [
             {
-              "id": 1760902269200,
-              "ref": "Genèse 3:18",
-              "note": "",
-              "attachments": [],
-              "lastModified": 1760903060620
-            },
-            {
               "id": 1760902756229,
               "ref": "Genèse 3:18",
               "note": "",
               "attachments": [],
               "lastModified": 1760902756229
+            },
+            {
+              "id": 1760902269200,
+              "ref": "Genèse 3:18",
+              "note": "",
+              "attachments": [],
+              "lastModified": 1760903060620
             }
           ],
           "subcategories": [
             {
               "id": 1760986535164,
               "name": "Chapitre 3",
-              "expanded": false,
+              "expanded": true,
               "verses": [
                 {
                   "id": 1760986821693,
@@ -186,7 +162,7 @@
         {
           "id": 1760737736343,
           "name": "Nombres",
-          "expanded": false,
+          "expanded": true,
           "verses": [],
           "subcategories": []
         },
@@ -375,13 +351,13 @@
         {
           "id": 1760739393609,
           "name": "Jonas",
-          "expanded": false,
+          "expanded": true,
           "verses": [],
           "subcategories": [
             {
               "id": 1760910184295,
               "name": "Chapitre 3",
-              "expanded": false,
+              "expanded": true,
               "verses": [
                 {
                   "id": 1760910414467,
@@ -654,14 +630,14 @@
         {
           "id": 1760739970048,
           "name": "Ce qui se passera avant",
-          "expanded": true,
+          "expanded": false,
           "verses": [],
           "subcategories": []
         },
         {
           "id": 1760739986526,
           "name": "Ce qui se passera après",
-          "expanded": true,
+          "expanded": false,
           "verses": [],
           "subcategories": []
         }
@@ -749,9 +725,33 @@
     {
       "id": 1760947866029,
       "name": "Test GitHub",
-      "expanded": false,
+      "expanded": true,
       "subcategories": [],
       "lastModified": 1760947866029
+    },
+    {
+      "id": 1,
+      "name": "Foi et Confiance",
+      "expanded": true,
+      "lastModified": 1761074632244,
+      "subcategories": [
+        {
+          "id": 11,
+          "name": "Renforcer sa foi",
+          "expanded": false,
+          "lastModified": 1761074632244,
+          "verses": [
+            {
+              "id": 111,
+              "ref": "Hébreux 11:1",
+              "note": "Définition de la foi",
+              "attachments": [],
+              "lastModified": 1761074632244
+            }
+          ],
+          "subcategories": []
+        }
+      ]
     }
   ],
   "deletedItems": {
