@@ -3,7 +3,7 @@
     {
       "id": 1760737670977,
       "name": "VP",
-      "expanded": false,
+      "expanded": true,
       "subcategories": [
         {
           "id": 1760739828014,
@@ -126,7 +126,7 @@
     {
       "id": 1760737684816,
       "name": "Perles Perso",
-      "expanded": false,
+      "expanded": true,
       "subcategories": [
         {
           "id": 1760737699041,
