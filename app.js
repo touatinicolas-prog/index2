@@ -776,28 +776,51 @@ async function handleCategorySubmit() {
         AppState.data.categories.push(newCategory);
         newCategory.order = AppState.data.categories.length - 1;
     } else if (level === 1) {
-        // Subcategory level 1
-        if (!AppState.currentCategory) {
+        // Subcategory level 1 - get parent from form
+        const parentSelect = document.getElementById('parentCategory');
+        const parentId = parentSelect ? parentSelect.value : null;
+        
+        // Find the parent category
+        const parentCategory = AppState.data.categories.find(cat => cat.id === parentId);
+        
+        if (!parentCategory) {
             showStatus('❌ Sélectionnez une catégorie parente', 'error');
             return;
         }
+        
         newCategory.subcategories_level2 = [];
-        if (!AppState.currentCategory.subcategories_level1) {
-            AppState.currentCategory.subcategories_level1 = [];
+        if (!parentCategory.subcategories_level1) {
+            parentCategory.subcategories_level1 = [];
         }
-        AppState.currentCategory.subcategories_level1.push(newCategory);
-        newCategory.order = AppState.currentCategory.subcategories_level1.length - 1;
+        parentCategory.subcategories_level1.push(newCategory);
+        newCategory.order = parentCategory.subcategories_level1.length - 1;
     } else if (level === 2) {
-        // Subcategory level 2
-        if (!AppState.currentSubcategory1) {
+        // Subcategory level 2 - get parent from form
+        const parentSelect = document.getElementById('parentCategory');
+        const parentId = parentSelect ? parentSelect.value : null;
+        
+        // Find the parent subcategory (need to search through all categories)
+        let parentSubcategory = null;
+        for (const cat of AppState.data.categories) {
+            if (cat.subcategories_level1) {
+                const found = cat.subcategories_level1.find(sub => sub.id === parentId);
+                if (found) {
+                    parentSubcategory = found;
+                    break;
+                }
+            }
+        }
+        
+        if (!parentSubcategory) {
             showStatus('❌ Sélectionnez une sous-catégorie parente', 'error');
             return;
         }
-        if (!AppState.currentSubcategory1.subcategories_level2) {
-            AppState.currentSubcategory1.subcategories_level2 = [];
+        
+        if (!parentSubcategory.subcategories_level2) {
+            parentSubcategory.subcategories_level2 = [];
         }
-        AppState.currentSubcategory1.subcategories_level2.push(newCategory);
-        newCategory.order = AppState.currentSubcategory1.subcategories_level2.length - 1;
+        parentSubcategory.subcategories_level2.push(newCategory);
+        newCategory.order = parentSubcategory.subcategories_level2.length - 1;
     }
     
     closeModal();
