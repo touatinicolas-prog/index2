@@ -130,7 +130,7 @@
             {
               "id": 1760986535164,
               "name": "Chapitre 3",
-              "expanded": true,
+              "expanded": false,
               "verses": [
                 {
                   "id": 1760986821693,
@@ -163,7 +163,7 @@
         {
           "id": 1760737736343,
           "name": "Nombres",
-          "expanded": true,
+          "expanded": false,
           "verses": [],
           "subcategories": []
         },
@@ -352,13 +352,13 @@
         {
           "id": 1760739393609,
           "name": "Jonas",
-          "expanded": true,
+          "expanded": false,
           "verses": [],
           "subcategories": [
             {
               "id": 1760910184295,
               "name": "Chapitre 3",
-              "expanded": true,
+              "expanded": false,
               "verses": [
                 {
                   "id": 1760910414467,
@@ -731,30 +731,6 @@
       "expanded": true,
       "subcategories": [],
       "lastModified": 1760947866029
-    },
-    {
-      "id": 1,
-      "name": "Foi et Confiance",
-      "expanded": true,
-      "lastModified": 1761110273948,
-      "subcategories": [
-        {
-          "id": 11,
-          "name": "Renforcer sa foi",
-          "expanded": false,
-          "lastModified": 1761110225620,
-          "verses": [
-            {
-              "id": 111,
-              "ref": "Hébreux 11:1",
-              "note": "Définition de la foi",
-              "attachments": [],
-              "lastModified": 1761110225620
-            }
-          ],
-          "subcategories": []
-        }
-      ]
     }
   ],
   "deletedItems": {
@@ -766,6 +742,10 @@
       {
         "id": 1759772530026,
         "deletedAt": 1760996813003
+      },
+      {
+        "id": 1,
+        "deletedAt": 1761110360278
       }
     ],
     "subcategories": [
