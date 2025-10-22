@@ -32,7 +32,8 @@
                   "note": ""
                 }
               ],
-              "subcategories": []
+              "subcategories": [],
+              "lastModified": 1761111251561
             },
             {
               "id": 1760765420442,
@@ -50,24 +51,27 @@
                   "note": "Enfin, vous tous, soyez unis dans la même pensée, soyez sensibles à la souffrance des autres, ayez de l’affection fraternelle, une tendre compassion et de l’humilité.\n\nL’idée est simplement d’être sensible à la souffrance de notre compagnon"
                 }
               ],
-              "subcategories": []
+              "subcategories": [],
+              "lastModified": 1761111251561
             }
           ],
-          "lastModified": 1761110487469
+          "lastModified": 1761111251561
         },
         {
           "id": 1760739865393,
           "name": "Jeunes",
           "expanded": false,
           "verses": [],
-          "subcategories": []
+          "subcategories": [],
+          "lastModified": 1761111251561
         },
         {
           "id": 1760739879912,
           "name": "Agée",
           "expanded": false,
           "verses": [],
-          "subcategories": []
+          "subcategories": [],
+          "lastModified": 1761111251561
         },
         {
           "id": 1760739890214,
@@ -83,24 +87,26 @@
             }
           ],
           "subcategories": [],
-          "lastModified": 1760996235030
+          "lastModified": 1761111251561
         },
         {
           "id": 1760739907688,
           "name": "Couples",
           "expanded": false,
           "verses": [],
-          "subcategories": []
+          "subcategories": [],
+          "lastModified": 1761111251561
         },
         {
           "id": 1760739920101,
           "name": "Célibataire",
           "expanded": false,
           "verses": [],
-          "subcategories": []
+          "subcategories": [],
+          "lastModified": 1761111251561
         }
       ],
-      "lastModified": 1761110909963
+      "lastModified": 1761111251560
     },
     {
       "id": 1760737684816,
