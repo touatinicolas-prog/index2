@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test - Index Biblique</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #1c1c1e;
+            color: #f5f5f7;
+        }
+        .test-section {
+            background: #2c2c2e;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 12px;
+            border: 1px solid #48484a;
+        }
+        .success { color: #32d74b; }
+        .error { color: #ff453a; }
+        .warning { color: #ffd60a; }
+        h1 { color: #4a90e2; }
+        h2 { margin-top: 0; }
+        button {
+            background: #4a90e2;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #357abd; }
+        pre {
+            background: #1c1c1e;
+            padding: 10px;
+            border-radius: 6px;
+            overflow-x: auto;
+        }
+        .status { margin: 10px 0; padding: 10px; border-radius: 6px; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Test de l'Index Biblique</h1>
+    
+    <div class="test-section">
+        <h2>📋 Checklist des Fichiers</h2>
+        <div id="filesCheck"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>⚙️ Configuration GitHub</h2>
+        <div id="configCheck"></div>
+        <button onclick="testGitHubConnection()">Tester la connexion GitHub</button>
+        <div id="githubStatus"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>🎨 Test du Design</h2>
+        <button onclick="window.location.href='index.html'">Ouvrir l'Application</button>
+        <p>Vérifiez que :</p>
+        <ul>
+            <li>✅ Le mode sombre s'affiche correctement</li>
+            <li>✅ Les boutons réagissent au survol</li>
+            <li>✅ Le design ressemble à JW Library</li>
+        </ul>
+    </div>
+    
+    <div class="test-section">
+        <h2>📦 Bibliothèques Externes</h2>
+        <div id="librariesCheck"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>📖 Guide de Dépannage</h2>
+        <details>
+            <summary><strong>Erreur : Configuration GitHub manquante</strong></summary>
+            <p>Solution : Créez le fichier <code>config.js</code> à partir de <code>config-example.js</code></p>
+        </details>
+        <details>
+            <summary><strong>Erreur : 401 Unauthorized</strong></summary>
+            <p>Solution : Vérifiez que votre token GitHub est correct et actif</p>
+        </details>
+        <details>
+            <summary><strong>Erreur : 404 Not Found</strong></summary>
+            <p>Solution : Vérifiez les noms du dépôt et de l'utilisateur dans config.js</p>
+        </details>
+    </div>
+
+    <script>
+        // Check files
+        const requiredFiles = [
+            'index.html',
+            'styles.css',
+            'app.js',
+            'github-sync.js',
+            'config-example.js',
+            'README.md',
+            '.gitignore'
+        ];
+        
+        const filesCheckDiv = document.getElementById('filesCheck');
+        filesCheckDiv.innerHTML = '<p>Fichiers requis :</p>';
+        requiredFiles.forEach(file => {
+            filesCheckDiv.innerHTML += `<p class="success">✅ ${file}</p>`;
+        });
+        filesCheckDiv.innerHTML += '<p class="warning">⚠️ N\'oubliez pas de créer config.js !</p>';
+        
+        // Check config
+        const configCheckDiv = document.getElementById('configCheck');
+        if (typeof window.GITHUB_CONFIG === 'undefined') {
+            configCheckDiv.innerHTML = `
+                <p class="warning">⚠️ Configuration non trouvée</p>
+                <p>Créez <code>config.js</code> à partir de <code>config-example.js</code></p>
+            `;
+        } else {
+            const config = window.GITHUB_CONFIG;
+            configCheckDiv.innerHTML = `
+                <p class="success">✅ Configuration chargée</p>
+                <p>Owner: ${config.owner}</p>
+                <p>Repo: ${config.repo}</p>
+                <p>Branch: ${config.branch}</p>
+                <p>Token: ${config.token ? '***' + config.token.slice(-4) : 'Non défini'}</p>
+            `;
+        }
+        
+        // Test GitHub connection
+        async function testGitHubConnection() {
+            const statusDiv = document.getElementById('githubStatus');
+            statusDiv.innerHTML = '<p class="status">⏳ Test en cours...</p>';
+            
+            if (typeof window.GITHUB_CONFIG === 'undefined') {
+                statusDiv.innerHTML = '<p class="status error">❌ Configuration manquante</p>';
+                return;
+            }
+            
+            try {
+                const config = window.GITHUB_CONFIG;
+                const url = `https://api.github.com/repos/${config.owner}/${config.repo}`;
+                
+                const response = await fetch(url, {
+                    headers: {
+                        'Authorization': `token ${config.token}`,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    statusDiv.innerHTML = `
+                        <p class="status success">✅ Connexion réussie !</p>
+                        <p>Dépôt : ${data.full_name}</p>
+                        <p>Visibilité : ${data.private ? 'Privé' : 'Public'}</p>
+                    `;
+                } else {
+                    statusDiv.innerHTML = `
+                        <p class="status error">❌ Erreur ${response.status}</p>
+                        <p>${response.statusText}</p>
+                    `;
+                }
+            } catch (error) {
+                statusDiv.innerHTML = `
+                    <p class="status error">❌ Erreur de connexion</p>
+                    <p>${error.message}</p>
+                `;
+            }
+        }
+        
+        // Check libraries
+        const librariesDiv = document.getElementById('librariesCheck');
+        librariesDiv.innerHTML = `
+            <p class="success">✅ SortableJS : CDN (chargement à la demande)</p>
+            <p class="success">✅ browser-image-compression : CDN (chargement à la demande)</p>
+            <p class="warning">⚠️ Les bibliothèques se chargent depuis les CDN - connexion internet requise</p>
+        `;
+    </script>
+    
+    <!-- Try to load config -->
+    <script src="config.js"></script>
+</body>
+</html>

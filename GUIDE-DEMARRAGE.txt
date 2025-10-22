@@ -1,0 +1,145 @@
+╔════════════════════════════════════════════════════════════════╗
+║                   📖 INDEX BIBLIQUE                             ║
+║              Guide de Démarrage Rapide                          ║
+╚════════════════════════════════════════════════════════════════╝
+
+📦 FICHIERS GÉNÉRÉS
+─────────────────────────────────────────────────────────────────
+✅ index.html          - Page principale
+✅ styles.css          - Design mode sombre JW Library
+✅ app.js              - Logique application (28KB)
+✅ github-sync.js      - Synchronisation GitHub
+✅ config-example.js   - Template configuration
+✅ .gitignore          - Protection du token
+✅ README.md           - Documentation complète
+
+🚀 ÉTAPES DE MISE EN PLACE
+─────────────────────────────────────────────────────────────────
+
+1️⃣ CRÉER LE DÉPÔT GITHUB
+   • Allez sur github.com
+   • Nouveau dépôt (public ou privé)
+   • Notez le nom : votre-username/votre-repo
+
+2️⃣ CRÉER LE TOKEN GITHUB
+   • GitHub → Settings → Developer settings
+   • Personal access tokens → Tokens (classic)
+   • Generate new token (classic)
+   • Cochez : ☑ repo (Full control)
+   • Générez et COPIEZ le token (ghp_...)
+
+3️⃣ CONFIGURER L'APPLICATION
+   • Copiez config-example.js → config.js
+   • Modifiez config.js avec :
+     - owner: 'votre-username'
+     - repo: 'votre-repo'
+     - token: 'ghp_VotreToken'
+     - branch: 'main'
+
+4️⃣ UPLOADER SUR GITHUB
+   • Uploadez TOUS les fichiers sur votre dépôt
+   • ⚠️ NE PAS uploader config.js (sensible !)
+   • Vérifiez que .gitignore est présent
+
+5️⃣ ACTIVER GITHUB PAGES
+   • Dépôt → Settings → Pages
+   • Source : Deploy from a branch
+   • Branch : main / root
+   • Save
+
+6️⃣ ACCÉDER À L'APPLICATION
+   • URL : https://votre-username.github.io/votre-repo/
+   • Ajoutez aux favoris sur iPad/iPhone
+   • Mode plein écran : "Sur l'écran d'accueil"
+
+🎯 UTILISATION
+─────────────────────────────────────────────────────────────────
+
+MODE LECTURE 📖
+• Consultez vos versets et notes
+• Navigation dans les catégories
+• Lecture confortable
+
+MODE ÉDITION ✏️
+• Créez des catégories (3 niveaux)
+• Ajoutez des versets avec notes
+• Importez des images (compression auto)
+• Réorganisez par drag & drop
+
+SYNCHRONISATION 🔄
+• Cliquez sur l'icône ↻ pour sauvegarder
+• Données stockées dans bible-index-data.json
+• Images dans le dossier /images/
+
+🎨 FONCTIONNALITÉS
+─────────────────────────────────────────────────────────────────
+✅ Organisation hiérarchique (3 niveaux)
+✅ Notes personnelles illimitées
+✅ Import d'images JPEG/PDF
+✅ Compression automatique des images
+✅ Mode sombre JW Library style
+✅ Drag & drop pour réorganiser
+✅ Responsive iPad/iPhone
+✅ Mode hors ligne (après 1er chargement)
+✅ Synchronisation GitHub complète
+
+⚠️ IMPORTANT - SÉCURITÉ
+─────────────────────────────────────────────────────────────────
+❌ Ne partagez JAMAIS votre token GitHub
+❌ Ne commitez JAMAIS config.js
+✅ Utilisez .gitignore (fourni)
+✅ Token visible uniquement sur votre appareil
+
+📱 SUR iPAD/iPHONE
+─────────────────────────────────────────────────────────────────
+1. Ouvrez Safari → Votre URL GitHub Pages
+2. Bouton Partage → "Sur l'écran d'accueil"
+3. Nommez : "Index Biblique"
+4. L'app s'ouvrira en plein écran
+
+🔧 STRUCTURE DES DONNÉES
+─────────────────────────────────────────────────────────────────
+{
+  "categories": [
+    {
+      "name": "Foi",
+      "subcategories_level1": [
+        {
+          "name": "Prière",
+          "subcategories_level2": [...],
+          "verses": [
+            {
+              "reference": "Matthieu 6:9",
+              "text": "Voici comment vous devez prier...",
+              "notes": "Ma réflexion personnelle...",
+              "images": ["https://..."],
+              "created": "2025-10-22T10:30:00Z"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+
+🆘 BESOIN D'AIDE ?
+─────────────────────────────────────────────────────────────────
+• Lisez README.md pour plus de détails
+• Vérifiez la console navigateur (F12)
+• Testez la connexion GitHub dans la console
+• Assurez-vous que le token a les bonnes permissions
+
+💡 ASTUCES
+─────────────────────────────────────────────────────────────────
+• Créez vos catégories AVANT d'ajouter des versets
+• Copiez les versets depuis JW Library
+• Les images sont compressées automatiquement
+• Synchronisez régulièrement (bouton ↻)
+• Mode lecture pour étudier sans modifier
+
+🎉 PRÊT À COMMENCER !
+─────────────────────────────────────────────────────────────────
+Suivez les 6 étapes ci-dessus et votre Index Biblique
+sera opérationnel en quelques minutes !
+
+Bon usage ! 📖✨

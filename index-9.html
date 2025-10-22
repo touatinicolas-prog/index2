@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Index Biblique</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- SortableJS for drag & drop -->
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+    <!-- Browser Image Compression -->
+    <script src="https://cdn.jsdelivr.net/npm/browser-image-compression@2.0.2/dist/browser-image-compression.js"></script>
+</head>
+<body class="dark-mode">
+    <!-- Header -->
+    <header class="app-header">
+        <div class="header-content">
+            <h1 class="app-title">📖 Index Biblique</h1>
+            <div class="header-controls">
+                <button id="syncBtn" class="icon-btn" title="Synchroniser">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
+                    </svg>
+                </button>
+                <button id="modeToggle" class="icon-btn" title="Mode Lecture/Édition">
+                    <svg id="editIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                    </svg>
+                </button>
+                <button id="themeToggle" class="icon-btn" title="Thème Clair/Sombre">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <div id="syncStatus" class="sync-status hidden"></div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2>Catégories</h2>
+                <button id="addCategoryBtn" class="add-btn hidden-read-mode" title="Ajouter catégorie">+</button>
+            </div>
+            <nav id="categoryNav" class="category-nav">
+                <!-- Categories will be loaded here -->
+            </nav>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="content-area">
+            <!-- Welcome Screen -->
+            <div id="welcomeScreen" class="welcome-screen">
+                <div class="welcome-content">
+                    <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                    </svg>
+                    <h2>Bienvenue dans votre Index Biblique</h2>
+                    <p>Créez des catégories et ajoutez vos versets avec notes</p>
+                    <button id="getStartedBtn" class="primary-btn">Commencer</button>
+                </div>
+            </div>
+
+            <!-- Verse List View -->
+            <div id="verseListView" class="verse-list-view hidden">
+                <div class="view-header">
+                    <div class="breadcrumb" id="breadcrumb"></div>
+                    <button id="addVerseBtn" class="primary-btn hidden-read-mode">+ Nouveau Verset</button>
+                </div>
+                <div id="verseList" class="verse-list">
+                    <!-- Verses will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Verse Detail View -->
+            <div id="verseDetailView" class="verse-detail-view hidden">
+                <div class="detail-header">
+                    <button id="backToListBtn" class="back-btn">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M19 12H5M12 19l-7-7 7-7"/>
+                        </svg>
+                        Retour
+                    </button>
+                    <div class="detail-actions hidden-read-mode">
+                        <button id="deleteVerseBtn" class="icon-btn danger" title="Supprimer">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div id="verseDetail" class="verse-detail-content">
+                    <!-- Verse detail will be loaded here -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal for Category/Verse Creation -->
+    <div id="modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Nouvelle Catégorie</h3>
+                <button class="modal-close" id="modalClose">&times;</button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Modal content will be injected here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Configuration (copy config-example.js to config.js with your token) -->
+    <script src="config.js"></script>
+    <!-- Core App Logic -->
+    <script src="app.js"></script>
+    <!-- GitHub Sync Logic -->
+    <script src="github-sync.js"></script>
+</body>
+</html>
