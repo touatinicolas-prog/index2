@@ -648,7 +648,7 @@
     {
       "id": 1760765648557,
       "name": "RPP",
-      "expanded": true,
+      "expanded": false,
       "subcategories": [
         {
           "id": 1760765668397,
@@ -659,7 +659,7 @@
             {
               "id": 1760765938954,
               "name": "Jonas",
-              "expanded": true,
+              "expanded": false,
               "verses": [
                 {
                   "id": 1760766234683,
@@ -693,7 +693,7 @@
           "subcategories": []
         }
       ],
-      "lastModified": 1761110264951
+      "lastModified": 1761110439603
     },
     {
       "id": 1760900187695,
