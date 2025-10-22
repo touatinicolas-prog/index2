@@ -3,7 +3,7 @@
     {
       "id": 1760737670977,
       "name": "VP",
-      "expanded": true,
+      "expanded": false,
       "subcategories": [
         {
           "id": 1760739828014,
@@ -105,7 +105,7 @@
     {
       "id": 1760737684816,
       "name": "Perles Perso",
-      "expanded": true,
+      "expanded": false,
       "subcategories": [
         {
           "id": 1760737699041,
@@ -113,18 +113,18 @@
           "expanded": false,
           "verses": [
             {
-              "id": 1760902269200,
-              "ref": "Genèse 3:18",
-              "note": "",
-              "attachments": [],
-              "lastModified": 1760903060620
-            },
-            {
               "id": 1760902756229,
               "ref": "Genèse 3:18",
               "note": "",
               "attachments": [],
               "lastModified": 1760902756229
+            },
+            {
+              "id": 1760902269200,
+              "ref": "Genèse 3:18",
+              "note": "",
+              "attachments": [],
+              "lastModified": 1760903060620
             }
           ],
           "subcategories": [
@@ -627,7 +627,7 @@
     {
       "id": 1760739953938,
       "name": "Grande tribulation",
-      "expanded": true,
+      "expanded": false,
       "subcategories": [
         {
           "id": 1760739970048,
@@ -660,7 +660,7 @@
             {
               "id": 1760765938954,
               "name": "Jonas",
-              "expanded": false,
+              "expanded": true,
               "verses": [
                 {
                   "id": 1760766234683,
