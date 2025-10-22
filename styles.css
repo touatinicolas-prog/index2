@@ -605,6 +605,15 @@ body {
     flex-direction: column;
 }
 
+/* Mobile modal adjustments */
+@media (max-width: 768px) {
+    .modal-content {
+        width: 95%;
+        max-height: 85vh;
+        border-radius: 12px;
+    }
+}
+
 .modal-header {
     display: flex;
     justify-content: space-between;
@@ -637,10 +646,24 @@ body {
 
 .modal-footer {
     display: flex;
+    flex-wrap: wrap;
     gap: 12px;
     justify-content: flex-end;
-    padding: 24px;
+    padding: 20px 24px;
     border-top: 1px solid var(--border-color);
+}
+
+/* Mobile adjustments for modal footer */
+@media (max-width: 768px) {
+    .modal-footer {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .modal-footer button {
+        width: 100%;
+        justify-content: center;
+    }
 }
 
 .secondary-btn {
