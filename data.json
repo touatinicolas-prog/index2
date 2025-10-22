@@ -105,7 +105,7 @@
     {
       "id": 1760737684816,
       "name": "Perles Perso",
-      "expanded": true,
+      "expanded": false,
       "subcategories": [
         {
           "id": 1760737699041,
@@ -622,7 +622,7 @@
           "lastModified": 1760830678088
         }
       ],
-      "lastModified": 1761110818561
+      "lastModified": 1761110890928
     },
     {
       "id": 1760739953938,
