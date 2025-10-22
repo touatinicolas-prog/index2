@@ -113,18 +113,18 @@
           "expanded": false,
           "verses": [
             {
-              "id": 1760902269200,
-              "ref": "Genèse 3:18",
-              "note": "",
-              "attachments": [],
-              "lastModified": 1760903060620
-            },
-            {
               "id": 1760902756229,
               "ref": "Genèse 3:18",
               "note": "",
               "attachments": [],
               "lastModified": 1760902756229
+            },
+            {
+              "id": 1760902269200,
+              "ref": "Genèse 3:18",
+              "note": "",
+              "attachments": [],
+              "lastModified": 1760903060620
             }
           ],
           "subcategories": [
@@ -632,14 +632,14 @@
         {
           "id": 1760739970048,
           "name": "Ce qui se passera avant",
-          "expanded": true,
+          "expanded": false,
           "verses": [],
           "subcategories": []
         },
         {
           "id": 1760739986526,
           "name": "Ce qui se passera après",
-          "expanded": true,
+          "expanded": false,
           "verses": [],
           "subcategories": []
         }
@@ -660,7 +660,7 @@
             {
               "id": 1760765938954,
               "name": "Jonas",
-              "expanded": true,
+              "expanded": false,
               "verses": [
                 {
                   "id": 1760766234683,
@@ -699,7 +699,7 @@
     {
       "id": 1760900187695,
       "name": "Image",
-      "expanded": false,
+      "expanded": true,
       "subcategories": [
         {
           "id": 1760900258162,
