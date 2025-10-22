@@ -1528,6 +1528,9 @@ console.log('🔧 Réparation - Encodage robuste appliqué');
         }
 
         async function toggleCat(catId) {
+    // ✅ Vérifier dragMode ici plutôt que dans le onclick
+    if (dragMode) return;
+    
     const cat = data.categories.find(c => c.id === catId);
     if (cat) {
         cat.expanded = !cat.expanded;
@@ -1554,6 +1557,9 @@ console.log('🔧 Réparation - Encodage robuste appliqué');
 }
 
         async function toggleSub(catId, subId) {
+            // ✅ Vérifier dragMode ici plutôt que dans le onclick
+            if (dragMode) return;
+            
             const sub = findSub(catId, subId);
             if (sub) { 
                 sub.expanded = !sub.expanded; 
@@ -1586,7 +1592,7 @@ console.log('🔧 Réparation - Encodage robuste appliqué');
                 // Si niveau 2 OU si niveau 1 sans sous-sous-catégories → ouvrir une page
                 const hasSubSubcategories = sub.subcategories && sub.subcategories.length > 0;
                 const shouldOpenPage = level === 2 || (level === 1 && !hasSubSubcategories);
-                const onClickAction = shouldOpenPage ? `if(!dragMode)openSubsubPage(${catId}, ${sub.id})` : `if(!dragMode)toggleSub(${catId}, ${sub.id})`;
+                const onClickAction = shouldOpenPage ? `openSubsubPage(${catId}, ${sub.id})` : `toggleSub(${catId}, ${sub.id})`;
                 // Calculer le nombre de sous-catégories et versets
                 const subCount = sub.subcategories?.length || 0;
                 const verseCount = sub.verses?.length || 0;
@@ -1707,7 +1713,7 @@ console.log('🔧 Réparation - Encodage robuste appliqué');
                 const hasMatch = matches(cat.name) || cat.subcategories.some(s => matches(s.name) || s.verses.some(v => matches(v.ref) || matches(v.note || '')));
                 if (!hasMatch && searchQuery) return '';
                 return `<div class="category-card" data-cat-index="${idx}" data-cat-id="${cat.id}">
-                    <div class="category-header" onclick="if(!dragMode)toggleCat(${cat.id})">
+                    <div class="category-header" onclick="toggleCat(${cat.id})">
                         <div class="category-title-wrapper">
                             ${dragMode ? '<span class="drag-handle" draggable="true">☰</span>' : ''}
                             <div class="category-title">${highlight(cat.name)}</div>
@@ -1723,93 +1729,7 @@ console.log('🔧 Réparation - Encodage robuste appliqué');
                 </div>`;
             }).join('');
             
-            // ✅ Attacher les event listeners pour iOS/iPad
-            attachEventListeners();
-            
             if (dragMode) setupDragDrop();
-        }
-        
-        // ✅ Nouvelle fonction pour attacher les event listeners (meilleure compatibilité iOS)
-        function attachEventListeners() {
-            // Event listeners pour les en-têtes de catégories
-            document.querySelectorAll('.category-header').forEach(header => {
-                const catCard = header.closest('.category-card');
-                if (!catCard) return;
-                const catId = parseInt(catCard.dataset.catId);
-                
-                // Supprimer les anciens listeners si présents
-                header.replaceWith(header.cloneNode(true));
-                const newHeader = catCard.querySelector('.category-header');
-                
-                newHeader.addEventListener('click', (e) => {
-                    // Ignorer si on clique sur un bouton
-                    if (e.target.closest('button') || e.target.closest('.icon-btn')) {
-                        return;
-                    }
-                    if (!dragMode) {
-                        toggleCat(catId);
-                    }
-                });
-                
-                // Support tactile pour iOS
-                newHeader.addEventListener('touchend', (e) => {
-                    if (e.target.closest('button') || e.target.closest('.icon-btn')) {
-                        return;
-                    }
-                    if (!dragMode) {
-                        e.preventDefault();
-                        toggleCat(catId);
-                    }
-                }, { passive: false });
-            });
-            
-            // Event listeners pour les en-têtes de sous-catégories
-            document.querySelectorAll('.subcategory-header').forEach(header => {
-                const subDiv = header.closest('.subcategory');
-                if (!subDiv) return;
-                const catId = parseInt(subDiv.dataset.catId);
-                const subId = parseInt(subDiv.dataset.subId);
-                const level = parseInt(subDiv.dataset.level);
-                
-                // Déterminer l'action selon le niveau
-                const sub = findSub(catId, subId);
-                if (!sub) return;
-                
-                const hasSubSubcategories = sub.subcategories && sub.subcategories.length > 0;
-                const shouldOpenPage = level === 2 || (level === 1 && !hasSubSubcategories);
-                
-                // Supprimer les anciens listeners
-                header.replaceWith(header.cloneNode(true));
-                const newHeader = subDiv.querySelector('.subcategory-header');
-                
-                newHeader.addEventListener('click', (e) => {
-                    if (e.target.closest('button') || e.target.closest('.icon-btn')) {
-                        return;
-                    }
-                    if (!dragMode) {
-                        if (shouldOpenPage) {
-                            openSubsubPage(catId, subId);
-                        } else {
-                            toggleSub(catId, subId);
-                        }
-                    }
-                });
-                
-                // Support tactile pour iOS
-                newHeader.addEventListener('touchend', (e) => {
-                    if (e.target.closest('button') || e.target.closest('.icon-btn')) {
-                        return;
-                    }
-                    if (!dragMode) {
-                        e.preventDefault();
-                        if (shouldOpenPage) {
-                            openSubsubPage(catId, subId);
-                        } else {
-                            toggleSub(catId, subId);
-                        }
-                    }
-                }, { passive: false });
-            });
         }
 
         function openModal(id) { 
