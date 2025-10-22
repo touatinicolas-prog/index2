@@ -3,13 +3,13 @@
     {
       "id": 1,
       "name": "Foi et Confiance",
-      "expanded": true,
-      "lastModified": 1761110225620,
+      "expanded": false,
+      "lastModified": 1761110273948,
       "subcategories": [
         {
           "id": 11,
           "name": "Renforcer sa foi",
-          "expanded": true,
+          "expanded": false,
           "lastModified": 1761110225620,
           "verses": [
             {
@@ -27,7 +27,7 @@
     {
       "id": 1760737670977,
       "name": "VP",
-      "expanded": false,
+      "expanded": true,
       "subcategories": [
         {
           "id": 1760739828014,
@@ -123,7 +123,7 @@
           "subcategories": []
         }
       ],
-      "lastModified": 1761110247119
+      "lastModified": 1761110275114
     },
     {
       "id": 1760737684816,
