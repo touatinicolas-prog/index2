@@ -1527,7 +1527,7 @@ console.log('🔧 Réparation - Encodage robuste appliqué');
             return null;
         }
 
-        function toggleCat(catId) {
+        async function toggleCat(catId) {
     const cat = data.categories.find(c => c.id === catId);
     if (cat) {
         cat.expanded = !cat.expanded;
@@ -1539,6 +1539,7 @@ console.log('🔧 Réparation - Encodage robuste appliqué');
                 if (!subcategories) return;
                 subcategories.forEach(sub => {
                     sub.expanded = false;
+                    sub.lastModified = Date.now(); // ✅ CRITIQUE : mettre à jour lastModified
                     if (sub.subcategories && sub.subcategories.length > 0) {
                         collapseAllSubs(sub.subcategories); // Récursif pour les sous-sous-catégories
                     }
@@ -1547,17 +1548,17 @@ console.log('🔧 Réparation - Encodage robuste appliqué');
             collapseAllSubs(cat.subcategories);
         }
         
-        saveData(); // ✅ Sauvegarder l'état
+        await saveData(); // ✅ Attendre la fin de la sauvegarde
         render();
     }
 }
 
-        function toggleSub(catId, subId) {
+        async function toggleSub(catId, subId) {
             const sub = findSub(catId, subId);
             if (sub) { 
                 sub.expanded = !sub.expanded; 
                 sub.lastModified = Date.now();
-                saveData(); // ✅ Sauvegarder l'état
+                await saveData(); // ✅ Attendre la fin de la sauvegarde
                 render(); 
             }
         }
