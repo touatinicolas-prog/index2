@@ -3,7 +3,7 @@
     {
       "id": 1760737670977,
       "name": "VP",
-      "expanded": false,
+      "expanded": true,
       "subcategories": [
         {
           "id": 1760739828014,
@@ -627,19 +627,19 @@
     {
       "id": 1760739953938,
       "name": "Grande tribulation",
-      "expanded": true,
+      "expanded": false,
       "subcategories": [
         {
           "id": 1760739970048,
           "name": "Ce qui se passera avant",
-          "expanded": false,
+          "expanded": true,
           "verses": [],
           "subcategories": []
         },
         {
           "id": 1760739986526,
           "name": "Ce qui se passera après",
-          "expanded": false,
+          "expanded": true,
           "verses": [],
           "subcategories": []
         }
@@ -660,7 +660,7 @@
             {
               "id": 1760765938954,
               "name": "Jonas",
-              "expanded": false,
+              "expanded": true,
               "verses": [
                 {
                   "id": 1760766234683,
