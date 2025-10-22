@@ -650,7 +650,7 @@
     {
       "id": 1760739953938,
       "name": "Grande tribulation",
-      "expanded": false,
+      "expanded": true,
       "subcategories": [
         {
           "id": 1760739970048,
@@ -667,7 +667,7 @@
           "subcategories": []
         }
       ],
-      "lastModified": 1761110263000
+      "lastModified": 1761110306059
     },
     {
       "id": 1760765648557,
