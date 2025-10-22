@@ -724,13 +724,6 @@
         }
       ],
       "lastModified": 1760901406420
-    },
-    {
-      "id": 1760947866029,
-      "name": "Test GitHub",
-      "expanded": true,
-      "subcategories": [],
-      "lastModified": 1760947866029
     }
   ],
   "deletedItems": {
@@ -746,6 +739,10 @@
       {
         "id": 1,
         "deletedAt": 1761110360278
+      },
+      {
+        "id": 1760947866029,
+        "deletedAt": 1761110391486
       }
     ],
     "subcategories": [
