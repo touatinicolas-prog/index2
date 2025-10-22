@@ -4,20 +4,20 @@
       "id": 1,
       "name": "Foi et Confiance",
       "expanded": true,
-      "lastModified": 1761074632244,
+      "lastModified": 1761110225620,
       "subcategories": [
         {
           "id": 11,
           "name": "Renforcer sa foi",
-          "expanded": false,
-          "lastModified": 1761074632244,
+          "expanded": true,
+          "lastModified": 1761110225620,
           "verses": [
             {
               "id": 111,
               "ref": "Hébreux 11:1",
               "note": "Définition de la foi",
               "attachments": [],
-              "lastModified": 1761074632244
+              "lastModified": 1761110225620
             }
           ],
           "subcategories": []
