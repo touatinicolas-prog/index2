@@ -32,8 +32,7 @@
                   "note": ""
                 }
               ],
-              "subcategories": [],
-              "lastModified": 1761111337870
+              "subcategories": []
             },
             {
               "id": 1760765420442,
@@ -51,27 +50,23 @@
                   "note": "Enfin, vous tous, soyez unis dans la même pensée, soyez sensibles à la souffrance des autres, ayez de l’affection fraternelle, une tendre compassion et de l’humilité.\n\nL’idée est simplement d’être sensible à la souffrance de notre compagnon"
                 }
               ],
-              "subcategories": [],
-              "lastModified": 1761111337871
+              "subcategories": []
             }
-          ],
-          "lastModified": 1761111337870
+          ]
         },
         {
           "id": 1760739865393,
           "name": "Jeunes",
           "expanded": false,
           "verses": [],
-          "subcategories": [],
-          "lastModified": 1761111337871
+          "subcategories": []
         },
         {
           "id": 1760739879912,
           "name": "Agée",
           "expanded": false,
           "verses": [],
-          "subcategories": [],
-          "lastModified": 1761111337871
+          "subcategories": []
         },
         {
           "id": 1760739890214,
@@ -87,23 +82,21 @@
             }
           ],
           "subcategories": [],
-          "lastModified": 1761111337871
+          "lastModified": 1760996235030
         },
         {
           "id": 1760739907688,
           "name": "Couples",
           "expanded": false,
           "verses": [],
-          "subcategories": [],
-          "lastModified": 1761111337871
+          "subcategories": []
         },
         {
           "id": 1760739920101,
           "name": "Célibataire",
           "expanded": false,
           "verses": [],
-          "subcategories": [],
-          "lastModified": 1761111337871
+          "subcategories": []
         },
         {
           "id": 1760901288107,
@@ -125,15 +118,15 @@
             }
           ],
           "subcategories": [],
-          "lastModified": 1761111337871
+          "lastModified": 1760901316479
         }
       ],
-      "lastModified": 1761111337870
+      "lastModified": 1761111788896
     },
     {
       "id": 1760737684816,
       "name": "Perles Perso",
-      "expanded": false,
+      "expanded": true,
       "subcategories": [
         {
           "id": 1760737699041,
@@ -170,242 +163,213 @@
                 }
               ],
               "subcategories": [],
-              "lastModified": 1761111323842
+              "lastModified": 1760986821693
             }
           ],
-          "lastModified": 1761111323842
+          "lastModified": 1761110148978
         },
         {
           "id": 1760737714996,
           "name": "Exode",
           "expanded": false,
           "verses": [],
-          "subcategories": [],
-          "lastModified": 1761111323842
+          "subcategories": []
         },
         {
           "id": 1760737727161,
           "name": "Levitique",
           "expanded": false,
           "verses": [],
-          "subcategories": [],
-          "lastModified": 1761111323842
+          "subcategories": []
         },
         {
           "id": 1760737736343,
           "name": "Nombres",
           "expanded": false,
           "verses": [],
-          "subcategories": [],
-          "lastModified": 1761111323842
+          "subcategories": []
         },
         {
           "id": 1760737744520,
           "name": "Josué",
           "expanded": false,
           "verses": [],
-          "subcategories": [],
-          "lastModified": 1761111323842
+          "subcategories": []
         },
         {
           "id": 1760737753846,
           "name": "Juges",
           "expanded": false,
           "verses": [],
-          "subcategories": [],
-          "lastModified": 1761111323842
+          "subcategories": []
         },
         {
           "id": 1760737763803,
           "name": "Ruth",
           "expanded": false,
           "verses": [],
-          "subcategories": [],
-          "lastModified": 1761111323842
+          "subcategories": []
         },
         {
           "id": 1760737809491,
           "name": "1 Samuel",
           "expanded": false,
           "verses": [],
-          "subcategories": [],
-          "lastModified": 1761111323842
+          "subcategories": []
         },
         {
           "id": 1760737818887,
           "name": "2 Samuel",
           "expanded": false,
           "verses": [],
-          "subcategories": [],
-          "lastModified": 1761111323842
+          "subcategories": []
         },
         {
           "id": 1760737836370,
           "name": "1 Rois",
           "expanded": false,
           "verses": [],
-          "subcategories": [],
-          "lastModified": 1761111323842
+          "subcategories": []
         },
         {
           "id": 1760737846306,
           "name": "2 Rois",
           "expanded": false,
           "verses": [],
-          "subcategories": [],
-          "lastModified": 1761111323842
+          "subcategories": []
         },
         {
           "id": 1760737859037,
           "name": "1 Chroniques",
           "expanded": false,
           "verses": [],
-          "subcategories": [],
-          "lastModified": 1761111323842
+          "subcategories": []
         },
         {
           "id": 1760737874311,
           "name": "2 Chroniques",
           "expanded": false,
           "verses": [],
-          "subcategories": [],
-          "lastModified": 1761111323842
+          "subcategories": []
         },
         {
           "id": 1760737885413,
           "name": "Esdras",
           "expanded": false,
           "verses": [],
-          "subcategories": [],
-          "lastModified": 1761111323842
+          "subcategories": []
         },
         {
           "id": 1760738886886,
           "name": "Nehemie",
           "expanded": false,
           "verses": [],
-          "subcategories": [],
-          "lastModified": 1761111323842
+          "subcategories": []
         },
         {
           "id": 1760738907022,
           "name": "Esther",
           "expanded": false,
           "verses": [],
-          "subcategories": [],
-          "lastModified": 1761111323842
+          "subcategories": []
         },
         {
           "id": 1760739195708,
           "name": "Job",
           "expanded": false,
           "verses": [],
-          "subcategories": [],
-          "lastModified": 1761111323842
+          "subcategories": []
         },
         {
           "id": 1760739227638,
           "name": "Psaumes",
           "expanded": false,
           "verses": [],
-          "subcategories": [],
-          "lastModified": 1761111323842
+          "subcategories": []
         },
         {
           "id": 1760739246632,
           "name": "Proverbes",
           "expanded": false,
           "verses": [],
-          "subcategories": [],
-          "lastModified": 1761111323842
+          "subcategories": []
         },
         {
           "id": 1760739261406,
           "name": "Ecclesiastes",
           "expanded": false,
           "verses": [],
-          "subcategories": [],
-          "lastModified": 1761111323842
+          "subcategories": []
         },
         {
           "id": 1760739274146,
           "name": "Chant de Salomon",
           "expanded": false,
           "verses": [],
-          "subcategories": [],
-          "lastModified": 1761111323842
+          "subcategories": []
         },
         {
           "id": 1760739283000,
           "name": "Isaïe",
           "expanded": false,
           "verses": [],
-          "subcategories": [],
-          "lastModified": 1761111323842
+          "subcategories": []
         },
         {
           "id": 1760739291116,
           "name": "Jérémie",
           "expanded": false,
           "verses": [],
-          "subcategories": [],
-          "lastModified": 1761111323842
+          "subcategories": []
         },
         {
           "id": 1760739303086,
           "name": "Lamentations",
           "expanded": false,
           "verses": [],
-          "subcategories": [],
-          "lastModified": 1761111323842
+          "subcategories": []
         },
         {
           "id": 1760739316289,
           "name": "Ezéchiel",
           "expanded": false,
           "verses": [],
-          "subcategories": [],
-          "lastModified": 1761111323842
+          "subcategories": []
         },
         {
           "id": 1760739326134,
           "name": "Daniel",
           "expanded": false,
           "verses": [],
-          "subcategories": [],
-          "lastModified": 1761111323842
+          "subcategories": []
         },
         {
           "id": 1760739345997,
           "name": "Osée",
           "expanded": false,
           "verses": [],
-          "subcategories": [],
-          "lastModified": 1761111323842
+          "subcategories": []
         },
         {
           "id": 1760739368330,
           "name": "Joël",
           "expanded": false,
           "verses": [],
-          "subcategories": [],
-          "lastModified": 1761111323842
+          "subcategories": []
         },
         {
           "id": 1760739376276,
           "name": "Amos",
           "expanded": false,
           "verses": [],
-          "subcategories": [],
-          "lastModified": 1761111323842
+          "subcategories": []
         },
         {
           "id": 1760739386960,
           "name": "Abdias",
           "expanded": false,
           "verses": [],
-          "subcategories": [],
-          "lastModified": 1761111323842
+          "subcategories": []
         },
         {
           "id": 1760739393609,
@@ -427,282 +391,248 @@
                 }
               ],
               "subcategories": [],
-              "lastModified": 1761111323842
+              "lastModified": 1760910414467
             }
           ],
-          "lastModified": 1761111323842
+          "lastModified": 1760910184295
         },
         {
           "id": 1760739402532,
           "name": "Michée",
           "expanded": false,
           "verses": [],
-          "subcategories": [],
-          "lastModified": 1761111323842
+          "subcategories": []
         },
         {
           "id": 1760739410176,
           "name": "Nahum",
           "expanded": false,
           "verses": [],
-          "subcategories": [],
-          "lastModified": 1761111323842
+          "subcategories": []
         },
         {
           "id": 1760739422021,
           "name": "Habacuc",
           "expanded": false,
           "verses": [],
-          "subcategories": [],
-          "lastModified": 1761111323842
+          "subcategories": []
         },
         {
           "id": 1760739431660,
           "name": "Sophonie",
           "expanded": false,
           "verses": [],
-          "subcategories": [],
-          "lastModified": 1761111323842
+          "subcategories": []
         },
         {
           "id": 1760739438760,
           "name": "Agée",
           "expanded": false,
           "verses": [],
-          "subcategories": [],
-          "lastModified": 1761111323842
+          "subcategories": []
         },
         {
           "id": 1760739460000,
           "name": "Zacharie",
           "expanded": false,
           "verses": [],
-          "subcategories": [],
-          "lastModified": 1761111323842
+          "subcategories": []
         },
         {
           "id": 1760739471146,
           "name": "Malachie",
           "expanded": false,
           "verses": [],
-          "subcategories": [],
-          "lastModified": 1761111323842
+          "subcategories": []
         },
         {
           "id": 1760739484749,
           "name": "Matthieu",
           "expanded": false,
           "verses": [],
-          "subcategories": [],
-          "lastModified": 1761111323842
+          "subcategories": []
         },
         {
           "id": 1760739491066,
           "name": "Marc",
           "expanded": false,
           "verses": [],
-          "subcategories": [],
-          "lastModified": 1761111323842
+          "subcategories": []
         },
         {
           "id": 1760739497712,
           "name": "Luc",
           "expanded": false,
           "verses": [],
-          "subcategories": [],
-          "lastModified": 1761111323842
+          "subcategories": []
         },
         {
           "id": 1760739502008,
           "name": "Jean",
           "expanded": false,
           "verses": [],
-          "subcategories": [],
-          "lastModified": 1761111323842
+          "subcategories": []
         },
         {
           "id": 1760739509856,
           "name": "Actes",
           "expanded": false,
           "verses": [],
-          "subcategories": [],
-          "lastModified": 1761111323842
+          "subcategories": []
         },
         {
           "id": 1760739522388,
           "name": "Romains",
           "expanded": false,
           "verses": [],
-          "subcategories": [],
-          "lastModified": 1761111323842
+          "subcategories": []
         },
         {
           "id": 1760739549710,
           "name": "1 Corinthiens",
           "expanded": false,
           "verses": [],
-          "subcategories": [],
-          "lastModified": 1761111323842
+          "subcategories": []
         },
         {
           "id": 1760739567620,
           "name": "2 Corinthiens",
           "expanded": false,
           "verses": [],
-          "subcategories": [],
-          "lastModified": 1761111323842
+          "subcategories": []
         },
         {
           "id": 1760739575492,
           "name": "Galates",
           "expanded": false,
           "verses": [],
-          "subcategories": [],
-          "lastModified": 1761111323842
+          "subcategories": []
         },
         {
           "id": 1760739591250,
           "name": "Ephésiens",
           "expanded": false,
           "verses": [],
-          "subcategories": [],
-          "lastModified": 1761111323842
+          "subcategories": []
         },
         {
           "id": 1760739606897,
           "name": "Philippiens",
           "expanded": false,
           "verses": [],
-          "subcategories": [],
-          "lastModified": 1761111323842
+          "subcategories": []
         },
         {
           "id": 1760739617882,
           "name": "Colossiens",
           "expanded": false,
           "verses": [],
-          "subcategories": [],
-          "lastModified": 1761111323842
+          "subcategories": []
         },
         {
           "id": 1760739641866,
           "name": "1 Thessaloniciens",
           "expanded": false,
           "verses": [],
-          "subcategories": [],
-          "lastModified": 1761111323842
+          "subcategories": []
         },
         {
           "id": 1760739657542,
           "name": "2 Théssaloniciens",
           "expanded": false,
           "verses": [],
-          "subcategories": [],
-          "lastModified": 1761111323842
+          "subcategories": []
         },
         {
           "id": 1760739667682,
           "name": "1 Thimothée",
           "expanded": false,
           "verses": [],
-          "subcategories": [],
-          "lastModified": 1761111323842
+          "subcategories": []
         },
         {
           "id": 1760739676043,
           "name": "2 Thimothée",
           "expanded": false,
           "verses": [],
-          "subcategories": [],
-          "lastModified": 1761111323842
+          "subcategories": []
         },
         {
           "id": 1760739685730,
           "name": "1 Tites",
           "expanded": false,
           "verses": [],
-          "subcategories": [],
-          "lastModified": 1761111323842
+          "subcategories": []
         },
         {
           "id": 1760739709734,
           "name": "Philémon",
           "expanded": false,
           "verses": [],
-          "subcategories": [],
-          "lastModified": 1761111323842
+          "subcategories": []
         },
         {
           "id": 1760739718651,
           "name": "Hébreux",
           "expanded": false,
           "verses": [],
-          "subcategories": [],
-          "lastModified": 1761111323842
+          "subcategories": []
         },
         {
           "id": 1760739726792,
           "name": "Jacques",
           "expanded": false,
           "verses": [],
-          "subcategories": [],
-          "lastModified": 1761111323842
+          "subcategories": []
         },
         {
           "id": 1760739738227,
           "name": "1 Pierre",
           "expanded": false,
           "verses": [],
-          "subcategories": [],
-          "lastModified": 1761111323842
+          "subcategories": []
         },
         {
           "id": 1760739748614,
           "name": "2 Pierre",
           "expanded": false,
           "verses": [],
-          "subcategories": [],
-          "lastModified": 1761111323842
+          "subcategories": []
         },
         {
           "id": 1760739757201,
           "name": "1 Jean",
           "expanded": false,
           "verses": [],
-          "subcategories": [],
-          "lastModified": 1761111323842
+          "subcategories": []
         },
         {
           "id": 1760739763170,
           "name": "2 Jean",
           "expanded": false,
           "verses": [],
-          "subcategories": [],
-          "lastModified": 1761111323842
+          "subcategories": []
         },
         {
           "id": 1760739770257,
           "name": "3 Jean",
           "expanded": false,
           "verses": [],
-          "subcategories": [],
-          "lastModified": 1761111323842
+          "subcategories": []
         },
         {
           "id": 1760739777458,
           "name": "Jude",
           "expanded": false,
           "verses": [],
-          "subcategories": [],
-          "lastModified": 1761111323842
+          "subcategories": []
         },
         {
           "id": 1760739787998,
           "name": "Révélation",
           "expanded": false,
           "verses": [],
-          "subcategories": [],
-          "lastModified": 1761111323842
+          "subcategories": []
         },
         {
           "id": 1760830678088,
@@ -710,10 +640,10 @@
           "expanded": false,
           "verses": [],
           "subcategories": [],
-          "lastModified": 1761111323842
+          "lastModified": 1760830678088
         }
       ],
-      "lastModified": 1761111323842
+      "lastModified": 1761110143449
     },
     {
       "id": 1760739953938,
@@ -734,8 +664,7 @@
           "verses": [],
           "subcategories": []
         }
-      ],
-      "lastModified": 1761110870032
+      ]
     },
     {
       "id": 1760765648557,
@@ -784,8 +713,7 @@
           "verses": [],
           "subcategories": []
         }
-      ],
-      "lastModified": 1761110872358
+      ]
     },
     {
       "id": 1760900187695,
@@ -815,7 +743,38 @@
           "lastModified": 1760991723782
         }
       ],
-      "lastModified": 1761110878457
+      "lastModified": 1760901406420
+    },
+    {
+      "id": 1760947866029,
+      "name": "Test GitHub",
+      "expanded": true,
+      "subcategories": [],
+      "lastModified": 1760947866029
+    },
+    {
+      "id": 1,
+      "name": "Foi et Confiance",
+      "expanded": true,
+      "lastModified": 1761110160305,
+      "subcategories": [
+        {
+          "id": 11,
+          "name": "Renforcer sa foi",
+          "expanded": false,
+          "lastModified": 1761074632244,
+          "verses": [
+            {
+              "id": 111,
+              "ref": "Hébreux 11:1",
+              "note": "Définition de la foi",
+              "attachments": [],
+              "lastModified": 1761074632244
+            }
+          ],
+          "subcategories": []
+        }
+      ]
     }
   ],
   "deletedItems": {
@@ -827,14 +786,6 @@
       {
         "id": 1759772530026,
         "deletedAt": 1760996813003
-      },
-      {
-        "id": 1,
-        "deletedAt": 1761110360278
-      },
-      {
-        "id": 1760947866029,
-        "deletedAt": 1761110391486
       }
     ],
     "subcategories": [
