@@ -8,7 +8,7 @@
         {
           "id": 1760739828014,
           "name": "Dueil",
-          "expanded": false,
+          "expanded": true,
           "verses": [],
           "subcategories": [
             {
@@ -52,7 +52,8 @@
               ],
               "subcategories": []
             }
-          ]
+          ],
+          "lastModified": 1761110485097
         },
         {
           "id": 1760739865393,
