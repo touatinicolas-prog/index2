@@ -1,0 +1,2970 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#1a1a1a">
+    
+    <link rel="apple-touch-icon" href="icon.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="icon.png">
+    <link rel="apple-touch-icon" sizes="167x167" href="icon.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="icon.png">
+
+    <link rel="manifest" href="manifest.json">
+    
+    <title>Mon Index Biblique</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg-primary: #1a1a1a;
+            --bg-secondary: #2d2d2d;
+            --bg-tertiary: #3a3a3a;
+            --text-primary: #e8e8e8;
+            --text-secondary: #b8b8b8;
+            --accent: #4a90e2;
+            --border: #4a4a4a;
+            --success: #2d7d46;
+            --warning: #e67e22;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+        .header {
+            background: var(--bg-secondary);
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .header h1 { font-size: 22px; font-weight: 600; }
+        .header-buttons { display: flex; gap: 8px; }
+        .mode-toggle, .sync-btn, .settings-btn {
+            padding: 8px 16px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .settings-btn { background: var(--bg-tertiary); padding: 8px 12px; }
+        .sync-btn { padding: 8px 12px; }
+        .sync-status {
+            font-size: 12px;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 10px;
+        }
+        .sync-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--text-secondary);
+        }
+        .sync-indicator.synced { background: var(--success); }
+        .sync-indicator.syncing { background: var(--warning); animation: pulse 1s infinite; }
+        .sync-indicator.error { background: #e74c3c; }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .search-input {
+            width: 100%;
+            padding: 10px 15px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 16px;
+            margin-bottom: 12px;
+        }
+        .controls { display: flex; gap: 8px; flex-wrap: wrap; }
+        .controls.hidden { display: none; }
+        .btn {
+            padding: 10px 16px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            flex: 1;
+            min-width: 100px;
+        }
+        .btn-primary { background: var(--accent); color: white; }
+        .btn-success { background: #2d7d46; color: white; }
+        .btn-info { background: #357abd; color: white; }
+        .btn-secondary { background: var(--bg-tertiary); color: var(--text-primary); }
+        .container { padding-bottom: 40px; }
+        .category-card { background: var(--bg-secondary); border-bottom: 1px solid var(--border); }
+        .category-card.dragging { opacity: 0.5; }
+        .category-header {
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+        .category-title-wrapper { display: flex; align-items: center; gap: 12px; flex: 1; }
+        .category-title { font-size: 18px; font-weight: 600; }
+        .drag-handle {
+            cursor: grab;
+            padding: 4px 8px;
+            user-select: none;
+            font-size: 18px;
+        }
+        .drag-handle:active { cursor: grabbing; }
+        .icon-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 20px;
+            padding: 4px 8px;
+        }
+        .icon-btn.hidden { display: none; }
+        .chevron { color: var(--text-secondary); font-size: 14px; }
+        .category-content { display: none; background: var(--bg-primary); }
+        .category-content.expanded { display: block; }
+        .subcategory { 
+            padding: 16px 20px 16px 40px; 
+            border-bottom: 1px solid var(--border);
+            position: relative;
+        }
+        .subcategory.level-2 { padding-left: 60px; }
+        .subcategory.dragging { opacity: 0.5; }
+        .subcategory.drag-over { border-top: 3px solid var(--accent); }
+        .subcategory-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            cursor: pointer;
+        }
+        .subcategory-title-wrapper { display: flex; align-items: center; gap: 10px; flex: 1; }
+        .subcategory-title { font-size: 16px; font-weight: 500; color: var(--accent); }
+.count-badge {
+    background: var(--bg-tertiary);
+    color: var(--text-secondary);
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+    margin-left: 8px;
+}
+        .subcategory-content { display: none; margin-top: 8px; }
+        .subcategory-content.expanded { display: block; }
+        .verse-item {
+            background: var(--bg-tertiary);
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+        .verse-item.dragging { opacity: 0.5; }
+        .verse-item.drag-over { border-top: 2px solid var(--accent); }
+        .verse-content { flex: 1; display: flex; align-items: flex-start; gap: 8px; }
+        .verse-ref {
+            color: var(--accent);
+            font-weight: 500;
+            text-decoration: none;
+            display: block;
+            margin-bottom: 6px;
+            font-size: 15px;
+        }
+        .verse-note { color: var(--text-secondary); font-size: 14px; line-height: 1.5; white-space: pre-wrap; }
+        .verse-attachments {
+            margin-top: 10px;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .attachment-thumb {
+            width: 80px;
+            height: 80px;
+            border-radius: 6px;
+            object-fit: cover;
+            cursor: pointer;
+            border: 2px solid var(--border);
+            transition: border-color 0.2s;
+        }
+        .attachment-thumb:hover { border-color: var(--accent); }
+        .attachment-pdf {
+            width: 80px;
+            height: 80px;
+            border-radius: 6px;
+            background: var(--bg-tertiary);
+            border: 2px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+        .attachment-pdf:hover { border-color: var(--accent); }
+        .file-input-wrapper { margin-top: 8px; }
+        .file-input-label {
+            display: inline-block;
+            padding: 8px 16px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            color: var(--text-primary);
+            transition: background 0.2s;
+        }
+        .file-input-label:hover { background: var(--bg-primary); }
+        .attached-files-list {
+            margin-top: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .attached-file-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px;
+            background: var(--bg-primary);
+            border-radius: 6px;
+        }
+        .attached-file-preview {
+            width: 50px;
+            height: 50px;
+            border-radius: 4px;
+            object-fit: cover;
+        }
+        .attached-file-info {
+            flex: 1;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+        .attached-file-name {
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+        .remove-file-btn {
+            background: transparent;
+            border: none;
+            color: #e74c3c;
+            cursor: pointer;
+            font-size: 18px;
+            padding: 4px;
+        }
+        .image-viewer-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.95);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .image-viewer-modal.show { display: flex; }
+        .image-viewer-content {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+        }
+        .image-viewer-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: var(--bg-secondary);
+            border: none;
+            color: var(--text-primary);
+            font-size: 32px;
+            cursor: pointer;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .highlight { background-color: #7a5d00; color: #fff; padding: 2px 4px; border-radius: 2px; }
+        .context-menu {
+            position: fixed;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+            padding: 8px 0;
+            z-index: 1000;
+            min-width: 200px;
+        }
+        .context-menu-item { padding: 12px 16px; cursor: pointer; color: var(--text-primary); font-size: 15px; }
+        .context-menu-item:active { background: var(--bg-tertiary); }
+        .context-menu-item.danger { color: #e74c3c; }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            padding: 20px;
+            align-items: center;
+            justify-content: center;
+            overflow-y: auto;
+        }
+        .modal.show { display: flex; }
+        .modal-content {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 24px;
+            max-width: 500px;
+            width: 100%;
+            border: 1px solid var(--border);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .modal-title { font-size: 20px; font-weight: 600; margin-bottom: 20px; }
+        .form-group { margin-bottom: 16px; }
+        .form-label { display: block; margin-bottom: 8px; color: var(--text-secondary); font-size: 14px; }
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text-primary);
+            font-size: 16px;
+        }
+        .form-input:focus { outline: none; border-color: var(--accent); }
+        .rich-text-editor {
+            width: 100%;
+            padding: 12px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text-primary);
+            font-size: 16px;
+            min-height: 120px;
+            resize: vertical;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            line-height: 1.5;
+            overflow-y: auto;
+        }
+        .rich-text-editor:focus { outline: none; border-color: var(--accent); }
+        .rich-text-editor:empty:before {
+            content: attr(data-placeholder);
+            color: var(--text-secondary);
+            opacity: 0.5;
+        }
+        .modal-buttons { display: flex; gap: 10px; margin-top: 24px; flex-wrap: wrap; }
+        .empty-state { text-align: center; padding: 60px 20px; color: var(--text-secondary); }
+        .splash {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--bg-primary);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            opacity: 1;
+            transition: opacity 0.3s;
+        }
+        .splash.hide { opacity: 0; pointer-events: none; }
+        .splash-icon {
+            width: 120px;
+            height: 120px;
+            background: var(--accent);
+            border-radius: 27px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+        .page-view {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--bg-primary);
+            z-index: 200;
+            overflow-y: auto;
+        }
+        .page-view.active { display: block; }
+        .page-header {
+            background: var(--bg-secondary);
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 201;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .back-btn {
+            background: transparent;
+            border: none;
+            color: var(--accent);
+            font-size: 24px;
+            cursor: pointer;
+            padding: 0;
+            line-height: 1;
+        }
+        .page-title {
+            font-size: 20px;
+            font-weight: 600;
+            flex: 1;
+        }
+        .page-content { padding: 20px; }
+        .formatting-toolbar {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 8px;
+            padding: 8px;
+            background: var(--bg-primary);
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            flex-wrap: wrap;
+        }
+        .format-btn {
+            padding: 8px 14px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            color: var(--text-primary);
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+            user-select: none;
+        }
+        .format-btn:hover { background: var(--bg-secondary); }
+        .format-btn:active {
+            background: var(--accent);
+            transform: scale(0.95);
+        }
+        .format-btn.active {
+            background: var(--accent);
+            border-color: var(--accent);
+        }
+        .info-box {
+            background: var(--bg-tertiary);
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 16px;
+            font-size: 14px;
+            line-height: 1.6;
+            color: var(--text-secondary);
+        }
+        .info-box strong { color: var(--text-primary); }
+    </style>
+</head>
+<body>
+    <div class="splash" id="splash">
+        <div class="splash-icon">
+            <img src="icon.png" alt="IB" style="width: 100%; height: 100%; border-radius: 27px;">
+        </div>
+        <div style="color: var(--text-secondary);">Mon Index Biblique</div>
+    </div>
+    
+    <div class="header">
+        <div class="header-top">
+            <h1>Mon Index Biblique</h1>
+            <div class="header-buttons">
+                <button class="settings-btn" onclick="openSettings()">⚙️</button>
+                <button class="sync-btn" onclick="manualSync()">🔄</button>
+                <button class="mode-toggle" onclick="toggleMode()" id="modeBtn">Mode Lecture</button>
+            </div>
+        </div>
+        <div class="sync-status" id="syncStatus">
+            <div class="sync-indicator" id="syncIndicator"></div>
+            <span id="syncText">Initialisation...</span>
+        </div>
+        <input type="text" class="search-input" id="searchInput" placeholder="Rechercher...">
+        <div class="controls" id="controls">
+            <button class="btn btn-primary" onclick="openModal('addCategoryModal')">+ Catégorie</button>
+            <button class="btn btn-success" onclick="exportData()">Exporter</button>
+            <button class="btn btn-success" onclick="exportLocalData()">💾 Backup</button>
+            <button class="btn btn-secondary" onclick="checkStorageSize()">📊 Taille</button>
+            <button class="btn btn-secondary" onclick="forceUploadToGithub()" style="background: #e67e22;">🔧 Réparer GitHub</button>
+            <button class="btn btn-info" onclick="document.getElementById('importFile').click()">Importer</button>
+            <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
+        </div>
+    </div>
+    
+    <div class="container">
+        <div id="categoriesContainer"></div>
+        <div class="empty-state" id="emptyState" style="display:none;">
+            <h2>Aucune catégorie</h2>
+            <p style="margin-top: 10px;">Cliquez sur "+ Catégorie" pour commencer</p>
+        </div>
+    </div>
+
+    <div id="contextMenu"></div>
+    
+    <!-- GitHub Config Modal -->
+    <div class="modal" id="githubConfigModal">
+        <div class="modal-content">
+            <div class="modal-title">🔧 Configuration GitHub</div>
+            <div class="info-box">
+                <strong>Configuration initiale requise</strong><br>
+                Pour synchroniser vos données entre vos appareils, entrez votre Personal Access Token GitHub.
+            </div>
+            <div class="form-group">
+                <label class="form-label">Personal Access Token</label>
+                <input type="password" class="form-input" id="githubToken" placeholder="ghp_...">
+            </div>
+            <div class="modal-buttons">
+                <button class="btn btn-primary" onclick="saveGithubConfig()">Enregistrer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="modal" id="settingsModal">
+        <div class="modal-content">
+            <div class="modal-title">⚙️ Paramètres</div>
+            <div class="form-group">
+                <label class="form-label">GitHub Token</label>
+                <input type="password" class="form-input" id="settingsToken" placeholder="ghp_...">
+            </div>
+            <div class="info-box">
+                <strong>Informations GitHub:</strong><br>
+                Username: <strong>touatinicolas-prog</strong><br>
+                Repository: <strong>index2</strong><br>
+                Branche: <strong>main</strong><br>
+                Fichier: <strong>data.json</strong>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Synchronisation automatique</label>
+                <select class="form-input" id="autoSyncInterval">
+                    <option value="0">Désactivée</option>
+                    <option value="60000">Toutes les minutes</option>
+                    <option value="300000" selected>Toutes les 5 minutes</option>
+                    <option value="300000">Toutes les 5 minutes</option>
+                </select>
+            </div>
+            <div class="modal-buttons">
+                <button class="btn btn-primary" onclick="saveSettings()">Enregistrer</button>
+                <button class="btn btn-secondary" onclick="closeModal('settingsModal')">Annuler</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal" id="addCategoryModal">
+        <div class="modal-content">
+            <div class="modal-title">Nouvelle Catégorie</div>
+            <div class="form-group">
+                <label class="form-label">Nom</label>
+                <input type="text" class="form-input" id="categoryName" onkeypress="if(event.key==='Enter'){addCategory()}">
+            </div>
+            <div class="modal-buttons">
+                <button class="btn btn-primary" onclick="addCategory()">Ajouter</button>
+                <button class="btn btn-secondary" onclick="closeModal('addCategoryModal')">Annuler</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="editCategoryModal">
+        <div class="modal-content">
+            <div class="modal-title">Modifier la catégorie</div>
+            <div class="form-group">
+                <label class="form-label">Nom</label>
+                <input type="text" class="form-input" id="editCategoryName" onkeypress="if(event.key==='Enter'){saveEditCategory()}">
+            </div>
+            <div class="modal-buttons">
+                <button class="btn btn-primary" onclick="saveEditCategory()">Enregistrer</button>
+                <button class="btn btn-secondary" onclick="closeModal('editCategoryModal')">Annuler</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="addSubcategoryModal">
+        <div class="modal-content">
+            <div class="modal-title" id="subModalTitle">Nouvelle Sous-catégorie</div>
+            <div class="form-group">
+                <label class="form-label">Nom</label>
+                <input type="text" class="form-input" id="subcategoryName" onkeypress="if(event.key==='Enter'){addSubcategory()}">
+            </div>
+            <div class="modal-buttons">
+                <button class="btn btn-primary" onclick="addSubcategory()">Ajouter</button>
+                <button class="btn btn-secondary" onclick="closeModal('addSubcategoryModal')">Annuler</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="editSubcategoryModal">
+        <div class="modal-content">
+            <div class="modal-title">Modifier</div>
+            <div class="form-group">
+                <label class="form-label">Nom</label>
+                <input type="text" class="form-input" id="editSubcategoryName" onkeypress="if(event.key==='Enter'){saveEditSubcategory()}">
+            </div>
+            <div class="modal-buttons">
+                <button class="btn btn-primary" onclick="saveEditSubcategory()">Enregistrer</button>
+                <button class="btn btn-secondary" onclick="closeModal('editSubcategoryModal')">Annuler</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="addVerseModal">
+        <div class="modal-content">
+            <div class="modal-title">Nouveau Verset</div>
+            <div class="form-group">
+                <label class="form-label">Référence</label>
+                <input type="text" class="form-input" id="verseRef" onkeypress="if(event.key==='Enter'){document.getElementById('verseNote').focus()}">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Note</label>
+                <div class="formatting-toolbar">
+                    <button type="button" class="format-btn" onclick="toggleFormat('verseNote', 'bold')" title="Gras"><strong>G</strong></button>
+                    <button type="button" class="format-btn" onclick="toggleFormat('verseNote', 'italic')" title="Italique"><em>I</em></button>
+                    <button type="button" class="format-btn" onclick="toggleFormat('verseNote', 'underline')" title="Souligné"><u>S</u></button>
+                </div>
+                <div class="rich-text-editor" id="verseNote" contenteditable="true" data-placeholder="Ajoutez vos réflexions, commentaires..." onkeydown="handleEditorKeydown(event, 'verseNote')"></div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Fichiers (images, PDF)</label>
+                <div class="file-input-wrapper">
+                    <label class="file-input-label" for="verseFiles">📎 Ajouter des fichiers</label>
+                    <input type="file" id="verseFiles" accept="image/*,application/pdf" multiple style="display:none" onchange="handleFileSelect(event, 'add')">
+                </div>
+                <div id="addFilesPreview" class="attached-files-list"></div>
+            </div>
+            <div class="modal-buttons">
+                <button class="btn btn-primary" onclick="addVerse()">Ajouter</button>
+                <button class="btn btn-secondary" onclick="closeModal('addVerseModal')">Annuler</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="editVerseModal">
+        <div class="modal-content">
+            <div class="modal-title">Modifier le verset</div>
+            <div class="form-group">
+                <label class="form-label">Référence</label>
+                <input type="text" class="form-input" id="editVerseRef" onkeypress="if(event.key==='Enter'){document.getElementById('editVerseNote').focus()}">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Note</label>
+                <div class="formatting-toolbar">
+                    <button type="button" class="format-btn" onclick="toggleFormat('editVerseNote', 'bold')" title="Gras"><strong>G</strong></button>
+                    <button type="button" class="format-btn" onclick="toggleFormat('editVerseNote', 'italic')" title="Italique"><em>I</em></button>
+                    <button type="button" class="format-btn" onclick="toggleFormat('editVerseNote', 'underline')" title="Souligné"><u>S</u></button>
+                </div>
+                <div class="rich-text-editor" id="editVerseNote" contenteditable="true" data-placeholder="Ajoutez vos réflexions, commentaires..." onkeydown="handleEditorKeydown(event, 'editVerseNote')"></div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Fichiers (images, PDF)</label>
+                <div class="file-input-wrapper">
+                    <label class="file-input-label" for="editVerseFiles">📎 Ajouter des fichiers</label>
+                    <input type="file" id="editVerseFiles" accept="image/*,application/pdf" multiple style="display:none" onchange="handleFileSelect(event, 'edit')">
+                </div>
+                <div id="editFilesPreview" class="attached-files-list"></div>
+            </div>
+            <div class="modal-buttons">
+                <button class="btn btn-primary" onclick="saveEditVerse()">Enregistrer</button>
+                <button class="btn btn-secondary" onclick="closeModal('editVerseModal')">Annuler</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="mergeModal">
+        <div class="modal-content">
+            <div class="modal-title">🔄 Synchronisation des données</div>
+            <p style="color: var(--text-secondary); line-height: 1.6; margin: 16px 0;">
+                Voulez-vous <strong style="color: var(--text-primary);">fusionner</strong> les données avec celles existantes ?
+            </p>
+            <div style="background: var(--bg-tertiary); padding: 12px; border-radius: 6px; margin: 16px 0;">
+                <div style="margin-bottom: 8px;">✅ <strong style="color: var(--text-primary);">OUI</strong> - Fusion intelligente (recommandé)</div>
+                <div style="color: var(--text-secondary); font-size: 14px; margin-left: 24px;">Vos données actuelles seront conservées et combinées avec le fichier importé</div>
+                <div style="margin: 12px 0 8px 0;">❌ <strong style="color: var(--text-primary);">NON</strong> - Remplacement total</div>
+                <div style="color: var(--text-secondary); font-size: 14px; margin-left: 24px;">Toutes vos données actuelles seront remplacées</div>
+            </div>
+            <div class="modal-buttons">
+                <button class="btn btn-primary" onclick="confirmMerge(true)" style="flex: 1; min-width: 80px;">Oui</button>
+                <button class="btn btn-secondary" onclick="confirmMerge(false)" style="flex: 1; min-width: 80px;">Non</button>
+                <button class="btn btn-secondary" onclick="cancelImport()" style="flex: 1; min-width: 80px;">Annuler</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="page-view" id="subsubPage">
+        <div class="page-header">
+            <button class="back-btn" onclick="closePage()">←</button>
+            <div class="page-title" id="pageTitle"></div>
+        </div>
+        <div class="page-content" id="pageContent"></div>
+    </div>
+    
+    <div class="image-viewer-modal" id="imageViewer" onclick="closeImageViewer()">
+        <button class="image-viewer-close" onclick="closeImageViewer()">×</button>
+        <img id="imageViewerContent" class="image-viewer-content" src="" alt="Image">
+    </div>
+    <script>
+        // Configuration GitHub
+        const GITHUB_CONFIG = {
+            username: 'touatinicolas-prog',
+            repo: 'index2',
+            branch: 'main',
+            filepath: 'data.json'
+        };
+        let githubToken = localStorage.getItem('githubToken') || null;
+        let autoSyncInterval = null;
+        let isSyncing = false;
+        let lastSyncTime = null;
+        
+        const STORAGE_KEY = 'monIndexBiblique';
+        // ============================================
+// INDEXEDDB STORAGE (Remplace localStorage)
+// ============================================
+
+const DB_NAME = 'MonIndexBibliqueDB';
+const DB_VERSION = 1;
+const STORE_NAME = 'data';
+
+let db = null;
+
+// Initialiser IndexedDB
+function initDB() {
+    return new Promise((resolve, reject) => {
+        const request = indexedDB.open(DB_NAME, DB_VERSION);
+        
+        request.onerror = () => {
+            console.error('❌ Erreur ouverture IndexedDB:', request.error);
+            reject(request.error);
+        };
+        
+        request.onsuccess = () => {
+            db = request.result;
+            console.log('✅ IndexedDB initialisée');
+            resolve(db);
+        };
+        
+        request.onupgradeneeded = (event) => {
+            const db = event.target.result;
+            if (!db.objectStoreNames.contains(STORE_NAME)) {
+                db.createObjectStore(STORE_NAME);
+                console.log('📦 ObjectStore créé');
+            }
+        };
+    });
+}
+
+// Sauvegarder dans IndexedDB
+function saveToIndexedDB(key, value) {
+    return new Promise((resolve, reject) => {
+        if (!db) {
+            reject(new Error('DB not initialized'));
+            return;
+        }
+        
+        const transaction = db.transaction([STORE_NAME], 'readwrite');
+        const store = transaction.objectStore(STORE_NAME);
+        const request = store.put(value, key);
+        
+        request.onsuccess = () => {
+            console.log('💾 Données sauvegardées dans IndexedDB');
+            resolve();
+        };
+        
+        request.onerror = () => {
+            console.error('❌ Erreur sauvegarde IndexedDB:', request.error);
+            reject(request.error);
+        };
+    });
+}
+
+        // Sauvegarder deletedItems dans IndexedDB
+async function saveDeletedItemsToIndexedDB() {
+    try {
+        await saveToIndexedDB('deletedItems', deletedItems);
+        localStorage.setItem('deletedItems', JSON.stringify(deletedItems)); // fallback localStorage (optionnel)
+        console.log('💾 deletedItems sauvegardé dans IndexedDB');
+    } catch (err) {
+        console.error('❌ Erreur sauvegarde deletedItems:', err);
+    }
+}
+
+// Charger deletedItems depuis IndexedDB (avec migration depuis localStorage si nécessaire)
+async function loadDeletedItemsFromIndexedDB() {
+    try {
+        const stored = await loadFromIndexedDB('deletedItems');
+        if (stored) {
+            deletedItems = stored;
+            console.log('📖 deletedItems chargé depuis IndexedDB');
+        } else {
+            // Migration depuis localStorage si présent
+            const ls = localStorage.getItem('deletedItems');
+            if (ls) {
+                try {
+                    deletedItems = JSON.parse(ls);
+                    await saveDeletedItemsToIndexedDB();
+                    localStorage.removeItem('deletedItems');
+                    console.log('🔄 deletedItems migré depuis localStorage vers IndexedDB');
+                } catch (err) {
+                    console.warn('⚠️ deletedItems localStorage invalide, on part des valeurs par défaut');
+                    deletedItems = { categories: [], subcategories: [], verses: [] };
+                }
+            } else {
+                deletedItems = { categories: [], subcategories: [], verses: [] };
+            }
+        }
+    } catch (err) {
+        console.error('❌ Erreur chargement deletedItems:', err);
+        deletedItems = { categories: [], subcategories: [], verses: [] };
+    }
+}
+
+
+// Lire depuis IndexedDB
+function loadFromIndexedDB(key) {
+    return new Promise((resolve, reject) => {
+        if (!db) {
+            reject(new Error('DB not initialized'));
+            return;
+        }
+        
+        const transaction = db.transaction([STORE_NAME], 'readonly');
+        const store = transaction.objectStore(STORE_NAME);
+        const request = store.get(key);
+        
+        request.onsuccess = () => {
+            console.log('📖 Données chargées depuis IndexedDB');
+            resolve(request.result);
+        };
+        
+        request.onerror = () => {
+            console.error('❌ Erreur lecture IndexedDB:', request.error);
+            reject(request.error);
+        };
+    });
+}
+
+// Calculer la taille des données dans IndexedDB
+async function getIndexedDBSize() {
+    try {
+        const storedData = await loadFromIndexedDB(STORAGE_KEY);
+        if (!storedData) return 0;
+        const jsonString = JSON.stringify(storedData);
+        return jsonString.length;
+    } catch (err) {
+        return 0;
+    }
+}
+        let data = {categories: [{id: 1, name: 'Foi et Confiance', expanded: true, lastModified: Date.now(), subcategories: [{id: 11, name: 'Renforcer sa foi', expanded: true, lastModified: Date.now(), verses: [{id: 111, ref: 'Hébreux 11:1', note: 'Définition de la foi', attachments: [], lastModified: Date.now()}], subcategories: []}]}]};
+        let currentCat = null, currentSub = null, editItem = null, searchQuery = '', readOnlyMode = true;
+        let dragMode = false, draggedItem = null;
+        let tempAttachments = [];
+        let deletedItems = { categories: [], subcategories: [], verses: [] }; // valeur par défaut
+
+
+        async function loadData() {
+    try {
+        // Essayer de charger depuis IndexedDB
+        const stored = await loadFromIndexedDB(STORAGE_KEY);
+        if (stored) {
+            data = stored;
+            console.log('✅ Données chargées depuis IndexedDB');
+        } else {
+            // Fallback : essayer localStorage (migration)
+            const localStorageData = localStorage.getItem(STORAGE_KEY);
+            if (localStorageData) {
+                data = JSON.parse(localStorageData);
+                console.log('🔄 Migration depuis localStorage vers IndexedDB...');
+                await saveToIndexedDB(STORAGE_KEY, data);
+                localStorage.removeItem(STORAGE_KEY); // Nettoyer localStorage
+                console.log('✅ Migration terminée');
+            }
+        }
+    } catch (err) {
+        console.error('❌ Erreur lors du chargement des données:', err);
+    }
+}
+
+        async function saveData() {
+    try {
+        await saveToIndexedDB(STORAGE_KEY, data);
+        // Sauvegarder deletedItems aussi
+        await saveDeletedItemsToIndexedDB();
+
+        if (githubToken && !isSyncing) {
+            syncWithGithub(false);
+        }
+    } catch (err) {
+        console.error('❌ Erreur lors de la sauvegarde des données:', err);
+        alert('❌ Erreur de sauvegarde: ' + err.message);
+    }
+}
+
+
+        // Fonctions GitHub Sync
+        function updateSyncStatus(status, text) {
+            const indicator = document.getElementById('syncIndicator');
+            const statusText = document.getElementById('syncText');
+            indicator.className = 'sync-indicator ' + status;
+            statusText.textContent = text;
+        }
+
+        // ========================================================
+// 🔄 Gestion des suppressions synchronisées (merge & apply)
+// ========================================================
+
+// ✅ Fusionne les suppressions distantes (GitHub) avec les locales
+function mergeDeletedItems(remoteDeleted) {
+    if (!remoteDeleted) return;
+
+    const types = ['categories', 'subcategories', 'verses'];
+
+    types.forEach(type => {
+        const localMap = new Map(deletedItems[type].map(item => [item.id, item]));
+        const remoteMap = new Map(remoteDeleted[type].map(item => [item.id, item]));
+
+        // Fusionner les deux sources
+        remoteMap.forEach((remoteItem, id) => {
+            const localItem = localMap.get(id);
+            if (!localItem) {
+                // Suppression uniquement sur GitHub → l'ajouter
+                localMap.set(id, remoteItem);
+            } else {
+                // Si les deux existent → garder la plus récente
+                if (remoteItem.deletedAt > localItem.deletedAt) {
+                    localMap.set(id, remoteItem);
+                }
+            }
+        });
+
+        deletedItems[type] = Array.from(localMap.values());
+    });
+
+    console.log('🔄 deletedItems fusionné depuis GitHub');
+}
+
+// ✅ Applique les suppressions (catégories, sous-catégories, versets)
+function applyDeletions() {
+    if (!deletedItems) return;
+
+    // 1. Définition de la fonction de nettoyage récursive (Corrigée)
+    function cleanSubcategories(subs) {
+        if (!subs) return []; // Sécurité
+
+        return subs
+            // Étape 1: Filtrer les sous-catégories de ce niveau qui sont marquées pour suppression
+            .filter(sub => !deletedItems.subcategories.some(d => d.id === sub.id))
+            .map(sub => ({ // <-- Syntaxe d'objet de map() correcte
+                ...sub,
+                // Étape 2: Filtrer les versets supprimés à l'intérieur de cette sous-catégorie
+                verses: sub.verses ? sub.verses.filter(v => !deletedItems.verses.some(d => d.id === v.id)) : [],
+                // Étape 3: Appel récursif correct pour les niveaux inférieurs
+                subcategories: cleanSubcategories(sub.subcategories) 
+            })); // <-- Fermeture de map() correcte
+    }
+
+    // 2. Supprimer les catégories de niveau 1
+    data.categories = data.categories.filter(cat => !deletedItems.categories.some(d => d.id === cat.id) );
+
+    // 3. APPLIQUER le nettoyage récursif à toutes les catégories restantes
+    data.categories = data.categories.map(cat => ({
+        ...cat,
+        subcategories: cleanSubcategories(cat.subcategories)
+    }));
+}
+
+        async function syncWithGithub(showMessages = false) {
+    if (!githubToken) {
+        updateSyncStatus('error', 'Token manquant - Configurez dans ⚙️');
+        return;
+    }
+    
+    if (isSyncing) {
+    console.log('⏸️ Sync déjà en cours, annulation...');
+    return;
+}
+isSyncing = true;
+updateSyncStatus('syncing', 'Synchronisation...');
+
+// ✅ Ajouter un délai aléatoire pour éviter les conflits multi-appareils
+const randomDelay = Math.floor(Math.random() * 2000); // 0-2 secondes
+await new Promise(resolve => setTimeout(resolve, randomDelay));
+console.log(`⏱️ Délai de ${randomDelay}ms appliqué pour éviter les conflits`);
+    
+    try {
+        console.log('🔄 Début de la synchronisation...');
+        
+        // 1. Récupérer les données depuis GitHub
+        const response = await fetch(
+            `https://api.github.com/repos/${GITHUB_CONFIG.username}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.filepath}`,
+            {
+                headers: {
+                    'Authorization': `token ${githubToken}`,
+                    'Accept': 'application/vnd.github.v3+json'
+                }
+            }
+        );
+        
+        console.log('📡 Réponse GitHub status:', response.status);
+        
+        let remoteSha = null;
+        let remoteData = null;
+        
+        if (response.ok) {
+            const fileData = await response.json();
+            remoteSha = fileData.sha;
+            console.log('🔑 SHA récupéré:', remoteSha);
+            
+            try {
+    // Décoder le contenu Base64 de GitHub
+    const base64Content = fileData.content.replace(/\n/g, '');
+    let decodedContent;
+    
+    try {
+        // Méthode de décodage plus robuste
+        decodedContent = decodeURIComponent(escape(atob(base64Content)));
+    } catch (base64Error) {
+        console.error('❌ Erreur décodage Base64:', base64Error);
+        // Tentative alternative
+        try {
+            const binaryString = atob(base64Content);
+            const bytes = new Uint8Array(binaryString.length);
+            for (let i = 0; i < binaryString.length; i++) {
+                bytes[i] = binaryString.charCodeAt(i);
+            }
+            const decoder = new TextDecoder('utf-8');
+            decodedContent = decoder.decode(bytes);
+        } catch (altError) {
+            console.error('❌ Échec décodage alternatif:', altError);
+            throw new Error('Impossible de décoder le contenu Base64');
+        }
+    }
+    
+    // Parser le JSON
+    remoteData = JSON.parse(decodedContent);
+    console.log('☁️ Données GitHub récupérées avec succès');
+    
+    // Normaliser le format des données
+    if (!remoteData.categories) {
+        // Ancien format : remoteData est directement un tableau de catégories
+        console.log('📦 Ancien format détecté, conversion...');
+        remoteData = {
+            categories: Array.isArray(remoteData) ? remoteData : [],
+            deletedItems: { categories: [], subcategories: [], verses: [] }
+        };
+    } else {
+        // Nouveau format : vérifier que deletedItems existe
+        if (!remoteData.deletedItems) {
+            console.log('📦 Format partiel détecté, ajout de deletedItems...');
+            remoteData.deletedItems = { categories: [], subcategories: [], verses: [] };
+        }
+    }
+    
+    console.log('📊 GitHub: ', remoteData.categories?.length, 'catégories');
+    console.log('📊 Suppressions GitHub:', remoteData.deletedItems);
+    console.log('📊 Local (avant merge):', data.categories.length, 'catégories');
+    
+    // Fusionner les suppressions de GitHub avec les suppressions locales
+    if (remoteData.deletedItems) {
+        mergeDeletedItems(remoteData.deletedItems);
+    }
+    
+    // Fusionner les données
+    mergeData(remoteData);
+    
+    // Appliquer les suppressions après la fusion
+    applyDeletions();
+    
+    console.log('✅ Fusion terminée');
+    console.log('📊 Local (après merge):', data.categories.length, 'catégories');
+    
+} catch (decodeError) {
+    console.error('❌ Erreur complète:', decodeError);
+    console.error('Stack:', decodeError.stack);
+    
+    // Message d'erreur plus détaillé
+    if (decodeError instanceof SyntaxError) {
+        console.warn('⚠️ Fichier GitHub corrompu détecté');
+        
+        // ✅ NE PAS proposer de réparation automatique si on vient de réparer
+        const lastRepairTime = localStorage.getItem('lastGithubRepair');
+        const now = Date.now();
+        const timeSinceLastRepair = lastRepairTime ? now - parseInt(lastRepairTime) : Infinity;
+        
+        if (timeSinceLastRepair < 60000) { // Moins d'1 minute depuis la dernière réparation
+            console.warn('⏸️ Réparation récente détectée, on attend...');
+            throw new Error('Fichier GitHub corrompu. Veuillez patienter 1 minute avant de resynchroniser.');
+        }
+        
+        // 🔧 Réparation automatique : utiliser les données locales
+        if (confirm('Le fichier GitHub est corrompu.\n\nVoulez-vous le réparer automatiquement avec vos données locales ?')) {
+            localStorage.setItem('lastGithubRepair', now.toString());
+            try {
+                await forceUploadToGithub();
+                return; // Sortir de la fonction après réparation
+            } catch (repairError) {
+                throw new Error('Échec de la réparation automatique. Utilisez "🔧 Réparer GitHub" manuellement.');
+            }
+        } else {
+            throw new Error('Fichier GitHub corrompu (JSON invalide). Utilisez "🔧 Réparer GitHub"');
+        }
+    } else {
+        throw new Error('Erreur lecture GitHub: ' + decodeError.message);
+    }
+}
+        
+        // 2. Envoyer les données fusionnées ET les suppressions vers GitHub
+const dataToSync = {
+    categories: data.categories,
+    deletedItems: deletedItems
+};
+
+// ✅ Validation et encodage robuste avant envoi
+let content;
+try {
+    const jsonString = JSON.stringify(dataToSync, null, 2);
+    
+    // Vérifier que c'est du JSON valide
+    JSON.parse(jsonString);
+    console.log('✅ JSON validé avant envoi');
+    console.log('📏 Taille du JSON:', (jsonString.length / 1024).toFixed(2), 'KB');
+    
+    // Encodage plus robuste pour éviter les corruptions
+    const utf8Bytes = new TextEncoder().encode(jsonString);
+    let binaryString = '';
+    for (let i = 0; i < utf8Bytes.length; i++) {
+        binaryString += String.fromCharCode(utf8Bytes[i]);
+    }
+    content = btoa(binaryString);
+    
+    console.log('✅ Encodage Base64 réussi');
+    console.log('📏 Taille encodée:', (content.length / 1024).toFixed(2), 'KB');
+} catch (validationError) {
+    console.error('❌ Données invalides détectées:', validationError);
+    throw new Error('Impossible de créer un JSON valide. Vérifiez vos données locales.');
+}
+
+console.log('📤 Envoi vers GitHub (données + suppressions)...');
+        
+        const saveResponse = await fetch(
+            `https://api.github.com/repos/${GITHUB_CONFIG.username}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.filepath}`,
+            {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `token ${githubToken}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    message: `Sync depuis ${navigator.userAgent.includes('iPhone') ? 'iPhone' : navigator.userAgent.includes('iPad') ? 'iPad' : 'Appareil'} - ${new Date().toLocaleString('fr-FR')}`,
+                    content: content,
+                    sha: remoteSha,
+                    branch: GITHUB_CONFIG.branch
+                })
+            }
+        );
+        
+        console.log('📡 Réponse sauvegarde:', saveResponse.status);
+        
+        if (saveResponse.ok) {
+    lastSyncTime = new Date();
+    window.__syncRetryCount = 0; // ✅ Réinitialiser le compteur après succès
+    updateSyncStatus('synced', `Synchronisé à ${lastSyncTime.toLocaleTimeString('fr-FR')}`);
+    await saveToIndexedDB(STORAGE_KEY, data);
+    await saveDeletedItemsToIndexedDB(); // ✅ Sauvegarder aussi deletedItems
+    console.log('✅ Synchronisation réussie !');
+            render();
+        } else {
+    const errorData = await saveResponse.json();
+    console.error('❌ Erreur de sauvegarde GitHub:', errorData);
+
+    // 🔁 Si conflit SHA, retenter automatiquement (avec limite de 3 tentatives)
+    if (errorData.message && errorData.message.includes('does not match')) {
+        console.warn('⚠️ Conflit SHA détecté — rechargement et nouvelle tentative...');
+        
+        // Marquer qu'on est en train de résoudre un conflit
+        if (!window.__syncRetryCount) window.__syncRetryCount = 0;
+        window.__syncRetryCount++;
+        
+        if (window.__syncRetryCount <= 3) {
+            await new Promise(r => setTimeout(r, 2000)); // pause de 2s
+            return await syncWithGithub(showMessages); // retente
+        } else {
+            window.__syncRetryCount = 0;
+            throw new Error('Conflit de synchronisation après 3 tentatives. Utilisez "🔧 Réparer GitHub"');
+        }
+    }
+
+    throw new Error(errorData.message || 'Erreur lors de la sauvegarde');
+}
+}
+
+        
+    } catch (error) {
+        console.error('💥 Erreur de synchronisation:', error);
+        updateSyncStatus('error', 'Erreur: ' + error.message);
+        if (showMessages) alert('❌ Erreur de synchronisation: ' + error.message);
+    } finally {
+        isSyncing = false;
+    }
+}
+
+        function manualSync() {
+            syncWithGithub(true);
+        }
+
+        function startAutoSync() {
+            const interval = parseInt(localStorage.getItem('autoSyncInterval') || '120000');
+            if (interval > 0) {
+                if (autoSyncInterval) clearInterval(autoSyncInterval);
+                autoSyncInterval = setInterval(() => syncWithGithub(false), interval);
+            }
+        }
+
+        function openSettings() {
+            document.getElementById('settingsToken').value = githubToken || '';
+            document.getElementById('autoSyncInterval').value = localStorage.getItem('autoSyncInterval') || '120000';
+            openModal('settingsModal');
+        }
+
+        function saveSettings() {
+            const token = document.getElementById('settingsToken').value.trim();
+            const interval = document.getElementById('autoSyncInterval').value;
+            
+            if (token) {
+                githubToken = token;
+                localStorage.setItem('githubToken', token);
+            }
+            
+            localStorage.setItem('autoSyncInterval', interval);
+            
+            closeModal('settingsModal');
+            startAutoSync();
+            syncWithGithub(true);
+        }
+
+        function saveGithubConfig() {
+            const token = document.getElementById('githubToken').value.trim();
+            
+            if (!token) {
+                alert('⚠️ Veuillez entrer votre token GitHub');
+                return;
+            }
+            
+            githubToken = token;
+            localStorage.setItem('githubToken', token);
+            closeModal('githubConfigModal');
+            
+            alert('✅ Configuration enregistrée !\n\nVotre app va maintenant se synchroniser avec GitHub.');
+            syncWithGithub(true);
+            startAutoSync();
+        }
+
+        window.addEventListener('DOMContentLoaded', async () => {
+    try {
+        // Initialiser IndexedDB d'abord
+        await initDB();
+
+        
+        
+        // Charger les données
+        await loadData();
+        // Nettoyer les anciennes suppressions
+cleanOldDeletions();
+        // Après initDB()
+await loadDeletedItemsFromIndexedDB();
+
+        render();
+        
+        if (!githubToken) {
+            setTimeout(() => {
+                openModal('githubConfigModal');
+            }, 2000);
+        } else {
+            syncWithGithub(false);
+            startAutoSync();
+        }
+        
+        setTimeout(() => document.getElementById('splash').classList.add('hide'), 1500);
+        
+        let timeout;
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => {
+                searchQuery = e.target.value.toLowerCase().trim();
+                render();
+            }, 300);
+        });
+        document.addEventListener('click', closeContextMenu);
+    } catch (err) {
+        console.error('❌ Erreur initialisation:', err);
+        alert('❌ Erreur lors de l\'initialisation de la base de données');
+    }
+});
+        async function exportLocalData() {
+    try {
+        const localData = await loadFromIndexedDB(STORAGE_KEY);
+        if (!localData) {
+            alert('❌ Aucune donnée locale trouvée');
+            return;
+        }
+        
+        const blob = new Blob([JSON.stringify(localData, null, 2)], { type: 'application/json' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `index-biblique-backup-${new Date().toISOString().split('T')[0]}.json`;
+        a.click();
+        
+        alert('✅ Sauvegarde exportée !');
+    } catch (err) {
+        alert('❌ Erreur lors de l\'export: ' + err.message);
+        console.error(err);
+    }
+}
+
+async function forceUploadToGithub() {
+    if (!githubToken) {
+        alert('❌ Token GitHub manquant');
+        return;
+    }
+    
+    if (!confirm('🔧 RÉPARER GITHUB\n\nCeci va remplacer les données corrompues sur GitHub par vos données locales.\n\nContinuer ?')) {
+        return;
+    }
+    
+    isSyncing = true;
+    updateSyncStatus('syncing', 'Réparation en cours...');
+    
+    try {
+        console.log('🔧 Début de la réparation GitHub...');
+        
+        // 1. Récupérer le SHA actuel
+        const response = await fetch(
+            `https://api.github.com/repos/${GITHUB_CONFIG.username}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.filepath}`,
+            {
+                headers: {
+                    'Authorization': `token ${githubToken}`,
+                    'Accept': 'application/vnd.github.v3+json'
+                }
+            }
+        );
+        
+        let remoteSha = null;
+        if (response.ok) {
+            const fileData = await response.json();
+            remoteSha = fileData.sha;
+            console.log('🔑 SHA récupéré:', remoteSha);
+        }
+        
+        // 2. Charger les données locales depuis IndexedDB
+        const localData = await loadFromIndexedDB(STORAGE_KEY);
+        if (!localData) {
+            throw new Error('Aucune donnée locale trouvée');
+        }
+        
+        console.log('📱 Données locales chargées:', localData.categories.length, 'catégories');
+        
+        // 3. Forcer l'upload vers GitHub (avec suppressions)
+const dataToSync = {
+    categories: localData.categories,
+    deletedItems: deletedItems
+};
+// Encodage robuste pour éviter les corruptions
+const jsonString = JSON.stringify(dataToSync, null, 2);
+const utf8Bytes = new TextEncoder().encode(jsonString);
+let binaryString = '';
+for (let i = 0; i < utf8Bytes.length; i++) {
+    binaryString += String.fromCharCode(utf8Bytes[i]);
+}
+const content = btoa(binaryString);
+console.log('🔧 Réparation - Encodage robuste appliqué');
+        
+        const saveResponse = await fetch(
+            `https://api.github.com/repos/${GITHUB_CONFIG.username}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.filepath}`,
+            {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `token ${githubToken}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    message: `🔧 Réparation - Upload forcé depuis ${navigator.userAgent.includes('iPhone') ? 'iPhone' : navigator.userAgent.includes('iPad') ? 'iPad' : 'Appareil'} - ${new Date().toLocaleString('fr-FR')}`,
+                    content: content,
+                    sha: remoteSha,
+                    branch: GITHUB_CONFIG.branch
+                })
+            }
+        );
+        
+        if (saveResponse.ok) {
+            lastSyncTime = new Date();
+            localStorage.setItem('lastGithubRepair', Date.now().toString());
+            updateSyncStatus('synced', `Réparé à ${lastSyncTime.toLocaleTimeString('fr-FR')}`);
+            console.log('✅ GitHub réparé avec succès !');
+            alert('✅ GitHub réparé avec succès !\n\nVos données locales ont été uploadées sur GitHub.');
+        } else {
+            const errorData = await saveResponse.json();
+            throw new Error(errorData.message || 'Erreur lors de la réparation');
+        }
+        
+    } catch (error) {
+        console.error('💥 Erreur de réparation:', error);
+        updateSyncStatus('error', 'Erreur de réparation');
+        alert('❌ Erreur de réparation: ' + error.message);
+    } finally {
+        isSyncing = false;
+    }
+}
+
+        function closeContextMenu() {
+            const existingMenus = document.querySelectorAll('.context-menu');
+            existingMenus.forEach(menu => menu.remove());
+        }
+
+        function toggleMode() {
+            readOnlyMode = !readOnlyMode;
+            document.getElementById('modeBtn').textContent = readOnlyMode ? 'Mode Édition' : 'Mode Lecture';
+            document.getElementById('controls').classList.toggle('hidden', readOnlyMode);
+            if (readOnlyMode) dragMode = false;
+            render();
+        }
+
+        function toggleDragMode() {
+            dragMode = !dragMode;
+            closeContextMenu();
+            render();
+        }
+
+        function showMenu(e, items) {
+            e.preventDefault();
+            e.stopPropagation();
+            closeContextMenu();
+            
+            const div = document.createElement('div');
+            div.className = 'context-menu';
+            
+            items.forEach(item => {
+                const itm = document.createElement('div');
+                itm.className = 'context-menu-item' + (item.danger ? ' danger' : '');
+                itm.textContent = item.label;
+                itm.onclick = (ev) => {
+                    ev.stopPropagation();
+                    closeContextMenu();
+                    setTimeout(() => item.action(), 50);
+                };
+                div.appendChild(itm);
+            });
+            
+            document.body.appendChild(div);
+            
+            setTimeout(() => {
+                const rect = div.getBoundingClientRect();
+                const viewportHeight = window.innerHeight;
+                const viewportWidth = window.innerWidth;
+                
+                let x = e.clientX || (e.touches && e.touches[0].clientX) || 0;
+                let y = e.clientY || (e.touches && e.touches[0].clientY) || 0;
+                
+                let finalX = x + 10;
+                if (finalX + rect.width > viewportWidth - 10) {
+                    finalX = viewportWidth - rect.width - 10;
+                }
+                finalX = Math.max(10, finalX);
+                
+                let finalY = y + 10;
+                if (finalY + rect.height > viewportHeight - 10) {
+                    finalY = y - rect.height - 10;
+                }
+                if (finalY < 10) {
+                    finalY = 10;
+                }
+                
+                div.style.left = finalX + 'px';
+                div.style.top = finalY + 'px';
+            }, 10);
+        }
+
+        function highlight(text) {
+            if (!searchQuery || !text) return text;
+            const regex = new RegExp(`(${searchQuery.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+            return text.replace(regex, '<span class="highlight">$1</span>');
+        }
+
+        function matches(text) {
+            if (!text) return !searchQuery;
+            const cleanText = text.replace(/<[^>]*>/g, '').toLowerCase();
+            return !searchQuery || cleanText.includes(searchQuery);
+        }
+
+        function findSub(catId, subId, parentSubs = null) {
+            const cat = data.categories.find(c => c.id === catId);
+            if (!cat) return null;
+            const subs = parentSubs || cat.subcategories;
+            for (let sub of subs) {
+                if (sub.id === subId) return sub;
+                if (sub.subcategories?.length > 0) {
+                    const found = findSub(catId, subId, sub.subcategories);
+                    if (found) return found;
+                }
+            }
+            return null;
+        }
+
+        async function toggleCat(catId) {
+    const cat = data.categories.find(c => c.id === catId);
+    if (cat) {
+        cat.expanded = !cat.expanded;
+        cat.lastModified = Date.now();
+        
+        // ✅ Si on referme la catégorie, refermer toutes les sous-catégories
+        if (!cat.expanded) {
+            function collapseAllSubs(subcategories) {
+                if (!subcategories) return;
+                subcategories.forEach(sub => {
+                    sub.expanded = false;
+                    sub.lastModified = Date.now(); // ✅ CRITIQUE : mettre à jour lastModified
+                    if (sub.subcategories && sub.subcategories.length > 0) {
+                        collapseAllSubs(sub.subcategories); // Récursif pour les sous-sous-catégories
+                    }
+                });
+            }
+            collapseAllSubs(cat.subcategories);
+        }
+        
+        await saveData(); // ✅ Attendre la fin de la sauvegarde
+        render();
+    }
+}
+
+        async function toggleSub(catId, subId) {
+            const sub = findSub(catId, subId);
+            if (sub) { 
+                sub.expanded = !sub.expanded; 
+                sub.lastModified = Date.now();
+                await saveData(); // ✅ Attendre la fin de la sauvegarde
+                render(); 
+            }
+        }
+
+        function renderFormattedNote(note) {
+            if (!note) return '';
+            return note.replace(/\n/g, '<br>');
+        }
+
+        function renderSubs(subs, catId, level = 1, parentPath = '') {
+            return subs.map((sub, idx) => {
+                function hasMatchRecursive(subcategory) {
+                    if (matches(subcategory.name)) return true;
+                    if (subcategory.verses && subcategory.verses.some(v => matches(v.ref) || matches(v.note || ''))) return true;
+                    if (subcategory.subcategories && subcategory.subcategories.length > 0) {
+                        return subcategory.subcategories.some(s => hasMatchRecursive(s));
+                    }
+                    return false;
+                }
+                
+                const hasMatch = hasMatchRecursive(sub);
+                if (!hasMatch && searchQuery) return '';
+                
+                const currentPath = parentPath ? `${parentPath}-${idx}` : `${idx}`;
+                // Si niveau 2 OU si niveau 1 sans sous-sous-catégories → ouvrir une page
+                const hasSubSubcategories = sub.subcategories && sub.subcategories.length > 0;
+                const shouldOpenPage = level === 2 || (level === 1 && !hasSubSubcategories);
+                const onClickAction = shouldOpenPage ? `if(!dragMode)openSubsubPage(${catId}, ${sub.id})` : `if(!dragMode)toggleSub(${catId}, ${sub.id})`;
+                // Calculer le nombre de sous-catégories et versets
+                const subCount = sub.subcategories?.length || 0;
+                const verseCount = sub.verses?.length || 0;
+                const totalCount = subCount + verseCount;
+                const countText = subCount > 0 ? `${subCount} sous · ${verseCount} versets` : `${verseCount} verset${verseCount > 1 ? 's' : ''}`;
+                return `<div class="subcategory ${level === 2 ? 'level-2' : ''}" data-cat-id="${catId}" data-sub-id="${sub.id}" data-sub-path="${currentPath}" data-level="${level}">
+                    <div class="subcategory-header" onclick="${onClickAction}">
+                        <div class="subcategory-title-wrapper">
+                            ${dragMode ? '<span class="drag-handle" draggable="true">☰</span>' : ''}
+                            <div class="subcategory-title">
+                                ${highlight(sub.name)}
+                                 ${totalCount > 0 ? `<span class="count-badge">${countText}</span>` : ''}
+                            </div>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:12px;">
+                            <button class="icon-btn ${readOnlyMode ? 'hidden' : ''}" onclick="event.stopPropagation(); showSubMenu(event, ${catId}, ${sub.id}, ${level})">⋮</button>
+                            ${shouldOpenPage ? '<span class="chevron">→</span>' : `<span class="chevron">${sub.expanded ? '▼' : '▶'}</span>`}
+                        </div>
+                    </div>
+                    ${level === 2 ? '' : `<div class="subcategory-content ${sub.expanded ? 'expanded' : ''}">
+                        ${sub.subcategories?.length > 0 ? renderSubs(sub.subcategories, catId, level + 1, currentPath) : ''}
+                        ${sub.verses.map((v, vIdx) => {
+                            const vm = matches(v.ref) || matches(v.note || '');
+                            if (!vm && searchQuery) return '';
+                            return `<div class="verse-item" data-cat-id="${catId}" data-sub-id="${sub.id}" data-verse-id="${v.id}" data-verse-index="${vIdx}">
+                                <div class="verse-ref" onclick="openJWVerse('${v.ref}')">${highlight(v.ref)}</div>
+
+                                        ${v.note ? `<div class="verse-note">${highlight(renderFormattedNote(v.note))}</div>` : ''}
+                                        ${v.attachments && v.attachments.length > 0 ? `<div class="verse-attachments">${v.attachments.map((att, attIdx) => {
+                                            if (att.type === 'application/pdf') {
+                                                return `<div class="attachment-pdf" onclick="window.open('${att.data}', '_blank')">📄</div>`;
+                                            } else {
+                                                return `<img src="${att.data}" class="attachment-thumb" onclick="openImageViewer('${att.data}')" alt="Attachment ${attIdx + 1}">`;
+                                            }
+                                        }).join('')}</div>` : ''}
+                                    </div>
+                                </div>
+                                <button class="icon-btn ${readOnlyMode ? 'hidden' : ''}" onclick="event.stopPropagation(); showVerseMenu(event, ${catId}, ${sub.id}, ${v.id})">⋮</button>
+                            </div>`;
+                        }).join('')}
+                    </div>`}
+                </div>`;
+            }).join('');
+        }
+
+        function openSubsubPage(catId, subId) {
+            if (dragMode) return;
+            const sub = findSub(catId, subId);
+            if (!sub) return;
+            if (document.getElementById('subsubPage').classList.contains('active')) return;
+            
+            document.getElementById('pageTitle').textContent = sub.name;
+            
+            const content = sub.verses.map((v, vIdx) => {
+                return `<div class="verse-item" data-cat-id="${catId}" data-sub-id="${sub.id}" data-verse-id="${v.id}" data-verse-index="${vIdx}">
+                    <div class="verse-content">
+                        <div style="flex:1;">
+                            <div class="verse-ref">${v.ref}</div>
+                            ${v.note ? `<div class="verse-note">${renderFormattedNote(v.note)}</div>` : ''}
+                            ${v.attachments && v.attachments.length > 0 ? `<div class="verse-attachments">${v.attachments.map((att, attIdx) => {
+                                if (att.type === 'application/pdf') {
+                                    return `<div class="attachment-pdf" onclick="window.open('${att.data}', '_blank')">📄</div>`;
+                                } else {
+                                    return `<img src="${att.data}" class="attachment-thumb" onclick="openImageViewer('${att.data}')" alt="Attachment ${attIdx + 1}">`;
+                                }
+                            }).join('')}</div>` : ''}
+                        </div>
+                    </div>
+                    <button class="icon-btn ${readOnlyMode ? 'hidden' : ''}" onclick="event.stopPropagation(); showVerseMenu(event, ${catId}, ${sub.id}, ${v.id})">⋮</button>
+                </div>`;
+            }).join('');
+            
+            document.getElementById('pageContent').innerHTML = content || '<div class="empty-state"><p>Aucun verset</p></div>';
+            setTimeout(() => document.getElementById('subsubPage').classList.add('active'), 50);
+        }
+
+        function closePage() {
+            document.getElementById('subsubPage').classList.remove('active');
+        }
+
+        function showCatMenu(e, catId) {
+            showMenu(e, [
+                { label: dragMode ? '✓ Réorganiser' : 'Réorganiser', action: () => toggleDragMode() },
+                { label: '+ Sous-catégorie', action: () => openAddSubModal(catId) },
+                { label: 'Modifier', action: () => openEditCatModal(catId) },
+                { label: 'Supprimer', action: () => deleteCat(catId), danger: true }
+            ]);
+        }
+
+        function showSubMenu(e, catId, subId, level) {
+            const items = [{ label: dragMode ? '✓ Réorganiser' : 'Réorganiser', action: () => toggleDragMode() }];
+            if (level < 2) items.push({ label: '+ Sous-sous-catégorie', action: () => openAddSubModal(catId, subId) });
+            items.push(
+                { label: '+ Verset', action: () => openAddVerseModal(catId, subId) },
+                { label: 'Modifier', action: () => openEditSubModal(catId, subId) },
+                { label: 'Supprimer', action: () => deleteSub(catId, subId), danger: true }
+            );
+            showMenu(e, items);
+        }
+
+        function showVerseMenu(e, catId, subId, verseId) {
+            showMenu(e, [
+                { label: dragMode ? '✓ Réorganiser' : 'Réorganiser', action: () => toggleDragMode() },
+                { label: 'Modifier', action: () => openEditVerseModal(catId, subId, verseId) },
+                { label: 'Supprimer', action: () => deleteVerse(catId, subId, verseId), danger: true }
+            ]);
+        }
+
+        function render() {
+            const container = document.getElementById('categoriesContainer');
+            if (data.categories.length === 0) {
+                container.innerHTML = '';
+                document.getElementById('emptyState').style.display = 'block';
+                return;
+            }
+            document.getElementById('emptyState').style.display = 'none';
+            container.innerHTML = data.categories.map((cat, idx) => {
+                const hasMatch = matches(cat.name) || cat.subcategories.some(s => matches(s.name) || s.verses.some(v => matches(v.ref) || matches(v.note || '')));
+                if (!hasMatch && searchQuery) return '';
+                return `<div class="category-card" data-cat-index="${idx}" data-cat-id="${cat.id}">
+                    <div class="category-header" onclick="if(!dragMode)toggleCat(${cat.id})">
+                        <div class="category-title-wrapper">
+                            ${dragMode ? '<span class="drag-handle" draggable="true">☰</span>' : ''}
+                            <div class="category-title">${highlight(cat.name)}</div>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:12px;">
+                            <button class="icon-btn ${readOnlyMode ? 'hidden' : ''}" onclick="event.stopPropagation(); showCatMenu(event, ${cat.id})">⋮</button>
+                            <span class="chevron">${cat.expanded ? '▼' : '▶'}</span>
+                        </div>
+                    </div>
+                    <div class="category-content ${cat.expanded ? 'expanded' : ''}">
+                        ${renderSubs(cat.subcategories, cat.id)}
+                    </div>
+                </div>`;
+            }).join('');
+            
+            // ✅ Attacher les event listeners pour iOS/iPad
+            attachEventListeners();
+            
+            if (dragMode) setupDragDrop();
+        }
+        
+        // ✅ Nouvelle fonction pour attacher les event listeners (meilleure compatibilité iOS)
+        function attachEventListeners() {
+            // Event listeners pour les en-têtes de catégories
+            document.querySelectorAll('.category-header').forEach(header => {
+                const catCard = header.closest('.category-card');
+                if (!catCard) return;
+                const catId = parseInt(catCard.dataset.catId);
+                
+                // Supprimer les anciens listeners si présents
+                header.replaceWith(header.cloneNode(true));
+                const newHeader = catCard.querySelector('.category-header');
+                
+                newHeader.addEventListener('click', (e) => {
+                    // Ignorer si on clique sur un bouton
+                    if (e.target.closest('button') || e.target.closest('.icon-btn')) {
+                        return;
+                    }
+                    if (!dragMode) {
+                        toggleCat(catId);
+                    }
+                });
+                
+                // Support tactile pour iOS
+                newHeader.addEventListener('touchend', (e) => {
+                    if (e.target.closest('button') || e.target.closest('.icon-btn')) {
+                        return;
+                    }
+                    if (!dragMode) {
+                        e.preventDefault();
+                        toggleCat(catId);
+                    }
+                }, { passive: false });
+            });
+            
+            // Event listeners pour les en-têtes de sous-catégories
+            document.querySelectorAll('.subcategory-header').forEach(header => {
+                const subDiv = header.closest('.subcategory');
+                if (!subDiv) return;
+                const catId = parseInt(subDiv.dataset.catId);
+                const subId = parseInt(subDiv.dataset.subId);
+                const level = parseInt(subDiv.dataset.level);
+                
+                // Déterminer l'action selon le niveau
+                const sub = findSub(catId, subId);
+                if (!sub) return;
+                
+                const hasSubSubcategories = sub.subcategories && sub.subcategories.length > 0;
+                const shouldOpenPage = level === 2 || (level === 1 && !hasSubSubcategories);
+                
+                // Supprimer les anciens listeners
+                header.replaceWith(header.cloneNode(true));
+                const newHeader = subDiv.querySelector('.subcategory-header');
+                
+                newHeader.addEventListener('click', (e) => {
+                    if (e.target.closest('button') || e.target.closest('.icon-btn')) {
+                        return;
+                    }
+                    if (!dragMode) {
+                        if (shouldOpenPage) {
+                            openSubsubPage(catId, subId);
+                        } else {
+                            toggleSub(catId, subId);
+                        }
+                    }
+                });
+                
+                // Support tactile pour iOS
+                newHeader.addEventListener('touchend', (e) => {
+                    if (e.target.closest('button') || e.target.closest('.icon-btn')) {
+                        return;
+                    }
+                    if (!dragMode) {
+                        e.preventDefault();
+                        if (shouldOpenPage) {
+                            openSubsubPage(catId, subId);
+                        } else {
+                            toggleSub(catId, subId);
+                        }
+                    }
+                }, { passive: false });
+            });
+        }
+
+        function openModal(id) { 
+            document.getElementById(id).classList.add('show'); 
+            setTimeout(() => {
+                const modal = document.getElementById(id);
+                const firstInput = modal.querySelector('input[type="text"], textarea');
+                if (firstInput) firstInput.focus();
+            }, 100);
+        }
+        
+        function closeModal(id) { 
+            document.getElementById(id).classList.remove('show'); 
+        }
+
+        function addCategory() {
+            const name = document.getElementById('categoryName').value.trim();
+            if (!name) return;
+            data.categories.push({ id: Date.now(), name, expanded: true, subcategories: [], lastModified: Date.now() });
+            saveData();
+            render();
+            closeModal('addCategoryModal');
+            document.getElementById('categoryName').value = '';
+        }
+
+        function openEditCatModal(catId) {
+            editItem = { type: 'cat', id: catId };
+            const cat = data.categories.find(c => c.id === catId);
+            document.getElementById('editCategoryName').value = cat.name;
+            openModal('editCategoryModal');
+        }
+
+        function saveEditCategory() {
+            const cat = data.categories.find(c => c.id === editItem.id);
+            if (cat) { 
+                cat.name = document.getElementById('editCategoryName').value.trim(); 
+                cat.lastModified = Date.now();
+                saveData(); 
+                render(); 
+            }
+            closeModal('editCategoryModal');
+        }
+
+        function openAddSubModal(catId, parentSubId = null) {
+            currentCat = catId;
+            currentSub = parentSubId;
+            document.getElementById('subcategoryName').value = '';
+            document.getElementById('subModalTitle').textContent = parentSubId ? 'Nouvelle Sous-sous-catégorie' : 'Nouvelle Sous-catégorie';
+            openModal('addSubcategoryModal');
+        }
+
+        function addSubcategory() {
+            const name = document.getElementById('subcategoryName').value.trim();
+            if (!name) return;
+            if (currentSub) {
+                const parentSub = findSub(currentCat, currentSub);
+                if (parentSub) {
+                    if (!parentSub.subcategories) parentSub.subcategories = [];
+                    parentSub.subcategories.push({ id: Date.now(), name, expanded: true, verses: [], subcategories: [], lastModified: Date.now() });
+                    parentSub.lastModified = Date.now();
+                }
+            } else {
+                const cat = data.categories.find(c => c.id === currentCat);
+                if (cat) {
+                    cat.subcategories.push({ id: Date.now(), name, expanded: true, verses: [], subcategories: [], lastModified: Date.now() });
+                    cat.lastModified = Date.now();
+                }
+            }
+            saveData();
+            render();
+            closeModal('addSubcategoryModal');
+        }
+
+        function openEditSubModal(catId, subId) {
+            editItem = { type: 'sub', catId, id: subId };
+            const sub = findSub(catId, subId);
+            if (sub) {
+                document.getElementById('editSubcategoryName').value = sub.name;
+                openModal('editSubcategoryModal');
+            }
+        }
+
+        function saveEditSubcategory() {
+            const sub = findSub(editItem.catId, editItem.id);
+            if (sub) { 
+                sub.name = document.getElementById('editSubcategoryName').value.trim(); 
+                sub.lastModified = Date.now();
+                saveData(); 
+                render(); 
+            }
+            closeModal('editSubcategoryModal');
+        }
+
+        function openAddVerseModal(catId, subId) {
+            currentCat = catId;
+            currentSub = subId;
+            document.getElementById('verseRef').value = '';
+            document.getElementById('verseNote').innerHTML = '';
+            document.getElementById('verseFiles').value = '';
+            document.getElementById('addFilesPreview').innerHTML = '';
+            tempAttachments = [];
+            openModal('addVerseModal');
+        }
+
+        function addVerse() {
+            const ref = document.getElementById('verseRef').value.trim();
+            const noteHTML = document.getElementById('verseNote').innerHTML.trim();
+            const note = noteHTML.replace(/<br\s*\/?>/gi, '\n');
+            if (!ref) return;
+            const sub = findSub(currentCat, currentSub);
+            if (sub) { 
+                sub.verses.push({ 
+                    id: Date.now(), 
+                    ref, 
+                    note, 
+                    attachments: [...tempAttachments],
+                    lastModified: Date.now()
+                });
+                sub.lastModified = Date.now();
+                saveData(); 
+                render(); 
+            }
+            closeModal('addVerseModal');
+            tempAttachments = [];
+        }
+
+        function openEditVerseModal(catId, subId, verseId) {
+            editItem = { type: 'verse', catId, subId, id: verseId };
+            const sub = findSub(catId, subId);
+            if (sub) {
+                const verse = sub.verses.find(v => v.id === verseId);
+                if (verse) {
+                    document.getElementById('editVerseRef').value = verse.ref;
+                    const noteHTML = (verse.note || '').replace(/\n/g, '<br>');
+                    document.getElementById('editVerseNote').innerHTML = noteHTML;
+                    document.getElementById('editVerseFiles').value = '';
+                    tempAttachments = verse.attachments ? [...verse.attachments] : [];
+                    displayEditAttachments();
+                    openModal('editVerseModal');
+                }
+            }
+        }
+
+        function saveEditVerse() {
+            const sub = findSub(editItem.catId, editItem.subId);
+            if (sub) {
+                const verse = sub.verses.find(v => v.id === editItem.id);
+                if (verse) {
+                    verse.ref = document.getElementById('editVerseRef').value.trim();
+                    const noteHTML = document.getElementById('editVerseNote').innerHTML.trim();
+                    verse.note = noteHTML.replace(/<br\s*\/?>/gi, '\n');
+                    verse.attachments = [...tempAttachments];
+                    verse.lastModified = Date.now();
+                    sub.lastModified = Date.now();
+                    saveData();
+                    render();
+                }
+            }
+            closeModal('editVerseModal');
+            tempAttachments = [];
+        }
+
+        async function deleteCat(catId) {
+    if (!confirm('Supprimer cette catégorie ?')) return;
+
+    // Marquer comme supprimée
+    deletedItems.categories.push({
+        id: catId,
+        deletedAt: Date.now()
+    });
+
+    // Sauvegarder deletedItems dans IndexedDB
+    await saveDeletedItemsToIndexedDB();
+
+    // Supprimer localement
+    data.categories = data.categories.filter(c => c.id !== catId);
+    await saveData(); // saveData fait déjà saveToIndexedDB et déclenche éventuellement sync
+    render();
+
+    // Forcer une sync rapide vers GitHub (propager la suppression)
+    if (githubToken) {
+        try {
+            await syncWithGithub(false);
+        } catch (err) {
+            console.warn('⚠️ Sync après suppression échouée:', err);
+        }
+    }
+}
+
+
+        function deleteSubRec(subs, subId) {
+            for (let i = 0; i < subs.length; i++) {
+                if (subs[i].id === subId) { subs.splice(i, 1); return true; }
+                if (subs[i].subcategories?.length > 0 && deleteSubRec(subs[i].subcategories, subId)) return true;
+            }
+            return false;
+        }
+
+        // ✅ Nouvelle version de deleteSub
+async function deleteSub(catId, subId) {
+    if (!confirm('Supprimer cette sous-catégorie ?')) return;
+
+    // 1️⃣ Marquer comme supprimée
+    deletedItems.subcategories.push({
+        id: subId,
+        deletedAt: Date.now()
+    });
+
+    // 2️⃣ Sauvegarder les suppressions dans IndexedDB
+    await saveDeletedItemsToIndexedDB();
+
+    // 3️⃣ Supprimer localement la sous-catégorie (récursif)
+    const cat = data.categories.find(c => c.id === catId);
+    if (cat) {
+        deleteSubRec(cat.subcategories, subId);
+    }
+
+    // 4️⃣ Sauvegarder les nouvelles données localement et sync
+    await saveData();
+    render();
+
+    // 5️⃣ Forcer la synchronisation GitHub (propager suppression)
+    if (githubToken) {
+        try {
+            await syncWithGithub(false);
+        } catch (err) {
+            console.warn('⚠️ Sync après suppression échouée:', err);
+        }
+    }
+}
+
+
+        async function deleteVerse(catId, subId, verseId) {
+    if (!confirm('Supprimer ce verset ?')) return;
+
+    // Marquer comme supprimée
+    deletedItems.verses.push({
+        id: verseId,
+        deletedAt: Date.now()
+    });
+
+    await saveDeletedItemsToIndexedDB();
+
+    // Supprimer localement
+    const sub = findSub(catId, subId);
+    if (sub) { 
+        sub.verses = sub.verses.filter(v => v.id !== verseId); 
+        await saveData(); 
+        render(); 
+    }
+
+    if (githubToken) {
+        try { await syncWithGithub(false); } catch (err) { console.warn('⚠️ Sync après suppression échouée:', err); }
+    }
+}
+
+
+        function exportData() {
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `index-biblique-${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+        }
+
+        async function checkStorageSize() {
+    try {
+        const sizeInBytes = await getIndexedDBSize();
+        const sizeInKB = (sizeInBytes / 1024).toFixed(2);
+        const sizeInMB = (sizeInBytes / 1024 / 1024).toFixed(2);
+        
+        // IndexedDB a une limite beaucoup plus élevée (généralement 1GB+)
+        const estimatedQuota = 1024; // MB (approximatif)
+        const percentUsed = ((sizeInBytes / (estimatedQuota * 1024 * 1024)) * 100).toFixed(1);
+        
+        function countFilesRecursive(subcategories) {
+            let imgCount = 0;
+            let pdfCountLocal = 0;
+            
+            subcategories.forEach(sub => {
+                if (sub.verses) {
+                    sub.verses.forEach(v => {
+                        if (v.attachments) {
+                            v.attachments.forEach(att => {
+                                if (att.type.startsWith('image/')) imgCount++;
+                                if (att.type === 'application/pdf') pdfCountLocal++;
+                            });
+                        }
+                    });
+                }
+                if (sub.subcategories && sub.subcategories.length > 0) {
+                    const subCounts = countFilesRecursive(sub.subcategories);
+                    imgCount += subCounts.images;
+                    pdfCountLocal += subCounts.pdfs;
+                }
+            });
+            
+            return { images: imgCount, pdfs: pdfCountLocal };
+        }
+        
+        let imageCount = 0;
+        let pdfCount = 0;
+        
+        data.categories.forEach(cat => {
+            const counts = countFilesRecursive(cat.subcategories);
+            imageCount += counts.images;
+            pdfCount += counts.pdfs;
+        });
+        
+        alert(`📊 INFORMATIONS DE STOCKAGE\n\n` +
+              `Type: IndexedDB (Navigateur)\n` +
+              `Taille: ${sizeInKB} KB (${sizeInMB} MB)\n` +
+              `Utilisation: ${percentUsed}% de la limite estimée\n` +
+              `Limite estimée: ~${estimatedQuota} MB\n\n` +
+              `📎 Fichiers attachés:\n` +
+              `Images: ${imageCount}\n` +
+              `PDF: ${pdfCount}\n\n` +
+              `${percentUsed > 80 ? '⚠️ ATTENTION: Proche de la limite !' : '✅ Espace suffisant'}`);
+    } catch (err) {
+        alert('❌ Erreur lors du calcul de la taille');
+        console.error(err);
+    }
+}
+        
+        let pendingImportData = null;
+
+        function importData(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    try {
+                        pendingImportData = JSON.parse(ev.target.result);
+                        openModal('mergeModal');
+                    } catch (err) {
+                        alert('❌ Erreur lors de l\'import');
+                        console.error(err);
+                    }
+                };
+                reader.readAsText(file);
+            }
+        }
+
+        async function confirmMerge(shouldMerge) {
+    closeModal('mergeModal');
+    
+    try {
+        if (shouldMerge) {
+            mergeData(pendingImportData);
+        } else {
+            data = JSON.parse(JSON.stringify(pendingImportData));
+        }
+        
+        await saveToIndexedDB(STORAGE_KEY, data);
+        const verification = await loadFromIndexedDB(STORAGE_KEY);
+        
+        if (!verification) {
+            throw new Error('La sauvegarde a échoué');
+        }
+        
+        data = verification;
+        render();
+        
+        alert(shouldMerge ? '✅ Données fusionnées avec succès !' : '✅ Données remplacées avec succès !');
+            
+    } catch (err) {
+        console.error('❌ Erreur:', err);
+        alert('❌ Erreur lors de l\'import:\n\n' + err.message);
+        
+        try {
+            const oldData = await loadFromIndexedDB(STORAGE_KEY);
+            if (oldData) {
+                data = oldData;
+                render();
+            }
+        } catch (restoreErr) {
+            console.error('Impossible de restaurer les anciennes données');
+        }
+    }
+    
+    pendingImportData = null;
+    document.getElementById('importFile').value = '';
+}
+
+        function cancelImport() {
+            closeModal('mergeModal');
+            pendingImportData = null;
+            document.getElementById('importFile').value = '';
+        }
+
+        function mergeData(importedData) {
+    if (!importedData.categories) return;
+    
+    console.log('🔀 FUSION - Données GitHub:', importedData.categories.length, 'catégories');
+    console.log('🔀 FUSION - Données locales:', data.categories.length, 'catégories');
+    console.log('🗑️ Éléments supprimés localement:', deletedItems);
+    
+    // Créer une map des catégories locales par ID
+    const localCategoriesMap = new Map();
+    data.categories.forEach(cat => {
+        localCategoriesMap.set(cat.id, cat);
+    });
+    
+    // Parcourir les catégories importées
+    importedData.categories.forEach(importedCat => {
+        // Vérifier si cette catégorie a été supprimée localement
+        const wasDeleted = deletedItems.categories.find(d => d.id === importedCat.id);
+        if (wasDeleted) {
+            console.log(`🗑️ Catégorie ${importedCat.id} ignorée (supprimée localement)`);
+            return; // Ne pas la réimporter
+        }
+        
+        const existingCat = localCategoriesMap.get(importedCat.id);
+        
+        if (existingCat) {
+            // La catégorie existe déjà, fusionner
+            console.log(`🔀 Catégorie ${importedCat.id} existe déjà, fusion...`);
+            mergeCategoryData(existingCat, importedCat);
+        } else {
+            // Nouvelle catégorie, l'ajouter
+            console.log(`➕ Nouvelle catégorie ${importedCat.id} ajoutée depuis GitHub`);
+            data.categories.push(importedCat);
+        }
+    });
+    
+    console.log('🔀 FUSION TERMINÉE - Total:', data.categories.length, 'catégories');
+}
+
+function mergeCategoryData(existing, imported) {
+    // Comparer les timestamps
+    const existingTime = existing.lastModified || 0;
+    const importedTime = imported.lastModified || 0;
+    
+    console.log(`   Catégorie "${existing.name}" - Local: ${existingTime}, GitHub: ${importedTime}`);
+    
+    // Si GitHub est plus récent, mettre à jour le nom ET l'état expanded
+    if (importedTime > existingTime) {
+        console.log(`   ⬇️ GitHub plus récent, mise à jour du nom et expanded`);
+        existing.name = imported.name;
+        existing.expanded = imported.expanded; // ✅ AJOUTÉ : fusionner expanded
+        existing.lastModified = imported.lastModified;
+    }
+    
+    if (imported.subcategories) {
+        if (!existing.subcategories) existing.subcategories = [];
+        
+        // Créer une map des sous-catégories locales par ID
+        const localSubsMap = new Map();
+        existing.subcategories.forEach(sub => {
+            localSubsMap.set(sub.id, sub);
+        });
+        
+        imported.subcategories.forEach(importedSub => {
+            const existingSub = localSubsMap.get(importedSub.id);
+            
+            if (existingSub) {
+                console.log(`   🔀 Sous-catégorie ${importedSub.id} existe, fusion...`);
+                mergeSubcategoryData(existingSub, importedSub);
+            } else {
+                console.log(`   ➕ Nouvelle sous-catégorie ${importedSub.id} ajoutée`);
+                existing.subcategories.push(importedSub);
+            }
+        });
+    }
+}
+
+function mergeSubcategoryData(existing, imported) {
+    const existingTime = existing.lastModified || 0;
+    const importedTime = imported.lastModified || 0;
+    
+    // Si GitHub est plus récent, mettre à jour name ET expanded
+    if (importedTime > existingTime) {
+        existing.name = imported.name;
+        existing.expanded = imported.expanded; // ✅ AJOUTÉ : fusionner expanded
+        existing.lastModified = imported.lastModified;
+    }
+    
+    // Fusionner les versets
+    if (imported.verses) {
+        if (!existing.verses) existing.verses = [];
+        
+        const localVersesMap = new Map();
+        existing.verses.forEach(v => {
+            localVersesMap.set(v.id, v);
+        });
+        
+        imported.verses.forEach(importedVerse => {
+            // Vérifier si ce verset a été supprimé localement
+            const wasDeleted = deletedItems.verses.find(d => d.id === importedVerse.id);
+            if (wasDeleted) {
+                console.log(`   🗑️ Verset ${importedVerse.id} ignoré (supprimé localement)`);
+                return;
+            }
+            
+            const existingVerse = localVersesMap.get(importedVerse.id);
+            
+            if (existingVerse) {
+                // Le verset existe, comparer les timestamps
+                const vExistingTime = existingVerse.lastModified || 0;
+                const vImportedTime = importedVerse.lastModified || 0;
+                
+                if (vImportedTime > vExistingTime) {
+                    // GitHub plus récent, remplacer
+                    existingVerse.ref = importedVerse.ref;
+                    existingVerse.note = importedVerse.note;
+                    existingVerse.attachments = importedVerse.attachments;
+                    existingVerse.lastModified = importedVerse.lastModified;
+                }
+            } else {
+                // Nouveau verset depuis GitHub
+                existing.verses.push(importedVerse);
+            }
+        });
+    }
+    
+    // Fusionner les sous-sous-catégories
+    if (imported.subcategories) {
+        if (!existing.subcategories) existing.subcategories = [];
+        
+        const localSubSubsMap = new Map();
+        existing.subcategories.forEach(subsub => {
+            localSubSubsMap.set(subsub.id, subsub);
+        });
+        
+        imported.subcategories.forEach(importedSubSub => {
+            // Vérifier si cette sous-catégorie a été supprimée localement
+            const wasDeleted = deletedItems.subcategories.find(d => d.id === importedSubSub.id);
+            if (wasDeleted) {
+                console.log(`   🗑️ Sous-catégorie ${importedSubSub.id} ignorée (supprimée localement)`);
+                return;
+            }
+            
+            const existingSubSub = localSubSubsMap.get(importedSubSub.id);
+            
+            if (existingSubSub) {
+                mergeSubcategoryData(existingSubSub, importedSubSub);
+            } else {
+                existing.subcategories.push(importedSubSub);
+            }
+        });
+    }
+}
+        
+        function cleanOldDeletions() {
+    const thirtyDaysAgo = Date.now() - (30 * 24 * 60 * 60 * 1000);
+    
+    deletedItems.categories = deletedItems.categories.filter(d => d.deletedAt > thirtyDaysAgo);
+    deletedItems.subcategories = deletedItems.subcategories.filter(d => d.deletedAt > thirtyDaysAgo);
+    deletedItems.verses = deletedItems.verses.filter(d => d.deletedAt > thirtyDaysAgo);
+    
+    localStorage.setItem('deletedItems', JSON.stringify(deletedItems));
+}
+        function mergeDeletedItems(remoteDeletedItems) {
+    console.log('🔀 Fusion des suppressions...');
+    
+    // Fusionner les catégories supprimées
+    remoteDeletedItems.categories?.forEach(remoteDel => {
+        const existingDel = deletedItems.categories.find(d => d.id === remoteDel.id);
+        if (!existingDel) {
+            // Nouvelle suppression de GitHub
+            console.log(`🗑️ Ajout suppression catégorie ${remoteDel.id} depuis GitHub`);
+            deletedItems.categories.push(remoteDel);
+        } else if (remoteDel.deletedAt > existingDel.deletedAt) {
+            // Suppression GitHub plus récente
+            existingDel.deletedAt = remoteDel.deletedAt;
+        }
+    });
+    
+    // Fusionner les sous-catégories supprimées
+    remoteDeletedItems.subcategories?.forEach(remoteDel => {
+        const existingDel = deletedItems.subcategories.find(d => d.id === remoteDel.id);
+        if (!existingDel) {
+            console.log(`🗑️ Ajout suppression sous-catégorie ${remoteDel.id} depuis GitHub`);
+            deletedItems.subcategories.push(remoteDel);
+        } else if (remoteDel.deletedAt > existingDel.deletedAt) {
+            existingDel.deletedAt = remoteDel.deletedAt;
+        }
+    });
+    
+    // Fusionner les versets supprimés
+    remoteDeletedItems.verses?.forEach(remoteDel => {
+        const existingDel = deletedItems.verses.find(d => d.id === remoteDel.id);
+        if (!existingDel) {
+            console.log(`🗑️ Ajout suppression verset ${remoteDel.id} depuis GitHub`);
+            deletedItems.verses.push(remoteDel);
+        } else if (remoteDel.deletedAt > existingDel.deletedAt) {
+            existingDel.deletedAt = remoteDel.deletedAt;
+        }
+    });
+    
+    // Sauvegarder les suppressions fusionnées
+    localStorage.setItem('deletedItems', JSON.stringify(deletedItems));
+    console.log('✅ Suppressions fusionnées');
+}
+        function applyDeletions() {
+    console.log('🗑️ Application des suppressions aux données locales...');
+    
+    // Supprimer les catégories marquées comme supprimées
+    deletedItems.categories.forEach(del => {
+        const index = data.categories.findIndex(c => c.id === del.id);
+        if (index !== -1) {
+            console.log(`🗑️ Suppression de la catégorie ${del.id}`);
+            data.categories.splice(index, 1);
+        }
+    });
+    
+    // Supprimer les sous-catégories et versets marqués comme supprimés
+    data.categories.forEach(cat => {
+        applyDeletionsRecursive(cat.subcategories);
+    });
+    
+    console.log('✅ Suppressions appliquées');
+}
+
+function applyDeletionsRecursive(subcategories) {
+    if (!subcategories) return;
+    
+    // Supprimer les sous-catégories marquées
+    for (let i = subcategories.length - 1; i >= 0; i--) {
+        const sub = subcategories[i];
+        const wasDeleted = deletedItems.subcategories.find(d => d.id === sub.id);
+        if (wasDeleted) {
+            console.log(`   🗑️ Suppression de la sous-catégorie ${sub.id}`);
+            subcategories.splice(i, 1);
+            continue;
+        }
+        
+        // Supprimer les versets marqués
+        if (sub.verses) {
+            for (let j = sub.verses.length - 1; j >= 0; j--) {
+                const verse = sub.verses[j];
+                const verseDeleted = deletedItems.verses.find(d => d.id === verse.id);
+                if (verseDeleted) {
+                    console.log(`   🗑️ Suppression du verset ${verse.id}`);
+                    sub.verses.splice(j, 1);
+                }
+            }
+        }
+        
+        // Récursion pour les sous-sous-catégories
+        if (sub.subcategories && sub.subcategories.length > 0) {
+            applyDeletionsRecursive(sub.subcategories);
+        }
+    }
+}
+
+function findSubInArray(subsArray, subId) {
+    for (let sub of subsArray) {
+        if (sub.id === subId) return sub;
+        if (sub.subcategories?.length > 0) {
+            const found = findSubInArray(sub.subcategories, subId);
+            if (found) return found;
+        }
+    }
+    return null;
+}
+        
+        function handleFileSelect(event, mode) {
+            const files = event.target.files;
+            if (!files.length) return;
+            
+            Array.from(files).forEach(file => {
+                if (file.type === 'application/pdf') {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const attachment = {
+                            name: file.name,
+                            type: file.type,
+                            data: e.target.result
+                        };
+                        tempAttachments.push(attachment);
+                        if (mode === 'add') {
+                            displayAddAttachments();
+                        } else {
+                            displayEditAttachments();
+                        }
+                    };
+                    reader.readAsDataURL(file);
+                } 
+                else if (file.type.startsWith('image/')) {
+                    compressImage(file, (compressedData) => {
+                        const attachment = {
+                            name: file.name,
+                            type: file.type,
+                            data: compressedData
+                        };
+                        tempAttachments.push(attachment);
+                        if (mode === 'add') {
+                            displayAddAttachments();
+                        } else {
+                            displayEditAttachments();
+                        }
+                    });
+                }
+            });
+        }
+
+        function compressImage(file, callback) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const MAX_WIDTH = 1200;
+                    const MAX_HEIGHT = 1200;
+                    
+                    let width = img.width;
+                    let height = img.height;
+                    
+                    if (width > height) {
+                        if (width > MAX_WIDTH) {
+                            height = height * (MAX_WIDTH / width);
+                            width = MAX_WIDTH;
+                        }
+                    } else {
+                        if (height > MAX_HEIGHT) {
+                            width = width * (MAX_HEIGHT / height);
+                            height = MAX_HEIGHT;
+                        }
+                    }
+                    
+                    canvas.width = width;
+                    canvas.height = height;
+                    
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+                    
+                    const compressedData = canvas.toDataURL('image/jpeg', 0.8);
+                    callback(compressedData);
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function displayAddAttachments() {
+            const container = document.getElementById('addFilesPreview');
+            container.innerHTML = tempAttachments.map((att, idx) => {
+                const isImage = att.type.startsWith('image/');
+                const isPdf = att.type === 'application/pdf';
+                const sizeKB = (att.data.length / 1024).toFixed(1);
+                return `<div class="attached-file-item">
+                    ${isImage ? `<img src="${att.data}" class="attached-file-preview" alt="${att.name}">` : 
+                      isPdf ? `<div class="attached-file-preview" style="background: var(--bg-tertiary); display: flex; align-items: center; justify-content: center; font-size: 20px;">📄</div>` : ''}
+                    <div class="attached-file-info">
+                        <div class="attached-file-name">${att.name}</div>
+                        <div>${sizeKB} KB ${isImage ? '✓ compressé' : ''}</div>
+                    </div>
+                    <button class="remove-file-btn" onclick="removeAttachment(${idx}, 'add')">×</button>
+                </div>`;
+            }).join('');
+        }
+
+        function displayEditAttachments() {
+            const container = document.getElementById('editFilesPreview');
+            container.innerHTML = tempAttachments.map((att, idx) => {
+                const isImage = att.type.startsWith('image/');
+                const isPdf = att.type === 'application/pdf';
+                const sizeKB = (att.data.length / 1024).toFixed(1);
+                return `<div class="attached-file-item">
+                    ${isImage ? `<img src="${att.data}" class="attached-file-preview" alt="${att.name}">` : 
+                      isPdf ? `<div class="attached-file-preview" style="background: var(--bg-tertiary); display: flex; align-items: center; justify-content: center; font-size: 20px;">📄</div>` : ''}
+                    <div class="attached-file-info">
+                        <div class="attached-file-name">${att.name}</div>
+                        <div>${sizeKB} KB ${isImage ? '✓ compressé' : ''}</div>
+                    </div>
+                    <button class="remove-file-btn" onclick="removeAttachment(${idx}, 'edit')">×</button>
+                </div>`;
+            }).join('');
+        }
+
+        function removeAttachment(index, mode) {
+            tempAttachments.splice(index, 1);
+            if (mode === 'add') {
+                displayAddAttachments();
+            } else {
+                displayEditAttachments();
+            }
+        }
+
+        function openImageViewer(src) {
+            document.getElementById('imageViewerContent').src = src;
+            document.getElementById('imageViewer').classList.add('show');
+        }
+
+        function closeImageViewer() {
+            document.getElementById('imageViewer').classList.remove('show');
+        }
+
+        function toggleFormat(editorId, format) {
+            const editor = document.getElementById(editorId);
+            editor.focus();
+            
+            if (format === 'bold') {
+                document.execCommand('bold', false, null);
+            } else if (format === 'italic') {
+                document.execCommand('italic', false, null);
+            } else if (format === 'underline') {
+                document.execCommand('underline', false, null);
+            }
+            
+            updateFormatButtons(editorId);
+        }
+
+        function updateFormatButtons(editorId) {
+            const toolbar = document.getElementById(editorId).previousElementSibling;
+            if (!toolbar || !toolbar.classList.contains('formatting-toolbar')) return;
+            
+            const buttons = toolbar.querySelectorAll('.format-btn');
+            buttons.forEach(btn => {
+                const title = btn.getAttribute('title');
+                if (title === 'Gras') {
+                    btn.classList.toggle('active', document.queryCommandState('bold'));
+                } else if (title === 'Italique') {
+                    btn.classList.toggle('active', document.queryCommandState('italic'));
+                } else if (title === 'Souligné') {
+                    btn.classList.toggle('active', document.queryCommandState('underline'));
+                }
+            });
+        }
+
+        function handleEditorKeydown(event, editorId) {
+            if (event.key === 'Enter' && event.ctrlKey) {
+                event.preventDefault();
+                if (editorId === 'verseNote') {
+                    addVerse();
+                } else if (editorId === 'editVerseNote') {
+                    saveEditVerse();
+                }
+                return;
+            }
+            
+            setTimeout(() => updateFormatButtons(editorId), 10);
+        }
+
+        function getSubcategoryByPath(catId, path) {
+            const cat = data.categories.find(c => c.id === catId);
+            if (!cat) return null;
+            
+            const indices = path.split('-').map(n => parseInt(n));
+            let current = cat.subcategories;
+            let parent = cat.subcategories;
+            
+            for (let i = 0; i < indices.length; i++) {
+                const idx = indices[i];
+                if (!current[idx]) return null;
+                
+                if (i === indices.length - 1) {
+                    return { parent: parent, index: idx, item: current[idx] };
+                } else {
+                    parent = current[idx].subcategories;
+                    current = current[idx].subcategories;
+                }
+            }
+            return null;
+        }
+
+        function setupDragDrop() {
+            let touchStartY = 0;
+            let touchStartX = 0;
+            let isDragging = false;
+            
+            // Catégories
+            const catHandles = document.querySelectorAll('.category-card > .category-header .drag-handle');
+            catHandles.forEach(handle => {
+                const card = handle.closest('.category-card');
+                handle.setAttribute('draggable', 'true');
+                
+                handle.addEventListener('dragstart', (e) => {
+                    draggedItem = { type: 'category', index: parseInt(card.dataset.catIndex) };
+                    e.dataTransfer.effectAllowed = 'move';
+                    setTimeout(() => card.classList.add('dragging'), 0);
+                });
+                
+                handle.addEventListener('dragend', () => {
+                    card.classList.remove('dragging');
+                    draggedItem = null;
+                });
+                
+                handle.addEventListener('touchstart', (e) => {
+                    if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') e.preventDefault();
+                    touchStartY = e.touches[0].clientY;
+                    touchStartX = e.touches[0].clientX;
+                    isDragging = true;
+                    draggedItem = { type: 'category', index: parseInt(card.dataset.catIndex) };
+                    card.classList.add('dragging');
+                });
+                
+                handle.addEventListener('touchend', (e) => {
+                    if (!isDragging) return;
+                    e.preventDefault();
+                    card.classList.remove('dragging');
+                    const touch = e.changedTouches[0];
+                    const dropTarget = document.elementFromPoint(touch.clientX, touch.clientY);
+                    const targetCard = dropTarget?.closest('.category-card');
+                    if (targetCard && draggedItem?.type === 'category') {
+                        const toIndex = parseInt(targetCard.dataset.catIndex);
+                        const fromIndex = draggedItem.index;
+                        if (fromIndex !== toIndex) {
+                            const [moved] = data.categories.splice(fromIndex, 1);
+                            data.categories.splice(toIndex, 0, moved);
+                            saveData();
+                            render();
+                        }
+                    }
+                    draggedItem = null;
+                    isDragging = false;
+                });
+            });
+            
+            const cats = document.querySelectorAll('.category-card');
+            cats.forEach(card => {
+                card.addEventListener('dragover', (e) => {
+                    if (draggedItem?.type === 'category') e.preventDefault();
+                });
+                card.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    if (draggedItem?.type === 'category') {
+                        const toIndex = parseInt(card.dataset.catIndex);
+                        const fromIndex = draggedItem.index;
+                        if (fromIndex !== toIndex) {
+                            const [moved] = data.categories.splice(fromIndex, 1);
+                            data.categories.splice(toIndex, 0, moved);
+                            saveData();
+                            render();
+                        }
+                    }
+                });
+            });
+
+            // Sous-catégories
+            const subHandles = document.querySelectorAll('.subcategory > .subcategory-header .drag-handle');
+            subHandles.forEach(handle => {
+                const subDiv = handle.closest('.subcategory');
+                handle.setAttribute('draggable', 'true');
+                
+                handle.addEventListener('dragstart', (e) => {
+                    draggedItem = { 
+                        type: 'subcategory', 
+                        catId: parseInt(subDiv.dataset.catId),
+                        path: subDiv.dataset.subPath,
+                        level: parseInt(subDiv.dataset.level)
+                    };
+                    e.dataTransfer.effectAllowed = 'move';
+                    setTimeout(() => subDiv.classList.add('dragging'), 0);
+                });
+                
+                handle.addEventListener('dragend', () => {
+                    subDiv.classList.remove('dragging');
+                    document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+                    draggedItem = null;
+                });
+                
+                handle.addEventListener('touchstart', (e) => {
+                    if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') e.preventDefault();
+                    touchStartY = e.touches[0].clientY;
+                    touchStartX = e.touches[0].clientX;
+                    isDragging = true;
+                    draggedItem = { 
+                        type: 'subcategory', 
+                        catId: parseInt(subDiv.dataset.catId),
+                        path: subDiv.dataset.subPath,
+                        level: parseInt(subDiv.dataset.level)
+                    };
+                    subDiv.classList.add('dragging');
+                });
+                
+                handle.addEventListener('touchend', (e) => {
+                    if (!isDragging) return;
+                    e.preventDefault();
+                    subDiv.classList.remove('dragging');
+                    document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+                    const touch = e.changedTouches[0];
+                    const dropTarget = document.elementFromPoint(touch.clientX, touch.clientY);
+                    const targetSubDiv = dropTarget?.closest('.subcategory');
+                    if (targetSubDiv && draggedItem?.type === 'subcategory') {
+                        const toCatId = parseInt(targetSubDiv.dataset.catId);
+                        const toPath = targetSubDiv.dataset.subPath;
+                        const toLevel = parseInt(targetSubDiv.dataset.level);
+                        if (draggedItem.catId === toCatId && draggedItem.level === toLevel && draggedItem.path !== toPath) {
+                            const fromData = getSubcategoryByPath(draggedItem.catId, draggedItem.path);
+                            const toData = getSubcategoryByPath(toCatId, toPath);
+                            if (fromData && toData && fromData.parent === toData.parent) {
+                                const [moved] = fromData.parent.splice(fromData.index, 1);
+                                const adjustedIndex = fromData.index < toData.index ? toData.index : toData.index + 1;
+                                fromData.parent.splice(adjustedIndex, 0, moved);
+                                saveData();
+                                render();
+                            }
+                        }
+                    }
+                    draggedItem = null;
+                    isDragging = false;
+                });
+            });
+            
+            const subs = document.querySelectorAll('.subcategory');
+            subs.forEach(subDiv => {
+                subDiv.addEventListener('dragover', (e) => {
+                    if (draggedItem?.type === 'subcategory') {
+                        const targetCatId = parseInt(subDiv.dataset.catId);
+                        const targetLevel = parseInt(subDiv.dataset.level);
+                        if (draggedItem.catId === targetCatId && draggedItem.level === targetLevel) {
+                            e.preventDefault();
+                            subDiv.classList.add('drag-over');
+                        }
+                    }
+                });
+                subDiv.addEventListener('dragleave', () => {
+                    subDiv.classList.remove('drag-over');
+                });
+                subDiv.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    subDiv.classList.remove('drag-over');
+                    if (draggedItem?.type === 'subcategory') {
+                        const toCatId = parseInt(subDiv.dataset.catId);
+                        const toPath = subDiv.dataset.subPath;
+                        const toLevel = parseInt(subDiv.dataset.level);
+                        if (draggedItem.catId === toCatId && draggedItem.level === toLevel && draggedItem.path !== toPath) {
+                            const fromData = getSubcategoryByPath(draggedItem.catId, draggedItem.path);
+                            const toData = getSubcategoryByPath(toCatId, toPath);
+                            if (fromData && toData && fromData.parent === toData.parent) {
+                                const [moved] = fromData.parent.splice(fromData.index, 1);
+                                const adjustedIndex = fromData.index < toData.index ? toData.index : toData.index;
+                                fromData.parent.splice(adjustedIndex, 0, moved);
+                                saveData();
+                                render();
+                            }
+                        }
+                    }
+                });
+            });
+
+            // Versets
+            const verseHandles = document.querySelectorAll('.verse-item .drag-handle');
+            verseHandles.forEach(handle => {
+                const verseDiv = handle.closest('.verse-item');
+                handle.setAttribute('draggable', 'true');
+                
+                handle.addEventListener('dragstart', (e) => {
+                    draggedItem = {
+                        type: 'verse',
+                        catId: parseInt(verseDiv.dataset.catId),
+                        subId: parseInt(verseDiv.dataset.subId),
+                        verseId: parseInt(verseDiv.dataset.verseId),
+                        index: parseInt(verseDiv.dataset.verseIndex)
+                    };
+                    e.dataTransfer.effectAllowed = 'move';
+                    setTimeout(() => verseDiv.classList.add('dragging'), 0);
+                });
+                
+                handle.addEventListener('dragend', () => {
+                    verseDiv.classList.remove('dragging');
+                    document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+                    draggedItem = null;
+                });
+                
+                handle.addEventListener('touchstart', (e) => {
+                    if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') e.preventDefault();
+                    touchStartY = e.touches[0].clientY;
+                    touchStartX = e.touches[0].clientX;
+                    isDragging = true;
+                    draggedItem = {
+                        type: 'verse',
+                        catId: parseInt(verseDiv.dataset.catId),
+                        subId: parseInt(verseDiv.dataset.subId),
+                        verseId: parseInt(verseDiv.dataset.verseId),
+                        index: parseInt(verseDiv.dataset.verseIndex)
+                    };
+                    verseDiv.classList.add('dragging');
+                });
+                
+                handle.addEventListener('touchend', (e) => {
+                    if (!isDragging) return;
+                    e.preventDefault();
+                    verseDiv.classList.remove('dragging');
+                    document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+                    const touch = e.changedTouches[0];
+                    const dropTarget = document.elementFromPoint(touch.clientX, touch.clientY);
+                    const targetVerseDiv = dropTarget?.closest('.verse-item');
+                    if (targetVerseDiv && draggedItem?.type === 'verse') {
+                        const toCatId = parseInt(targetVerseDiv.dataset.catId);
+                        const toSubId = parseInt(targetVerseDiv.dataset.subId);
+                        const toIndex = parseInt(targetVerseDiv.dataset.verseIndex);
+                        if (draggedItem.catId === toCatId && draggedItem.subId === toSubId && draggedItem.index !== toIndex) {
+                            const sub = findSub(toCatId, toSubId);
+                            if (sub) {
+                                const [moved] = sub.verses.splice(draggedItem.index, 1);
+                                sub.verses.splice(toIndex, 0, moved);
+                                saveData();
+                                render();
+                            }
+                        }
+                    }
+                    draggedItem = null;
+                    isDragging = false;
+                });
+            });
+            
+            const verses = document.querySelectorAll('.verse-item');
+            verses.forEach(verseDiv => {
+                verseDiv.addEventListener('dragover', (e) => {
+                    if (draggedItem?.type === 'verse') {
+                        const targetCatId = parseInt(verseDiv.dataset.catId);
+                        const targetSubId = parseInt(verseDiv.dataset.subId);
+                        if (draggedItem.catId === targetCatId && draggedItem.subId === targetSubId) {
+                            e.preventDefault();
+                            verseDiv.classList.add('drag-over');
+                        }
+                    }
+                });
+                verseDiv.addEventListener('dragleave', () => {
+                    verseDiv.classList.remove('drag-over');
+                });
+                verseDiv.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    verseDiv.classList.remove('drag-over');
+                    if (draggedItem?.type === 'verse') {
+                        const toCatId = parseInt(verseDiv.dataset.catId);
+                        const toSubId = parseInt(verseDiv.dataset.subId);
+                        const toIndex = parseInt(verseDiv.dataset.verseIndex);
+                        if (draggedItem.catId === toCatId && draggedItem.subId === toSubId && draggedItem.index !== toIndex) {
+                            const sub = findSub(toCatId, toSubId);
+                            if (sub) {
+                                const [moved] = sub.verses.splice(draggedItem.index, 1);
+                                sub.verses.splice(toIndex, 0, moved);
+                                saveData();
+                                render();
+                            }
+                        }
+                    }
+                });
+            });
+        }
+        // Ouvre un verset JW Library / JW.org sans changer le style visuel
+function openJWVerse(ref) {
+  // Remplacer les espaces et deux-points pour la compatibilité URL
+  const cleanRef = ref.trim().replace(/\s+/g, '+').replace(':', '%3A');
+  
+  // Construire l’URL JW.org
+  const url = `https://www.jw.org/finder?wtlocale=F&bible=${encodeURIComponent(cleanRef)}`;
+  
+  // Ouvrir le lien (JW Library le captera si possible)
+  window.open(url, '_blank');
+}
+    </script>
+    <hr>
+<div style="padding: 20px;">
+  <p>🔍 Test lien vers JW.org :</p>
+  <a href="https://www.jw.org/finder?wtlocale=F&bible=58011001" 
+     target="_blank"
+     style="color:#4a90e2; text-decoration:underline;">
+     Hébreux 11 : 1
+  </a>
+</div>
+
+</body>
+</html>
