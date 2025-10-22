@@ -650,29 +650,29 @@
     {
       "id": 1760739953938,
       "name": "Grande tribulation",
-      "expanded": true,
+      "expanded": false,
       "subcategories": [
         {
           "id": 1760739970048,
           "name": "Ce qui se passera avant",
-          "expanded": true,
+          "expanded": false,
           "verses": [],
           "subcategories": []
         },
         {
           "id": 1760739986526,
           "name": "Ce qui se passera après",
-          "expanded": true,
+          "expanded": false,
           "verses": [],
           "subcategories": []
         }
       ],
-      "lastModified": 1761110261934
+      "lastModified": 1761110263000
     },
     {
       "id": 1760765648557,
       "name": "RPP",
-      "expanded": false,
+      "expanded": true,
       "subcategories": [
         {
           "id": 1760765668397,
@@ -716,7 +716,8 @@
           "verses": [],
           "subcategories": []
         }
-      ]
+      ],
+      "lastModified": 1761110264951
     },
     {
       "id": 1760900187695,
