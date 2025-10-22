@@ -306,15 +306,55 @@ function renderCategoryNav() {
         nav.appendChild(categoryEl);
     });
     
-    // Enable drag & drop in edit mode
+    // Enable drag & drop in edit mode - ONLY for main categories at root level
     if (AppState.mode === 'edit') {
         new Sortable(nav, {
             animation: 150,
             handle: '.drag-handle',
+            draggable: '.category-item',
             onEnd: (evt) => {
                 reorderCategories(evt.oldIndex, evt.newIndex);
             }
         });
+        
+        // Enable drag & drop for subcategories within each category
+        document.querySelectorAll('.subcategory-list').forEach((subList, index) => {
+            new Sortable(subList, {
+                animation: 150,
+                handle: '.drag-handle',
+                draggable: '.category-item',
+                group: {
+                    name: 'subcategories',
+                    pull: false,
+                    put: false
+                },
+                onEnd: (evt) => {
+                    // Find which category this belongs to and reorder
+                    reorderSubcategories(subList, evt.oldIndex, evt.newIndex);
+                }
+            });
+        });
+    }
+}
+
+function reorderSubcategories(subList, oldIndex, newIndex) {
+    // Find the parent category by traversing up
+    const categoryItem = subList.closest('.category-item');
+    const categoryId = categoryItem.dataset.id;
+    
+    // Find the category in data
+    let parentCategory = AppState.data.categories.find(cat => cat.id === categoryId);
+    
+    if (parentCategory && parentCategory.subcategories_level1) {
+        const [moved] = parentCategory.subcategories_level1.splice(oldIndex, 1);
+        parentCategory.subcategories_level1.splice(newIndex, 0, moved);
+        
+        // Update order property
+        parentCategory.subcategories_level1.forEach((sub, idx) => {
+            sub.order = idx;
+        });
+        
+        syncData();
     }
 }
 
@@ -334,10 +374,14 @@ function createCategoryElement(category, level = 0) {
     nameSpan.textContent = category.name;
     nameSpan.style.flex = '1';
     nameSpan.style.cursor = 'pointer';
-    nameSpan.addEventListener('click', (e) => {
+    
+    const handleNavigate = (e) => {
         e.stopPropagation();
         navigateToCategory(category, level);
-    });
+    };
+    
+    nameSpan.addEventListener('click', handleNavigate);
+    nameSpan.addEventListener('touchstart', handleNavigate, { passive: false });
     
     // Create button container
     const buttonsDiv = document.createElement('div');
@@ -366,11 +410,17 @@ function createCategoryElement(category, level = 0) {
                 <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
             </svg>
         `;
-        editBtn.addEventListener('click', (e) => {
+        
+        // Handle both click and touch events for iOS PWA
+        const handleEdit = (e) => {
             e.stopPropagation();
             e.preventDefault();
             editCategory(category.id, level);
-        });
+        };
+        
+        editBtn.addEventListener('click', handleEdit);
+        editBtn.addEventListener('touchstart', handleEdit, { passive: false });
+        
         buttonsDiv.appendChild(editBtn);
     }
     
@@ -379,14 +429,19 @@ function createCategoryElement(category, level = 0) {
         const expandBtn = document.createElement('button');
         expandBtn.className = 'category-expand';
         expandBtn.textContent = '›';
-        expandBtn.addEventListener('click', (e) => {
+        
+        const handleExpand = (e) => {
             e.stopPropagation();
             const subContainer = div.querySelector('.subcategory-list');
             if (subContainer) {
                 subContainer.classList.toggle('hidden');
                 expandBtn.classList.toggle('expanded');
             }
-        });
+        };
+        
+        expandBtn.addEventListener('click', handleExpand);
+        expandBtn.addEventListener('touchstart', handleExpand, { passive: false });
+        
         buttonsDiv.appendChild(expandBtn);
     }
     
