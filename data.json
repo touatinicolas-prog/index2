@@ -699,7 +699,7 @@
     {
       "id": 1760900187695,
       "name": "Image",
-      "expanded": false,
+      "expanded": true,
       "subcategories": [
         {
           "id": 1760900258162,
@@ -724,7 +724,7 @@
           "lastModified": 1760991723782
         }
       ],
-      "lastModified": 1761110874559
+      "lastModified": 1761110878457
     }
   ],
   "deletedItems": {
