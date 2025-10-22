@@ -133,11 +133,19 @@ const GitHubSync = {
             // First, get the current file SHA if it exists
             const currentFile = await this.getCurrentFileSHA();
             
-            // Prepare the content with proper UTF-8 encoding
+            // Prepare the content with proper UTF-8 encoding using TextEncoder
             const content = JSON.stringify(data, null, 2);
             
-            // Convert to base64 with proper UTF-8 handling
-            const encodedContent = btoa(unescape(encodeURIComponent(content)));
+            // Use TextEncoder for proper UTF-8 byte handling
+            const encoder = new TextEncoder();
+            const utf8Bytes = encoder.encode(content);
+            
+            // Convert bytes to base64
+            let binaryString = '';
+            for (let i = 0; i < utf8Bytes.length; i++) {
+                binaryString += String.fromCharCode(utf8Bytes[i]);
+            }
+            const encodedContent = btoa(binaryString);
             
             // Prepare the request body
             const body = {
