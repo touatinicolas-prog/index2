@@ -2245,10 +2245,11 @@ function mergeCategoryData(existing, imported) {
     
     console.log(`   Catégorie "${existing.name}" - Local: ${existingTime}, GitHub: ${importedTime}`);
     
-    // Si GitHub est plus récent, mettre à jour le nom
+    // Si GitHub est plus récent, mettre à jour le nom ET l'état expanded
     if (importedTime > existingTime) {
-        console.log(`   ⬇️ GitHub plus récent, mise à jour du nom`);
+        console.log(`   ⬇️ GitHub plus récent, mise à jour du nom et expanded`);
         existing.name = imported.name;
+        existing.expanded = imported.expanded; // ✅ AJOUTÉ : fusionner expanded
         existing.lastModified = imported.lastModified;
     }
     
@@ -2279,9 +2280,10 @@ function mergeSubcategoryData(existing, imported) {
     const existingTime = existing.lastModified || 0;
     const importedTime = imported.lastModified || 0;
     
-    // Si GitHub est plus récent, mettre à jour
+    // Si GitHub est plus récent, mettre à jour name ET expanded
     if (importedTime > existingTime) {
         existing.name = imported.name;
+        existing.expanded = imported.expanded; // ✅ AJOUTÉ : fusionner expanded
         existing.lastModified = imported.lastModified;
     }
     
