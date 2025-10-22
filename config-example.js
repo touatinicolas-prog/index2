@@ -6,10 +6,10 @@
 
 window.GITHUB_CONFIG = {
     // Votre nom d'utilisateur GitHub
-    owner: 'votre-username',
+    owner: 'touatinicolas-prog',
     
     // Le nom de votre dépôt GitHub
-    repo: 'votre-repo',
+    repo: 'index2',
     
     // Votre Personal Access Token GitHub
     // Pour créer un token:
@@ -18,7 +18,7 @@ window.GITHUB_CONFIG = {
     // 3. Generate new token (classic)
     // 4. Cochez les permissions: "repo" (Full control of private repositories)
     // 5. Copiez le token généré et collez-le ci-dessous
-    token: 'ghp_VotrTokenGitHubIci',
+    token: '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',
     
     // La branche à utiliser (généralement 'main' ou 'master')
     branch: 'main'
