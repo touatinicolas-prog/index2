@@ -660,7 +660,7 @@
             {
               "id": 1760765938954,
               "name": "Jonas",
-              "expanded": true,
+              "expanded": false,
               "verses": [
                 {
                   "id": 1760766234683,
@@ -694,7 +694,7 @@
           "subcategories": []
         }
       ],
-      "lastModified": 1761110439603
+      "lastModified": 1761110872358
     },
     {
       "id": 1760900187695,
@@ -724,7 +724,7 @@
           "lastModified": 1760991723782
         }
       ],
-      "lastModified": 1760901406420
+      "lastModified": 1761110874559
     }
   ],
   "deletedItems": {
