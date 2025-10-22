@@ -27,7 +27,7 @@
     {
       "id": 1760737670977,
       "name": "VP",
-      "expanded": true,
+      "expanded": false,
       "subcategories": [
         {
           "id": 1760739828014,
@@ -122,7 +122,8 @@
           "verses": [],
           "subcategories": []
         }
-      ]
+      ],
+      "lastModified": 1761110247119
     },
     {
       "id": 1760737684816,
