@@ -145,7 +145,7 @@ async function saveGitHubConfig() {
 function clearGitHubConfig() {
     if (confirm('Êtes-vous sûr de vouloir effacer la configuration ?')) {
         GitHubSync.clearConfig();
-        closeModal();
+        ;
         showStatus('🗑️ Configuration effacée', 'success');
         
         // Show settings modal again
@@ -1001,12 +1001,14 @@ async function handleCategorySubmit() {
         newCategory.order = parentSubcategory.subcategories_level2.length - 1;
     }
     
-    // Close modal and refresh display
     closeModal();
     renderCategoryNav();
     
     // Expand parent if level 2 to show new subcategory
-    if (level === 2 && parentId) {
+    if (level === 2) {
+        const parentSelect = document.getElementById('parentCategory');
+        const parentId = parentSelect ? parentSelect.value : null;
+        
         setTimeout(() => {
             const parentElement = document.querySelector(`[data-id="${parentId}"]`);
             if (parentElement) {
@@ -1015,11 +1017,8 @@ async function handleCategorySubmit() {
                 if (subContainer) subContainer.classList.remove('hidden');
                 if (expandBtn) expandBtn.classList.add('expanded');
             }
-        }, 100);
+        }, 150);
     }
-    
-    closeModal();
-    renderCategoryNav();
     
     // Switch to welcome screen if this is first category
     if (AppState.data.categories.length === 1 && level === 0) {
