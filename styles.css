@@ -55,6 +55,18 @@ button, a, .icon-btn, .primary-btn, .secondary-btn, .category-link, .category-ed
     cursor: pointer;
 }
 
+/* Pulse animation for unsaved changes */
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.8;
+        transform: scale(1.05);
+    }
+}
+
 /* ===== Header ===== */
 .app-header {
     background-color: var(--bg-secondary);
