@@ -1,9 +1,31 @@
 {
   "categories": [
     {
+      "id": "id-1761194662163-fhzmz2mqc",
+      "name": "RPP",
+      "order": 0,
+      "verses": [],
+      "subcategories_level1": [
+        {
+          "id": "id-1761194686065-7f9p04ebh",
+          "name": "Verset",
+          "order": 0,
+          "verses": [],
+          "subcategories_level2": []
+        },
+        {
+          "id": "id-1761194714447-1yd2ljqb0",
+          "name": "Vidéo",
+          "order": 1,
+          "verses": [],
+          "subcategories_level2": []
+        }
+      ]
+    },
+    {
       "id": "id-1761166998037-mkl4nlrfj",
       "name": "VP",
-      "order": 0,
+      "order": 1,
       "verses": [],
       "subcategories_level1": [
         {
@@ -29,28 +51,6 @@
               "modified": "2025-10-23T05:27:10.033Z"
             }
           ],
-          "subcategories_level2": []
-        }
-      ]
-    },
-    {
-      "id": "id-1761194662163-fhzmz2mqc",
-      "name": "RPP",
-      "order": 1,
-      "verses": [],
-      "subcategories_level1": [
-        {
-          "id": "id-1761194686065-7f9p04ebh",
-          "name": "Verset",
-          "order": 0,
-          "verses": [],
-          "subcategories_level2": []
-        },
-        {
-          "id": "id-1761194714447-1yd2ljqb0",
-          "name": "Vidéo",
-          "order": 1,
-          "verses": [],
           "subcategories_level2": []
         }
       ]
