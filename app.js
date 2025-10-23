@@ -8,6 +8,10 @@ const AppState = {
     currentSubcategory2: null,
     currentVerse: null,
     isLoading: false, // Prevent auto-save during initial load
+    hasUnsavedChanges: false, // Track if there are unsaved changes
+    autoSyncEnabled: false, // Auto-sync disabled by default
+    autoSyncInterval: 5, // minutes (5 or 10)
+    autoSyncTimer: null, // Timer ID
     data: {
         categories: []
     }
@@ -295,10 +299,34 @@ async function syncData() {
         console.log('📤 Synchronisation des données...', AppState.data);
         showStatus('⏳ Synchronisation...', 'info');
         await GitHubSync.saveData(AppState.data);
+        AppState.hasUnsavedChanges = false; // Reset unsaved changes flag
+        updateSyncButtonState();
         showStatus('✅ Synchronisé avec GitHub', 'success');
     } catch (error) {
         console.error('❌ Erreur de synchronisation:', error);
         showStatus('❌ Échec de la synchronisation', 'error');
+    }
+}
+
+// Mark that there are unsaved changes (instead of auto-syncing)
+function markAsUnsaved() {
+    if (!AppState.isLoading) {
+        AppState.hasUnsavedChanges = true;
+        updateSyncButtonState();
+    }
+}
+
+// Update sync button visual state
+function updateSyncButtonState() {
+    const syncBtn = document.getElementById('syncBtn');
+    if (AppState.hasUnsavedChanges) {
+        syncBtn.style.opacity = '1';
+        syncBtn.style.animation = 'pulse 2s infinite';
+        syncBtn.title = 'Modifications non sauvegardées - Cliquez pour synchroniser';
+    } else {
+        syncBtn.style.opacity = '0.7';
+        syncBtn.style.animation = 'none';
+        syncBtn.title = 'Synchroniser avec GitHub';
     }
 }
 
@@ -386,7 +414,7 @@ async function reorderSubcategories(subList, oldIndex, newIndex) {
             sub.order = idx;
         });
         
-        await syncData();
+        markAsUnsaved();
     }
 }
 
@@ -833,7 +861,7 @@ async function reorderCategories(oldIndex, newIndex) {
         cat.order = idx;
     });
     
-    await syncData();
+    markAsUnsaved();
 }
 
 async function reorderVerses(verses, oldIndex, newIndex) {
@@ -845,7 +873,7 @@ async function reorderVerses(verses, oldIndex, newIndex) {
         verse.order = idx;
     });
     
-    await syncData();
+    markAsUnsaved();
 }
 
 function deleteCurrentVerse() {
@@ -865,7 +893,7 @@ function deleteCurrentVerse() {
         verses.splice(index, 1);
         AppState.currentView = 'list';
         renderCurrentView();
-        syncData();
+        markAsUnsaved();
         showStatus('✅ Verset supprimé', 'success');
     }
 }
@@ -975,7 +1003,7 @@ async function handleCategorySubmit() {
         renderCurrentView();
     }
     
-    await syncData();
+    markAsUnsaved();
     showStatus('✅ Catégorie créée', 'success');
 }
 
@@ -1050,7 +1078,7 @@ async function handleVerseSubmit() {
         renderVerseList();
     }
     
-    await syncData();
+    markAsUnsaved();
     showStatus('✅ Verset ajouté', 'success');
 }
 
@@ -1175,7 +1203,7 @@ function editCategory(categoryId, level) {
         category.name = newName;
         closeModal();
         renderCategoryNav();
-        await syncData();
+        markAsUnsaved();
         showStatus('✅ Catégorie modifiée', 'success');
     });
 }
@@ -1218,6 +1246,6 @@ function deleteCategory(categoryId, level) {
     
     closeModal();
     renderCategoryNav();
-    syncData();
+    markAsUnsaved();
     showStatus('✅ Catégorie supprimée', 'success');
 }
