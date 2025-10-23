@@ -7,9 +7,16 @@
       "verses": [],
       "subcategories_level1": [
         {
+          "id": "id-1761194764007-cqb5k6lw7",
+          "name": "Découragement",
+          "order": 0,
+          "verses": [],
+          "subcategories_level2": []
+        },
+        {
           "id": "id-1761168208032-8wzlysd18",
           "name": "Couples",
-          "order": 0,
+          "order": 1,
           "verses": [
             {
               "id": "id-1761197230033-lrqyxr9m9",
@@ -22,13 +29,6 @@
               "modified": "2025-10-23T05:27:10.033Z"
             }
           ],
-          "subcategories_level2": []
-        },
-        {
-          "id": "id-1761194764007-cqb5k6lw7",
-          "name": "Découragement",
-          "order": 1,
-          "verses": [],
           "subcategories_level2": []
         }
       ]
