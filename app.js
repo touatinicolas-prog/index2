@@ -988,6 +988,19 @@ async function handleCategorySubmit() {
                 }
             }
         }
+        // Ensure parent subcategory is expanded to show new level 2
+if (level === 2 && subParentId) {
+    // Find and expand the parent subcategory
+    setTimeout(() => {
+        const parentSubElement = document.querySelector(`[data-id="${subParentId}"]`);
+        if (parentSubElement) {
+            const subContainer = parentSubElement.querySelector('.subcategory-list');
+            const expandBtn = parentSubElement.querySelector('.category-expand');
+            if (subContainer) subContainer.classList.remove('hidden');
+            if (expandBtn) expandBtn.classList.add('expanded');
+        }
+    }, 100);
+}
         
         if (!parentSubcategory) {
             showStatus('❌ Sélectionnez une sous-catégorie parente', 'error');
