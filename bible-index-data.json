@@ -67,7 +67,28 @@
       "name": "Image",
       "order": 3,
       "verses": [],
-      "subcategories_level1": []
+      "subcategories_level1": [
+        {
+          "id": "id-1761250619792-exscqwniq",
+          "name": "Armaguedon",
+          "order": 0,
+          "verses": [
+            {
+              "id": "id-1761250655722-98dln08bp",
+              "reference": "Dp 41",
+              "text": "3 eme image du plan fournis",
+              "notes": "",
+              "images": [
+                "https://raw.githubusercontent.com/touatinicolas-prog/index2/main/images/id-1761250654143-wtgs0htva.jpg"
+              ],
+              "order": 0,
+              "created": "2025-10-23T20:17:35.722Z",
+              "modified": "2025-10-23T20:17:35.722Z"
+            }
+          ],
+          "subcategories_level2": []
+        }
+      ]
     }
   ]
 }
