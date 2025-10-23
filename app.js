@@ -153,45 +153,52 @@ function clearGitHubConfig() {
 
 // ===== Event Listeners Setup =====
 function setupEventListeners() {
-    // Mode toggle
-    document.getElementById('modeToggle').addEventListener('click', toggleMode);
+    // Mode toggle - unified handler for desktop and mobile
+    const modeToggleBtn = document.getElementById('modeToggle');
+    modeToggleBtn.onclick = toggleMode;
     
     // Theme toggle
-    document.getElementById('themeToggle').addEventListener('click', toggleTheme);
+    const themeToggleBtn = document.getElementById('themeToggle');
+    themeToggleBtn.onclick = toggleTheme;
     
     // Sync button
-    document.getElementById('syncBtn').addEventListener('click', syncData);
+    const syncBtn = document.getElementById('syncBtn');
+    syncBtn.onclick = syncData;
     
     // Settings button
-    document.getElementById('settingsBtn').addEventListener('click', showSettingsModal);
+    const settingsBtn = document.getElementById('settingsBtn');
+    settingsBtn.onclick = showSettingsModal;
     
     // Get started button
-    document.getElementById('getStartedBtn').addEventListener('click', () => {
-        openModal('category');
-    });
+    const getStartedBtn = document.getElementById('getStartedBtn');
+    getStartedBtn.onclick = () => openModal('category');
     
     // Add category button
-    document.getElementById('addCategoryBtn').addEventListener('click', () => {
-        openModal('category');
-    });
+    const addCategoryBtn = document.getElementById('addCategoryBtn');
+    addCategoryBtn.onclick = () => openModal('category');
     
     // Add verse button
-    document.getElementById('addVerseBtn').addEventListener('click', () => {
-        openModal('verse');
-    });
+    const addVerseBtn = document.getElementById('addVerseBtn');
+    addVerseBtn.onclick = () => openModal('verse');
     
     // Back to list button
-    document.getElementById('backToListBtn').addEventListener('click', () => {
+    const backToListBtn = document.getElementById('backToListBtn');
+    backToListBtn.onclick = () => {
         AppState.currentVerse = null;
         AppState.currentView = 'list';
         renderCurrentView();
-    });
+    };
     
     // Delete verse button
-    document.getElementById('deleteVerseBtn').addEventListener('click', deleteCurrentVerse);
+    const deleteVerseBtn = document.getElementById('deleteVerseBtn');
+    deleteVerseBtn.onclick = deleteCurrentVerse;
     
     // Modal close
     document.getElementById('modalClose').addEventListener('click', closeModal);
+    document.getElementById('modalClose').addEventListener('touchend', (e) => {
+        e.preventDefault();
+        closeModal();
+    }, { passive: false });
     document.getElementById('modal').addEventListener('click', (e) => {
         if (e.target.id === 'modal') closeModal();
     });
@@ -271,11 +278,12 @@ async function syncData() {
     }
     
     try {
+        console.log('📤 Synchronisation des données...', AppState.data);
         showStatus('⏳ Synchronisation...', 'info');
         await GitHubSync.saveData(AppState.data);
         showStatus('✅ Synchronisé avec GitHub', 'success');
     } catch (error) {
-        console.error('Erreur de synchronisation:', error);
+        console.error('❌ Erreur de synchronisation:', error);
         showStatus('❌ Échec de la synchronisation', 'error');
     }
 }
@@ -387,11 +395,12 @@ function createCategoryElement(category, level = 0) {
     
     const handleNavigate = (e) => {
         e.stopPropagation();
+        e.preventDefault();
         navigateToCategory(category, level);
-        return false;
     };
     
-    nameSpan.onclick = handleNavigate;
+    nameSpan.addEventListener('click', handleNavigate, { passive: false });
+    nameSpan.addEventListener('touchend', handleNavigate, { passive: false });
     
     // Create button container
     const buttonsDiv = document.createElement('div');
@@ -414,7 +423,7 @@ function createCategoryElement(category, level = 0) {
         const editBtn = document.createElement('button');
         editBtn.className = 'category-edit-btn';
         editBtn.title = 'Modifier';
-        editBtn.type = 'button'; // Important for PWA
+        editBtn.type = 'button';
         editBtn.innerHTML = `
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
@@ -422,14 +431,19 @@ function createCategoryElement(category, level = 0) {
             </svg>
         `;
         
-        // Single unified handler for all platforms
-        const handleEdit = (e) => {
+        // Use addEventListener instead of onclick for better iOS support
+        editBtn.addEventListener('click', (e) => {
             e.stopPropagation();
+            e.preventDefault();
             editCategory(category.id, level);
-            return false;
-        };
+        }, { passive: false });
         
-        editBtn.onclick = handleEdit;
+        // Add touch support for iOS
+        editBtn.addEventListener('touchend', (e) => {
+            e.stopPropagation();
+            e.preventDefault();
+            editCategory(category.id, level);
+        }, { passive: false });
         
         buttonsDiv.appendChild(editBtn);
     }
@@ -443,15 +457,16 @@ function createCategoryElement(category, level = 0) {
         
         const handleExpand = (e) => {
             e.stopPropagation();
+            e.preventDefault();
             const subContainer = div.querySelector('.subcategory-list');
             if (subContainer) {
                 subContainer.classList.toggle('hidden');
                 expandBtn.classList.toggle('expanded');
             }
-            return false;
         };
         
-        expandBtn.onclick = handleExpand;
+        expandBtn.addEventListener('click', handleExpand, { passive: false });
+        expandBtn.addEventListener('touchend', handleExpand, { passive: false });
         
         buttonsDiv.appendChild(expandBtn);
     }
