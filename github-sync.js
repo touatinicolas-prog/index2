@@ -143,58 +143,79 @@ const GitHubSync = {
             throw new Error('Configuration GitHub manquante');
         }
         
-        try {
-            // First, get the current file SHA if it exists
-            const currentFile = await this.getCurrentFileSHA();
-            
-            // Prepare the content - ensure proper UTF-8 encoding
-            const content = JSON.stringify(data, null, 2);
-            
-            // Convert string to UTF-8 bytes using TextEncoder
-            const utf8Encoder = new TextEncoder();
-            const utf8Array = utf8Encoder.encode(content);
-            
-            // Convert Uint8Array to base64 string
-            const base64String = this.arrayBufferToBase64(utf8Array);
-            
-            // Prepare the request body
-            const body = {
-                message: `Update bible index - ${new Date().toISOString()}`,
-                content: base64String,
-                branch: this.branch
-            };
-            
-            // Add SHA if file exists
-            if (currentFile) {
-                body.sha = currentFile.sha;
+        const maxRetries = 3;
+        let lastError = null;
+        
+        for (let attempt = 0; attempt < maxRetries; attempt++) {
+            try {
+                // IMPORTANT: Get fresh SHA for each attempt
+                const currentFile = await this.getCurrentFileSHA();
+                
+                // Prepare the content - ensure proper UTF-8 encoding
+                const content = JSON.stringify(data, null, 2);
+                
+                // Convert string to UTF-8 bytes using TextEncoder
+                const utf8Encoder = new TextEncoder();
+                const utf8Array = utf8Encoder.encode(content);
+                
+                // Convert Uint8Array to base64 string
+                const base64String = this.arrayBufferToBase64(utf8Array);
+                
+                // Prepare the request body
+                const body = {
+                    message: `Update bible index - ${new Date().toISOString()}`,
+                    content: base64String,
+                    branch: this.branch
+                };
+                
+                // Add SHA if file exists
+                if (currentFile) {
+                    body.sha = currentFile.sha;
+                }
+                
+                // Make the request
+                const url = `https://api.github.com/repos/${this.owner}/${this.repo}/contents/${this.dataFile}`;
+                
+                const response = await fetch(url, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `token ${this.token}`,
+                        'Accept': 'application/vnd.github.v3+json',
+                        'Content-Type': 'application/json; charset=utf-8'
+                    },
+                    body: JSON.stringify(body)
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    
+                    // If 409 conflict, retry with fresh SHA
+                    if (response.status === 409 && attempt < maxRetries - 1) {
+                        console.log(`⚠️ Conflit détecté (tentative ${attempt + 1}/${maxRetries}), nouvelle tentative...`);
+                        await new Promise(resolve => setTimeout(resolve, 500)); // Wait 500ms before retry
+                        continue;
+                    }
+                    
+                    throw new Error(`GitHub API error: ${response.status} - ${errorData.message}`);
+                }
+                
+                const result = await response.json();
+                console.log('✅ Données sauvegardées sur GitHub');
+                return result;
+                
+            } catch (error) {
+                lastError = error;
+                if (attempt < maxRetries - 1) {
+                    console.log(`⚠️ Erreur, nouvelle tentative ${attempt + 2}/${maxRetries}...`);
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                } else {
+                    console.error('❌ Erreur lors de la sauvegarde sur GitHub:', error);
+                    throw error;
+                }
             }
-            
-            // Make the request
-            const url = `https://api.github.com/repos/${this.owner}/${this.repo}/contents/${this.dataFile}`;
-            
-            const response = await fetch(url, {
-                method: 'PUT',
-                headers: {
-                    'Authorization': `token ${this.token}`,
-                    'Accept': 'application/vnd.github.v3+json',
-                    'Content-Type': 'application/json; charset=utf-8'
-                },
-                body: JSON.stringify(body)
-            });
-            
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(`GitHub API error: ${response.status} - ${errorData.message}`);
-            }
-            
-            const result = await response.json();
-            console.log('✅ Données sauvegardées sur GitHub');
-            return result;
-            
-        } catch (error) {
-            console.error('❌ Erreur lors de la sauvegarde sur GitHub:', error);
-            throw error;
         }
+        
+        throw lastError;
     },
     
     /**
