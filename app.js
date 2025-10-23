@@ -156,30 +156,37 @@ function setupEventListeners() {
     // Mode toggle - unified handler for desktop and mobile
     const modeToggleBtn = document.getElementById('modeToggle');
     modeToggleBtn.onclick = toggleMode;
+    modeToggleBtn.ontouchstart = (e) => { e.preventDefault(); toggleMode(); };
     
     // Theme toggle
     const themeToggleBtn = document.getElementById('themeToggle');
     themeToggleBtn.onclick = toggleTheme;
+    themeToggleBtn.ontouchstart = (e) => { e.preventDefault(); toggleTheme(); };
     
     // Sync button
     const syncBtn = document.getElementById('syncBtn');
     syncBtn.onclick = syncData;
+    syncBtn.ontouchstart = (e) => { e.preventDefault(); syncData(); };
     
     // Settings button
     const settingsBtn = document.getElementById('settingsBtn');
     settingsBtn.onclick = showSettingsModal;
+    settingsBtn.ontouchstart = (e) => { e.preventDefault(); showSettingsModal(); };
     
     // Get started button
     const getStartedBtn = document.getElementById('getStartedBtn');
     getStartedBtn.onclick = () => openModal('category');
+    getStartedBtn.ontouchstart = (e) => { e.preventDefault(); openModal('category'); };
     
     // Add category button
     const addCategoryBtn = document.getElementById('addCategoryBtn');
     addCategoryBtn.onclick = () => openModal('category');
+    addCategoryBtn.ontouchstart = (e) => { e.preventDefault(); openModal('category'); };
     
     // Add verse button
     const addVerseBtn = document.getElementById('addVerseBtn');
     addVerseBtn.onclick = () => openModal('verse');
+    addVerseBtn.ontouchstart = (e) => { e.preventDefault(); openModal('verse'); };
     
     // Back to list button
     const backToListBtn = document.getElementById('backToListBtn');
@@ -188,10 +195,17 @@ function setupEventListeners() {
         AppState.currentView = 'list';
         renderCurrentView();
     };
+    backToListBtn.ontouchstart = (e) => {
+        e.preventDefault();
+        AppState.currentVerse = null;
+        AppState.currentView = 'list';
+        renderCurrentView();
+    };
     
     // Delete verse button
     const deleteVerseBtn = document.getElementById('deleteVerseBtn');
     deleteVerseBtn.onclick = deleteCurrentVerse;
+    deleteVerseBtn.ontouchstart = (e) => { e.preventDefault(); deleteCurrentVerse(); };
     
     // Modal close
     document.getElementById('modalClose').addEventListener('click', closeModal);
@@ -330,8 +344,8 @@ function renderCategoryNav() {
             animation: 150,
             handle: '.drag-handle',
             draggable: '.category-item',
-            onEnd: (evt) => {
-                reorderCategories(evt.oldIndex, evt.newIndex);
+            onEnd: async (evt) => {
+                await reorderCategories(evt.oldIndex, evt.newIndex);
             }
         });
         
@@ -346,16 +360,16 @@ function renderCategoryNav() {
                     pull: false,
                     put: false
                 },
-                onEnd: (evt) => {
+                onEnd: async (evt) => {
                     // Find which category this belongs to and reorder
-                    reorderSubcategories(subList, evt.oldIndex, evt.newIndex);
+                    await reorderSubcategories(subList, evt.oldIndex, evt.newIndex);
                 }
             });
         });
     }
 }
 
-function reorderSubcategories(subList, oldIndex, newIndex) {
+async function reorderSubcategories(subList, oldIndex, newIndex) {
     // Find the parent category by traversing up
     const categoryItem = subList.closest('.category-item');
     const categoryId = categoryItem.dataset.id;
@@ -372,7 +386,7 @@ function reorderSubcategories(subList, oldIndex, newIndex) {
             sub.order = idx;
         });
         
-        syncData();
+        await syncData();
     }
 }
 
@@ -552,8 +566,8 @@ function renderVerseList() {
     if (AppState.mode === 'edit') {
         new Sortable(verseList, {
             animation: 150,
-            onEnd: (evt) => {
-                reorderVerses(verses, evt.oldIndex, evt.newIndex);
+            onEnd: async (evt) => {
+                await reorderVerses(verses, evt.oldIndex, evt.newIndex);
             }
         });
     }
@@ -809,7 +823,7 @@ function removeImage(index) {
 }
 
 // ===== CRUD Operations =====
-function reorderCategories(oldIndex, newIndex) {
+async function reorderCategories(oldIndex, newIndex) {
     const categories = AppState.data.categories;
     const [moved] = categories.splice(oldIndex, 1);
     categories.splice(newIndex, 0, moved);
@@ -819,10 +833,10 @@ function reorderCategories(oldIndex, newIndex) {
         cat.order = idx;
     });
     
-    syncData();
+    await syncData();
 }
 
-function reorderVerses(verses, oldIndex, newIndex) {
+async function reorderVerses(verses, oldIndex, newIndex) {
     const [moved] = verses.splice(oldIndex, 1);
     verses.splice(newIndex, 0, moved);
     
@@ -831,7 +845,7 @@ function reorderVerses(verses, oldIndex, newIndex) {
         verse.order = idx;
     });
     
-    syncData();
+    await syncData();
 }
 
 function deleteCurrentVerse() {
