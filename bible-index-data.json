@@ -34,16 +34,9 @@
       ]
     },
     {
-      "id": "id-1761194634022-ynejm8vb1",
-      "name": "Perles perso",
-      "order": 1,
-      "verses": [],
-      "subcategories_level1": []
-    },
-    {
       "id": "id-1761194662163-fhzmz2mqc",
       "name": "RPP",
-      "order": 2,
+      "order": 1,
       "verses": [],
       "subcategories_level1": [
         {
@@ -61,6 +54,13 @@
           "subcategories_level2": []
         }
       ]
+    },
+    {
+      "id": "id-1761194634022-ynejm8vb1",
+      "name": "Perles perso",
+      "order": 2,
+      "verses": [],
+      "subcategories_level1": []
     }
   ]
 }
