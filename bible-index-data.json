@@ -10,7 +10,18 @@
           "id": "id-1761168208032-8wzlysd18",
           "name": "Couples",
           "order": 1,
-          "verses": [],
+          "verses": [
+            {
+              "id": "id-1761197230033-lrqyxr9m9",
+              "reference": "test de verset",
+              "text": "re test de \nverset pour les couple",
+              "notes": "ca c'est ma réflexion perso",
+              "images": [],
+              "order": 0,
+              "created": "2025-10-23T05:27:10.033Z",
+              "modified": "2025-10-23T05:27:10.033Z"
+            }
+          ],
           "subcategories_level2": []
         },
         {
