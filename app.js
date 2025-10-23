@@ -435,15 +435,6 @@ function createCategoryElement(category, level = 0) {
     nameSpan.style.flex = '1';
     nameSpan.style.cursor = 'pointer';
     
-    const handleNavigate = (e) => {
-        e.stopPropagation();
-        e.preventDefault();
-        navigateToCategory(category, level);
-    };
-    
-    nameSpan.addEventListener('click', handleNavigate, { passive: false });
-    nameSpan.addEventListener('touchend', handleNavigate, { passive: false });
-    
     // Create button container
     const buttonsDiv = document.createElement('div');
     buttonsDiv.style.display = 'flex';
@@ -459,6 +450,22 @@ function createCategoryElement(category, level = 0) {
     }
     
     link.appendChild(nameSpan);
+    // Click on whole bar to expand/navigate
+const handleBarClick = (e) => {
+    // If has children, toggle expansion
+    if (hasChildren) {
+        const subContainer = div.querySelector('.subcategory-list');
+        const expandBtn = buttonsDiv.querySelector('.category-expand');
+        if (subContainer) {
+            subContainer.classList.toggle('hidden');
+            if (expandBtn) expandBtn.classList.toggle('expanded');
+        }
+    }
+    // Always navigate to category
+    navigateToCategory(category, level);
+};
+
+link.onclick = handleBarClick;
     
     // Add edit button in edit mode
     if (AppState.mode === 'edit') {
