@@ -7,6 +7,7 @@ const AppState = {
     currentSubcategory1: null,
     currentSubcategory2: null,
     currentVerse: null,
+    isLoading: false, // Prevent auto-save during initial load
     data: {
         categories: []
     }
@@ -240,6 +241,7 @@ function toggleTheme() {
 // ===== Data Management =====
 async function loadDataFromGitHub() {
     try {
+        AppState.isLoading = true; // Prevent auto-save during load
         showStatus('⏳ Chargement des données...', 'info');
         const data = await GitHubSync.fetchData();
         
@@ -256,10 +258,18 @@ async function loadDataFromGitHub() {
         console.error('Erreur de chargement:', error);
         showStatus('❌ Erreur de chargement', 'error');
         AppState.data = { categories: [] };
+    } finally {
+        AppState.isLoading = false; // Re-enable auto-save
     }
 }
 
 async function syncData() {
+    // Skip sync if we're still loading data
+    if (AppState.isLoading) {
+        console.log('⏭️ Synchronisation ignorée (chargement en cours)');
+        return;
+    }
+    
     try {
         showStatus('⏳ Synchronisation...', 'info');
         await GitHubSync.saveData(AppState.data);
@@ -378,10 +388,10 @@ function createCategoryElement(category, level = 0) {
     const handleNavigate = (e) => {
         e.stopPropagation();
         navigateToCategory(category, level);
+        return false;
     };
     
-    nameSpan.addEventListener('click', handleNavigate);
-    nameSpan.addEventListener('touchstart', handleNavigate, { passive: false });
+    nameSpan.onclick = handleNavigate;
     
     // Create button container
     const buttonsDiv = document.createElement('div');
@@ -404,6 +414,7 @@ function createCategoryElement(category, level = 0) {
         const editBtn = document.createElement('button');
         editBtn.className = 'category-edit-btn';
         editBtn.title = 'Modifier';
+        editBtn.type = 'button'; // Important for PWA
         editBtn.innerHTML = `
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
@@ -411,15 +422,14 @@ function createCategoryElement(category, level = 0) {
             </svg>
         `;
         
-        // Handle both click and touch events for iOS PWA
+        // Single unified handler for all platforms
         const handleEdit = (e) => {
             e.stopPropagation();
-            e.preventDefault();
             editCategory(category.id, level);
+            return false;
         };
         
-        editBtn.addEventListener('click', handleEdit);
-        editBtn.addEventListener('touchstart', handleEdit, { passive: false });
+        editBtn.onclick = handleEdit;
         
         buttonsDiv.appendChild(editBtn);
     }
@@ -428,6 +438,7 @@ function createCategoryElement(category, level = 0) {
     if (hasChildren) {
         const expandBtn = document.createElement('button');
         expandBtn.className = 'category-expand';
+        expandBtn.type = 'button';
         expandBtn.textContent = '›';
         
         const handleExpand = (e) => {
@@ -437,10 +448,10 @@ function createCategoryElement(category, level = 0) {
                 subContainer.classList.toggle('hidden');
                 expandBtn.classList.toggle('expanded');
             }
+            return false;
         };
         
-        expandBtn.addEventListener('click', handleExpand);
-        expandBtn.addEventListener('touchstart', handleExpand, { passive: false });
+        expandBtn.onclick = handleExpand;
         
         buttonsDiv.appendChild(expandBtn);
     }
