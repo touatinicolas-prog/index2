@@ -988,19 +988,6 @@ async function handleCategorySubmit() {
                 }
             }
         }
-        // Ensure parent subcategory is expanded to show new level 2
-if (level === 2 && subParentId) {
-    // Find and expand the parent subcategory
-    setTimeout(() => {
-        const parentSubElement = document.querySelector(`[data-id="${subParentId}"]`);
-        if (parentSubElement) {
-            const subContainer = parentSubElement.querySelector('.subcategory-list');
-            const expandBtn = parentSubElement.querySelector('.category-expand');
-            if (subContainer) subContainer.classList.remove('hidden');
-            if (expandBtn) expandBtn.classList.add('expanded');
-        }
-    }, 100);
-}
         
         if (!parentSubcategory) {
             showStatus('❌ Sélectionnez une sous-catégorie parente', 'error');
@@ -1012,6 +999,23 @@ if (level === 2 && subParentId) {
         }
         parentSubcategory.subcategories_level2.push(newCategory);
         newCategory.order = parentSubcategory.subcategories_level2.length - 1;
+    }
+    
+    // Close modal and refresh display
+    closeModal();
+    renderCategoryNav();
+    
+    // Expand parent if level 2 to show new subcategory
+    if (level === 2 && parentId) {
+        setTimeout(() => {
+            const parentElement = document.querySelector(`[data-id="${parentId}"]`);
+            if (parentElement) {
+                const subContainer = parentElement.querySelector('.subcategory-list');
+                const expandBtn = parentElement.querySelector('.category-expand');
+                if (subContainer) subContainer.classList.remove('hidden');
+                if (expandBtn) expandBtn.classList.add('expanded');
+            }
+        }, 100);
     }
     
     closeModal();
