@@ -43,6 +43,16 @@ body {
     line-height: 1.6;
     overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
+    -webkit-touch-callout: none;
+}
+
+/* Mobile touch optimization */
+button, a, .icon-btn, .primary-btn, .secondary-btn, .category-link, .category-edit-btn, .category-expand {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    user-select: none;
+    -webkit-user-select: none;
+    cursor: pointer;
 }
 
 /* ===== Header ===== */
@@ -87,6 +97,9 @@ body {
     cursor: pointer;
     transition: all 0.2s;
     color: var(--text-primary);
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
 }
 
 .icon-btn:hover {
@@ -307,6 +320,9 @@ body {
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
 }
 
 .primary-btn:hover {
