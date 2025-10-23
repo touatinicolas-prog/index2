@@ -1,16 +1,9 @@
 {
   "categories": [
     {
-      "id": "id-1761194634022-ynejm8vb1",
-      "name": "Perles perso",
-      "order": 0,
-      "verses": [],
-      "subcategories_level1": []
-    },
-    {
       "id": "id-1761166998037-mkl4nlrfj",
       "name": "VP",
-      "order": 1,
+      "order": 0,
       "verses": [],
       "subcategories_level1": [
         {
@@ -27,6 +20,16 @@
               "order": 0,
               "created": "2025-10-23T05:27:10.033Z",
               "modified": "2025-10-23T05:27:10.033Z"
+            },
+            {
+              "id": "id-1761199033219-8huvb4w37",
+              "reference": "Deuxième test",
+              "text": "Deuxième",
+              "notes": "Tes",
+              "images": [],
+              "order": 1,
+              "created": "2025-10-23T05:57:13.219Z",
+              "modified": "2025-10-23T05:57:13.219Z"
             }
           ],
           "subcategories_level2": []
@@ -39,6 +42,13 @@
           "subcategories_level2": []
         }
       ]
+    },
+    {
+      "id": "id-1761194634022-ynejm8vb1",
+      "name": "Perles perso",
+      "order": 1,
+      "verses": [],
+      "subcategories_level1": []
     },
     {
       "id": "id-1761194662163-fhzmz2mqc",
