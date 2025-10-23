@@ -109,7 +109,21 @@ const GitHubSync = {
             }
             
             const fileData = await response.json();
-            const content = atob(fileData.content);
+            
+            // Decode base64 to binary string
+            const base64Content = fileData.content.replace(/\n/g, '');
+            const binaryString = atob(base64Content);
+            
+            // Convert binary string to Uint8Array
+            const bytes = new Uint8Array(binaryString.length);
+            for (let i = 0; i < binaryString.length; i++) {
+                bytes[i] = binaryString.charCodeAt(i);
+            }
+            
+            // Decode UTF-8 bytes to string
+            const utf8Decoder = new TextDecoder('utf-8');
+            const content = utf8Decoder.decode(bytes);
+            
             const data = JSON.parse(content);
             
             console.log('✅ Données chargées depuis GitHub');
@@ -133,24 +147,20 @@ const GitHubSync = {
             // First, get the current file SHA if it exists
             const currentFile = await this.getCurrentFileSHA();
             
-            // Prepare the content with proper UTF-8 encoding using TextEncoder
+            // Prepare the content - ensure proper UTF-8 encoding
             const content = JSON.stringify(data, null, 2);
             
-            // Use TextEncoder for proper UTF-8 byte handling
-            const encoder = new TextEncoder();
-            const utf8Bytes = encoder.encode(content);
+            // Convert string to UTF-8 bytes using TextEncoder
+            const utf8Encoder = new TextEncoder();
+            const utf8Array = utf8Encoder.encode(content);
             
-            // Convert bytes to base64
-            let binaryString = '';
-            for (let i = 0; i < utf8Bytes.length; i++) {
-                binaryString += String.fromCharCode(utf8Bytes[i]);
-            }
-            const encodedContent = btoa(binaryString);
+            // Convert Uint8Array to base64 string
+            const base64String = this.arrayBufferToBase64(utf8Array);
             
             // Prepare the request body
             const body = {
                 message: `Update bible index - ${new Date().toISOString()}`,
-                content: encodedContent,
+                content: base64String,
                 branch: this.branch
             };
             
@@ -185,6 +195,18 @@ const GitHubSync = {
             console.error('❌ Erreur lors de la sauvegarde sur GitHub:', error);
             throw error;
         }
+    },
+    
+    /**
+     * Convert Uint8Array to base64 string (proper UTF-8 safe method)
+     */
+    arrayBufferToBase64(uint8Array) {
+        let binary = '';
+        const len = uint8Array.byteLength;
+        for (let i = 0; i < len; i++) {
+            binary += String.fromCharCode(uint8Array[i]);
+        }
+        return btoa(binary);
     },
     
     /**
