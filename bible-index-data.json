@@ -55,6 +55,27 @@
               ]
             }
           ]
+        },
+        {
+          "id": "id-1761309078768-ie5vpz0ak",
+          "name": "Exode",
+          "order": 2,
+          "verses": [],
+          "subcategories_level2": []
+        },
+        {
+          "id": "id-1761309097462-cik3hi56t",
+          "name": "Genèse",
+          "order": 3,
+          "verses": [],
+          "subcategories_level2": []
+        },
+        {
+          "id": "id-1761309114540-8rys75nxb",
+          "name": "Lévitique",
+          "order": 4,
+          "verses": [],
+          "subcategories_level2": []
         }
       ]
     },
@@ -163,5 +184,5 @@
       ]
     }
   ],
-  "lastModified": "2025-10-24T12:30:27.660Z"
+  "lastModified": "2025-10-24T12:31:58.101Z"
 }
