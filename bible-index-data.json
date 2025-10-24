@@ -30,6 +30,13 @@
             }
           ],
           "subcategories_level2": []
+        },
+        {
+          "id": "id-1761307198670-e2pvve0hm",
+          "name": "Dueil",
+          "order": 2,
+          "verses": [],
+          "subcategories_level2": []
         }
       ]
     },
@@ -119,6 +126,20 @@
           "id": "id-1761194714447-1yd2ljqb0",
           "name": "Vidéo",
           "order": 1,
+          "verses": [],
+          "subcategories_level2": []
+        },
+        {
+          "id": "id-1761307151972-phvbmhogk",
+          "name": "AMD",
+          "order": 2,
+          "verses": [],
+          "subcategories_level2": []
+        },
+        {
+          "id": "id-1761307169566-g8khgvkrq",
+          "name": "Semaine spécial",
+          "order": 3,
           "verses": [],
           "subcategories_level2": []
         }
