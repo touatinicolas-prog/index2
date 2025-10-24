@@ -654,6 +654,7 @@ function createCategoryElement(category, level = 0) {
     buttonsDiv.style.display = 'flex';
     buttonsDiv.style.gap = '8px';
     buttonsDiv.style.alignItems = 'center';
+    buttonsDiv.style.flexShrink = '0';
     
     // Add drag handle in edit mode
     if (AppState.mode === 'edit') {
