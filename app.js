@@ -289,6 +289,8 @@ function toggleMode() {
     // Re-render current view if needed
     if (AppState.currentView === 'list') {
         renderVerseList();
+    } else if (AppState.currentView === 'detail') {
+        renderVerseDetail(); // Refresh detail view to update JW Library link
     }
 }
 
@@ -704,6 +706,123 @@ function createVerseCard(verse) {
     return card;
 }
 
+// ===== JW Library Integration =====
+// Mapping des noms de livres bibliques vers leurs numéros JW Library
+const BIBLE_BOOKS = {
+    // Ancien Testament
+    'genèse': 1, 'gen': 1, 'ge': 1,
+    'exode': 2, 'ex': 2,
+    'lévitique': 3, 'lév': 3, 'lé': 3, 'lev': 3, 'le': 3,
+    'nombres': 4, 'nom': 4, 'nb': 4,
+    'deutéronome': 5, 'deut': 5, 'deu': 5, 'de': 5, 'dt': 5,
+    'josué': 6, 'jos': 6, 'jo': 6,
+    'juges': 7, 'jug': 7, 'jg': 7,
+    'ruth': 8, 'ru': 8, 'rt': 8,
+    '1 samuel': 9, '1sam': 9, '1sa': 9, '1 sam': 9, '1 sa': 9,
+    '2 samuel': 10, '2sam': 10, '2sa': 10, '2 sam': 10, '2 sa': 10,
+    '1 rois': 11, '1ro': 11, '1 ro': 11,
+    '2 rois': 12, '2ro': 12, '2 ro': 12,
+    '1 chroniques': 13, '1ch': 13, '1 ch': 13, '1chr': 13, '1 chr': 13,
+    '2 chroniques': 14, '2ch': 14, '2 ch': 14, '2chr': 14, '2 chr': 14,
+    'esdras': 15, 'esd': 15,
+    'néhémie': 16, 'néh': 16, 'neh': 16, 'né': 16, 'ne': 16,
+    'esther': 17, 'est': 17, 'es': 17,
+    'job': 18, 'jb': 18,
+    'psaumes': 19, 'ps': 19, 'psaume': 19,
+    'proverbes': 20, 'prov': 20, 'pr': 20, 'pro': 20,
+    'ecclésiaste': 21, 'eccl': 21, 'ecc': 21, 'ec': 21,
+    'cantique des cantiques': 22, 'cant': 22, 'ca': 22, 'ct': 22,
+    'isaïe': 23, 'isa': 23, 'is': 23, 'esaïe': 23, 'esaie': 23,
+    'jérémie': 24, 'jér': 24, 'jer': 24, 'jé': 24, 'je': 24,
+    'lamentations': 25, 'lam': 25, 'la': 25,
+    'ézéchiel': 26, 'ézé': 26, 'eze': 26, 'éz': 26, 'ez': 26,
+    'daniel': 27, 'dan': 27, 'da': 27,
+    'osée': 28, 'os': 28, 'ose': 28,
+    'joël': 29, 'joel': 29, 'jl': 29,
+    'amos': 30, 'am': 30,
+    'abdias': 31, 'abd': 31, 'ab': 31,
+    'jonas': 32, 'jon': 32,
+    'michée': 33, 'mich': 33, 'mi': 33, 'mic': 33,
+    'nahoum': 34, 'nah': 34, 'na': 34,
+    'habaquq': 35, 'hab': 35, 'ha': 35,
+    'sophonie': 36, 'soph': 36, 'so': 36,
+    'aggée': 37, 'agg': 37, 'ag': 37,
+    'zacharie': 38, 'zach': 38, 'za': 38,
+    'malachie': 39, 'mal': 39, 'ml': 39,
+    // Nouveau Testament
+    'matthieu': 40, 'matt': 40, 'mat': 40, 'mt': 40, 'ma': 40,
+    'marc': 41, 'mar': 41, 'mc': 41, 'mr': 41,
+    'luc': 42, 'lu': 42, 'lc': 42,
+    'jean': 43, 'jn': 43,
+    'actes': 44, 'act': 44, 'ac': 44,
+    'romains': 45, 'rom': 45, 'ro': 45, 'rm': 45,
+    '1 corinthiens': 46, '1cor': 46, '1co': 46, '1 cor': 46, '1 co': 46,
+    '2 corinthiens': 47, '2cor': 47, '2co': 47, '2 cor': 47, '2 co': 47,
+    'galates': 48, 'gal': 48, 'ga': 48,
+    'éphésiens': 49, 'éph': 49, 'eph': 49, 'ép': 49, 'ep': 49,
+    'philippiens': 50, 'phil': 50, 'ph': 50, 'php': 50,
+    'colossiens': 51, 'col': 51, 'co': 51,
+    '1 thessaloniciens': 52, '1thess': 52, '1th': 52, '1 thess': 52, '1 th': 52,
+    '2 thessaloniciens': 53, '2thess': 53, '2th': 53, '2 thess': 53, '2 th': 53,
+    '1 timothée': 54, '1tim': 54, '1ti': 54, '1 tim': 54, '1 ti': 54,
+    '2 timothée': 55, '2tim': 55, '2ti': 55, '2 tim': 55, '2 ti': 55,
+    'tite': 56, 'tit': 56, 'tt': 56,
+    'philémon': 57, 'philém': 57, 'phm': 57, 'phl': 57,
+    'hébreux': 58, 'héb': 58, 'heb': 58, 'hé': 58, 'he': 58,
+    'jacques': 59, 'jacq': 59, 'jac': 59, 'jq': 59,
+    '1 pierre': 60, '1pierre': 60, '1pi': 60, '1 pi': 60, '1 pier': 60, '1pier': 60,
+    '2 pierre': 61, '2pierre': 61, '2pi': 61, '2 pi': 61, '2 pier': 61, '2pier': 61,
+    '1 jean': 62, '1jean': 62, '1jn': 62, '1 jn': 62,
+    '2 jean': 63, '2jean': 63, '2jn': 63, '2 jn': 63,
+    '3 jean': 64, '3jean': 64, '3jn': 64, '3 jn': 63,
+    'jude': 65, 'jud': 65, 'jd': 65,
+    'révélation': 66, 'rév': 66, 'rev': 66, 'ré': 66, 're': 66, 'apocalypse': 66, 'apoc': 66, 'ap': 66
+};
+
+function parseScriptureReference(reference) {
+    if (!reference) return null;
+    
+    // Nettoyer la référence
+    reference = reference.trim().toLowerCase();
+    
+    // Pattern pour capturer: Livre Chapitre:Verset ou Livre Chapitre:Verset-Verset
+    const pattern = /^(.+?)\s+(\d+)(?::(\d+)(?:-(\d+))?)?$/;
+    const match = reference.match(pattern);
+    
+    if (!match) return null;
+    
+    const bookName = match[1].trim();
+    const chapter = parseInt(match[2]);
+    const verse = match[3] ? parseInt(match[3]) : null;
+    const endVerse = match[4] ? parseInt(match[4]) : null;
+    
+    // Trouver le numéro du livre
+    const bookNum = BIBLE_BOOKS[bookName];
+    
+    if (!bookNum) return null;
+    
+    return {
+        bookNum: bookNum,
+        chapter: chapter,
+        verse: verse,
+        endVerse: endVerse
+    };
+}
+
+function generateJWLibraryURL(reference) {
+    const parsed = parseScriptureReference(reference);
+    
+    if (!parsed) return null;
+    
+    let url = `jwlibrary://bible?booknum=${parsed.bookNum}&chapter=${parsed.chapter}`;
+    
+    if (parsed.verse) {
+        url += `&verse=${parsed.verse}`;
+    }
+    
+    return url;
+}
+
 function renderVerseDetail() {
     const detailContainer = document.getElementById('verseDetail');
     const verse = AppState.currentVerse;
@@ -734,8 +853,21 @@ function renderVerseDetail() {
         verseTextHTML = `<div class="verse-detail-text">${verse.text}</div>`;
     }
     
+    // Generate JW Library link in read mode
+    let referenceHTML = '';
+    if (AppState.mode === 'read') {
+        const jwLibraryURL = generateJWLibraryURL(verse.reference);
+        if (jwLibraryURL) {
+            referenceHTML = `<a href="${jwLibraryURL}" class="verse-detail-reference jw-library-link">${verse.reference} 📖</a>`;
+        } else {
+            referenceHTML = `<div class="verse-detail-reference">${verse.reference}</div>`;
+        }
+    } else {
+        referenceHTML = `<div class="verse-detail-reference">${verse.reference}</div>`;
+    }
+    
     detailContainer.innerHTML = `
-        <div class="verse-detail-reference">${verse.reference}</div>
+        ${referenceHTML}
         <div class="verse-detail-meta">
             <span>📅 Créé: ${created}</span>
             <span>✏️ Modifié: ${modified}</span>
