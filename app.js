@@ -679,12 +679,17 @@ function createVerseCard(verse) {
         `;
     }
     
+    let verseTextHTML = '';
+    if (verse.text && verse.text.trim()) {
+        verseTextHTML = `<div class="verse-text">${verse.text}</div>`;
+    }
+    
     card.innerHTML = `
         <div class="verse-card-header">
             <div class="verse-reference">${verse.reference}</div>
             <div class="verse-date">${date}</div>
         </div>
-        <div class="verse-text">${verse.text}</div>
+        ${verseTextHTML}
         <div class="verse-notes-preview">${notesPreview}</div>
         ${imagesHTML}
     `;
@@ -724,13 +729,18 @@ function renderVerseDetail() {
         `;
     }
     
+    let verseTextHTML = '';
+    if (verse.text && verse.text.trim()) {
+        verseTextHTML = `<div class="verse-detail-text">${verse.text}</div>`;
+    }
+    
     detailContainer.innerHTML = `
         <div class="verse-detail-reference">${verse.reference}</div>
         <div class="verse-detail-meta">
             <span>📅 Créé: ${created}</span>
             <span>✏️ Modifié: ${modified}</span>
         </div>
-        <div class="verse-detail-text">${verse.text}</div>
+        ${verseTextHTML}
         <div class="verse-detail-notes-section">
             <h3>📝 Notes Personnelles</h3>
             <div class="verse-detail-notes">${verse.notes || 'Aucune note'}</div>
@@ -799,8 +809,8 @@ function createVerseForm(verse = null) {
                        value="${verse ? verse.reference : ''}" placeholder="Ex: Jean 3:16">
             </div>
             <div class="form-group">
-                <label for="verseText">Texte du verset *</label>
-                <textarea id="verseText" class="form-textarea" required 
+                <label for="verseText">Texte du verset</label>
+                <textarea id="verseText" class="form-textarea" 
                           placeholder="Copiez le texte du verset ici...">${verse ? verse.text : ''}</textarea>
             </div>
             <div class="form-group">
@@ -1102,8 +1112,8 @@ async function handleVerseSubmit() {
     const text = document.getElementById('verseText').value.trim();
     const notes = document.getElementById('verseNotes').value.trim();
     
-    if (!reference || !text) {
-        showStatus('❌ Référence et texte requis', 'error');
+    if (!reference) {
+        showStatus('❌ Référence requise', 'error');
         return;
     }
     
