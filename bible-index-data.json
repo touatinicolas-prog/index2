@@ -52,13 +52,13 @@
               "verses": [
                 {
                   "id": "id-1761287757655-8d440fqfr",
-                  "reference": "Jonas 3-4",
+                  "reference": "Jonas 3:1-4",
                   "text": "Jéhovah parla à Jonas une deuxième fois :  2 « Lève-toi, va à Ninive, la grande ville, et proclame-lui le message que je te donne. »Jonas se leva donc et alla à Ninive, comme Jéhovah le lui demandait. Ninive était une très grande ville : il fallait trois jours de marche pour la parcourir.  4 Jonas entra dans la ville et marcha toute une journée en proclamant : « Dans seulement 40 jours, Ninive sera détruite. »",
                   "notes": "Avec les mois que Jonas à perdu dans sa fuite initiale, les 40 jours de délais offerte a Ninive pour se repentir ont certainement du etre décalé.\n\nPar respect pour sa justice et par considération pour son prophète. Jéhovah est un Dieu patient, souple et merveilleux",
                   "images": [],
                   "order": 0,
                   "created": "2025-10-24T06:35:57.655Z",
-                  "modified": "2025-10-24T06:35:57.655Z"
+                  "modified": "2025-10-24T11:46:48.133Z"
                 }
               ]
             }
@@ -98,15 +98,26 @@
       "verses": [],
       "subcategories_level1": [
         {
-          "id": "id-1761194714447-1yd2ljqb0",
-          "name": "Vidéo",
+          "id": "id-1761194686065-7f9p04ebh",
+          "name": "Verset",
           "order": 0,
-          "verses": [],
+          "verses": [
+            {
+              "id": "id-1761306621781-7b88a9o6m",
+              "reference": "Jonas 3:5",
+              "text": "Les habitants de Ninive eurent foi en Dieu",
+              "notes": "Avoir du bon résultat en prédication, nous permet-t-il forcément d’avoir de la joie dans cette activité ?\nAu vu des sentiments que Yona a ressenti quand il a converti toute une ville, ce n’est pas le cas…\nCF Jonas 4:1 .\n\nPour ne pas être envahi par ce genre de sentiment nous demande avant tout d’aimer les gens, et d’aimer notre dieu !\nC’est vraiment là que nous puisons notre joie…",
+              "images": [],
+              "order": 0,
+              "created": "2025-10-24T11:50:21.781Z",
+              "modified": "2025-10-24T11:50:21.781Z"
+            }
+          ],
           "subcategories_level2": []
         },
         {
-          "id": "id-1761194686065-7f9p04ebh",
-          "name": "Verset",
+          "id": "id-1761194714447-1yd2ljqb0",
+          "name": "Vidéo",
           "order": 1,
           "verses": [],
           "subcategories_level2": []
