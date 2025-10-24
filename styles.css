@@ -124,22 +124,96 @@ button, a, .icon-btn, .primary-btn, .secondary-btn, .category-link, .category-ed
     background: var(--danger-color);
 }
 
-.sync-status {
-    padding: 8px 24px;
+/* ===== Toast Notifications ===== */
+.toast-container {
+    position: fixed;
+    top: 80px;
+    right: 24px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    pointer-events: none;
+}
+
+.toast {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 16px 20px;
+    min-width: 250px;
+    max-width: 400px;
+    box-shadow: 0 8px 24px var(--shadow);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    pointer-events: auto;
+    animation: slideIn 0.3s ease-out;
+    transition: all 0.3s ease-out;
+}
+
+.toast.success {
+    border-left: 4px solid var(--success-color);
+}
+
+.toast.error {
+    border-left: 4px solid var(--danger-color);
+}
+
+.toast.info {
+    border-left: 4px solid var(--accent-color);
+}
+
+.toast-icon {
+    font-size: 20px;
+    flex-shrink: 0;
+}
+
+.toast-message {
+    flex: 1;
     font-size: 14px;
-    text-align: center;
-    background: var(--bg-tertiary);
-    border-top: 1px solid var(--border-color);
+    line-height: 1.4;
+    color: var(--text-primary);
 }
 
-.sync-status.success {
-    background: var(--success-color);
-    color: white;
+.toast.removing {
+    animation: slideOut 0.3s ease-in forwards;
 }
 
-.sync-status.error {
-    background: var(--danger-color);
-    color: white;
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(100px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideOut {
+    from {
+        opacity: 1;
+        transform: translateX(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateX(100px);
+    }
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+    .toast-container {
+        top: 70px;
+        right: 16px;
+        left: 16px;
+    }
+    
+    .toast {
+        min-width: auto;
+        max-width: none;
+    }
 }
 
 /* ===== Main Layout ===== */
