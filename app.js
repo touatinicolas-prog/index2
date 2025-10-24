@@ -252,8 +252,6 @@ function toggleMode() {
     if (AppState.currentView === 'list') {
         renderVerseList();
     }
-    
-    showStatus(AppState.mode === 'read' ? '📖 Mode Lecture' : '✏️ Mode Édition', 'success');
 }
 
 // ===== Theme Toggle =====
@@ -427,7 +425,9 @@ function createCategoryElement(category, level = 0) {
     link.className = 'category-link';
     link.style.marginLeft = `${level * 20}px`;
     
-    const hasChildren = category.subcategories_level1 && category.subcategories_level1.length > 0;
+    // Check for children at any level
+    const hasChildren = (level === 0 && category.subcategories_level1 && category.subcategories_level1.length > 0) ||
+                       (level === 1 && category.subcategories_level2 && category.subcategories_level2.length > 0);
     
     // Create name span
     const nameSpan = document.createElement('span');
@@ -528,10 +528,18 @@ link.onclick = handleBarClick;
         const subContainer = document.createElement('div');
         subContainer.className = 'subcategory-list hidden';
         
-        category.subcategories_level1.forEach(sub => {
-            const subEl = createCategoryElement(sub, level + 1);
-            subContainer.appendChild(subEl);
-        });
+        // Add level 1 subcategories OR level 2 subcategories depending on current level
+        if (level === 0 && category.subcategories_level1) {
+            category.subcategories_level1.forEach(sub => {
+                const subEl = createCategoryElement(sub, level + 1);
+                subContainer.appendChild(subEl);
+            });
+        } else if (level === 1 && category.subcategories_level2) {
+            category.subcategories_level2.forEach(sub => {
+                const subEl = createCategoryElement(sub, level + 1);
+                subContainer.appendChild(subEl);
+            });
+        }
         
         div.appendChild(subContainer);
     }
