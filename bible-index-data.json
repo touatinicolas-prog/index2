@@ -74,6 +74,23 @@
                   "modified": "2025-10-24T11:21:34.322Z"
                 }
               ]
+            },
+            {
+              "id": "id-1761332034521-omp12pf0z",
+              "name": "Chap 6",
+              "order": 1,
+              "verses": [
+                {
+                  "id": "id-1761332151024-kyp9acr69",
+                  "reference": "Ecc 6:9",
+                  "text": "Mieux vaut profiter de ce que les yeux voient que de poursuivre ses désirs ici et là. Cela aussi est futile, c’est comme courir après le vent.",
+                  "notes": "Il faut prendre le temps de profiter de ce que nous avons déjà et entre deux objectifs, prendre le temps de profiter du voyage!\nSinon nous ne ferions que courir sans savourer le paysage.",
+                  "images": [],
+                  "order": 0,
+                  "created": "2025-10-24T18:55:51.024Z",
+                  "modified": "2025-10-24T18:55:51.024Z"
+                }
+              ]
             }
           ]
         }
@@ -184,5 +201,5 @@
       ]
     }
   ],
-  "lastModified": "2025-10-24T12:32:40.188Z"
+  "lastModified": "2025-10-24T18:55:53.014Z"
 }
