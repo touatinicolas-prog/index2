@@ -30,13 +30,6 @@
             }
           ],
           "subcategories_level2": []
-        },
-        {
-          "id": "id-1761305301663-db4nw5ciq",
-          "name": "Dueil",
-          "order": 2,
-          "verses": [],
-          "subcategories_level2": []
         }
       ]
     },
@@ -115,20 +108,6 @@
           "id": "id-1761194686065-7f9p04ebh",
           "name": "Verset",
           "order": 1,
-          "verses": [],
-          "subcategories_level2": []
-        },
-        {
-          "id": "id-1761305232201-3tvzv16n1",
-          "name": "Semaine spécial",
-          "order": 2,
-          "verses": [],
-          "subcategories_level2": []
-        },
-        {
-          "id": "id-1761305271584-sm7s5h3rm",
-          "name": "AMD",
-          "order": 3,
           "verses": [],
           "subcategories_level2": []
         }
