@@ -998,6 +998,26 @@ function generateJWLibraryURL(reference) {
     return url;
 }
 
+function openJWLibraryApp() {
+    try {
+        // Create a hidden iframe to trigger the app without page navigation
+        const iframe = document.createElement('iframe');
+        iframe.style.display = 'none';
+        iframe.src = 'jwlibrary://';
+        document.body.appendChild(iframe);
+        
+        // Remove iframe after a short delay
+        setTimeout(() => {
+            document.body.removeChild(iframe);
+        }, 1000);
+        
+        showStatus('📖 Ouverture de JW Library...', 'success');
+    } catch (error) {
+        console.error('Erreur ouverture JW Library:', error);
+        showStatus('❌ Impossible d\'ouvrir JW Library', 'error');
+    }
+}
+
 function renderVerseDetail() {
     const detailContainer = document.getElementById('verseDetail');
     const verse = AppState.currentVerse;
@@ -1031,9 +1051,9 @@ function renderVerseDetail() {
     // Generate JW Library link in read mode
     let referenceHTML = '';
     if (AppState.mode === 'read') {
-        // Simply open JW Library app without trying to navigate to specific verse
-        // This prevents Safari from opening with jw.org fallback
-        referenceHTML = `<a href="jwlibrary://" class="verse-detail-reference jw-library-link" onclick="event.preventDefault(); window.location.href='jwlibrary://'; return false;">${verse.reference} 📖</a>`;
+        // Use a button-style link to avoid browser fallback behavior
+        // This prevents Safari from opening with jw.org
+        referenceHTML = `<div class="verse-detail-reference jw-library-link" onclick="openJWLibraryApp()" style="cursor: pointer;">${verse.reference} 📖</div>`;
     } else {
         referenceHTML = `<div class="verse-detail-reference">${verse.reference}</div>`;
     }
