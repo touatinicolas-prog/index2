@@ -211,6 +211,11 @@ function setupEventListeners() {
     deleteVerseBtn.onclick = deleteCurrentVerse;
     deleteVerseBtn.ontouchstart = (e) => { e.preventDefault(); deleteCurrentVerse(); };
     
+    // Edit verse button
+    const editVerseBtn = document.getElementById('editVerseBtn');
+    editVerseBtn.onclick = editCurrentVerse;
+    editVerseBtn.ontouchstart = (e) => { e.preventDefault(); editCurrentVerse(); };
+    
     // Modal close
     document.getElementById('modalClose').addEventListener('click', closeModal);
     document.getElementById('modalClose').addEventListener('touchend', (e) => {
@@ -745,8 +750,9 @@ function createCategoryForm(category = null) {
 }
 
 function createVerseForm(verse = null) {
+    const isEditing = verse !== null;
     return `
-        <form id="verseForm">
+        <form id="verseForm" data-editing="${isEditing}">
             <div class="form-group">
                 <label for="verseReference">Référence biblique *</label>
                 <input type="text" id="verseReference" class="form-input" required 
@@ -764,6 +770,12 @@ function createVerseForm(verse = null) {
             </div>
             <div class="form-group">
                 <label>Images (JPEG/PDF)</label>
+                ${verse && verse.images && verse.images.length > 0 ? `
+                    <div style="margin-bottom: 12px; padding: 12px; background: var(--bg-tertiary); border-radius: 8px;">
+                        <p style="font-size: 14px; color: var(--text-secondary); margin-bottom: 8px;">📷 Images existantes (${verse.images.length})</p>
+                        <p style="font-size: 12px; color: var(--text-secondary);">Les images existantes seront conservées. Vous pouvez en ajouter de nouvelles ci-dessous.</p>
+                    </div>
+                ` : ''}
                 <div class="image-upload-area" id="imageUploadArea">
                     <p>📎 Cliquez ou glissez-déposez des images ici</p>
                     <p style="font-size: 12px; color: var(--text-secondary);">Les images seront automatiquement compressées</p>
@@ -773,7 +785,7 @@ function createVerseForm(verse = null) {
             </div>
             <div class="modal-footer">
                 <button type="button" class="secondary-btn" onclick="closeModal()">Annuler</button>
-                <button type="submit" class="primary-btn">Enregistrer</button>
+                <button type="submit" class="primary-btn">${isEditing ? 'Mettre à jour' : 'Enregistrer'}</button>
             </div>
         </form>
     `;
@@ -913,6 +925,13 @@ function deleteCurrentVerse() {
     }
 }
 
+function editCurrentVerse() {
+    if (!AppState.currentVerse) return;
+    
+    // Ouvrir le modal avec les données du verset actuel
+    openModal('verse', AppState.currentVerse);
+}
+
 // ===== Utility Functions =====
 function generateId() {
     return 'id-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
@@ -1048,8 +1067,18 @@ async function handleVerseSubmit() {
         return;
     }
     
-    // Upload images to GitHub if any
+    // Check if we're editing an existing verse
+    const isEditing = AppState.currentVerse && document.getElementById('verseForm').dataset.editing === 'true';
+    
+    // Upload images to GitHub if any NEW images
     const imageUrls = [];
+    
+    // Keep existing images if editing
+    if (isEditing && AppState.currentVerse.images) {
+        imageUrls.push(...AppState.currentVerse.images);
+    }
+    
+    // Add new uploaded images
     if (uploadedImages.length > 0) {
         showStatus('⏳ Upload des images...', 'info');
         for (let i = 0; i < uploadedImages.length; i++) {
@@ -1065,52 +1094,75 @@ async function handleVerseSubmit() {
         }
     }
     
-    const newVerse = {
-        id: generateId(),
-        reference: reference,
-        text: text,
-        notes: notes,
-        images: imageUrls,
-        order: 0,
-        created: new Date().toISOString(),
-        modified: new Date().toISOString()
-    };
-    
-    // Add to appropriate location
-    let verses = [];
-    if (AppState.currentSubcategory2) {
-        if (!AppState.currentSubcategory2.verses) {
-            AppState.currentSubcategory2.verses = [];
+    if (isEditing) {
+        // Update existing verse
+        AppState.currentVerse.reference = reference;
+        AppState.currentVerse.text = text;
+        AppState.currentVerse.notes = notes;
+        AppState.currentVerse.images = imageUrls;
+        AppState.currentVerse.modified = new Date().toISOString();
+        
+        closeModal();
+        uploadedImages = []; // Reset uploaded images
+        
+        // Refresh detail view
+        if (AppState.currentView === 'detail') {
+            renderVerseDetail();
+        } else {
+            renderVerseList();
         }
-        verses = AppState.currentSubcategory2.verses;
-    } else if (AppState.currentSubcategory1) {
-        if (!AppState.currentSubcategory1.verses) {
-            AppState.currentSubcategory1.verses = [];
-        }
-        verses = AppState.currentSubcategory1.verses;
-    } else if (AppState.currentCategory) {
-        if (!AppState.currentCategory.verses) {
-            AppState.currentCategory.verses = [];
-        }
-        verses = AppState.currentCategory.verses;
+        
+        markAsUnsaved();
+        showStatus('✅ Verset modifié', 'success');
     } else {
-        showStatus('❌ Sélectionnez une catégorie', 'error');
-        return;
+        // Create new verse
+        const newVerse = {
+            id: generateId(),
+            reference: reference,
+            text: text,
+            notes: notes,
+            images: imageUrls,
+            order: 0,
+            created: new Date().toISOString(),
+            modified: new Date().toISOString()
+        };
+        
+        // Add to appropriate location
+        let verses = [];
+        if (AppState.currentSubcategory2) {
+            if (!AppState.currentSubcategory2.verses) {
+                AppState.currentSubcategory2.verses = [];
+            }
+            verses = AppState.currentSubcategory2.verses;
+        } else if (AppState.currentSubcategory1) {
+            if (!AppState.currentSubcategory1.verses) {
+                AppState.currentSubcategory1.verses = [];
+            }
+            verses = AppState.currentSubcategory1.verses;
+        } else if (AppState.currentCategory) {
+            if (!AppState.currentCategory.verses) {
+                AppState.currentCategory.verses = [];
+            }
+            verses = AppState.currentCategory.verses;
+        } else {
+            showStatus('❌ Sélectionnez une catégorie', 'error');
+            return;
+        }
+        
+        verses.push(newVerse);
+        newVerse.order = verses.length - 1;
+        
+        closeModal();
+        uploadedImages = []; // Reset uploaded images
+        
+        // Refresh view
+        if (AppState.currentView === 'list') {
+            renderVerseList();
+        }
+        
+        markAsUnsaved();
+        showStatus('✅ Verset ajouté', 'success');
     }
-    
-    verses.push(newVerse);
-    newVerse.order = verses.length - 1;
-    
-    closeModal();
-    uploadedImages = []; // Reset uploaded images
-    
-    // Refresh view
-    if (AppState.currentView === 'list') {
-        renderVerseList();
-    }
-    
-    markAsUnsaved();
-    showStatus('✅ Verset ajouté', 'success');
 }
 
 // Update category level selector to show parent options
