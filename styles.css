@@ -397,7 +397,7 @@ button, a, .icon-btn, .primary-btn, .secondary-btn, .category-link, .category-ed
 }
 
 .verse-text {
-    font-size: 15px;
+    font-size: 14px;
     line-height: 1.8;
     margin-bottom: 12px;
     color: var(--text-primary);
@@ -476,8 +476,8 @@ button, a, .icon-btn, .primary-btn, .secondary-btn, .category-link, .category-ed
 }
 
 .verse-detail-text {
-    font-size: 18px;
-    line-height: 2;
+    font-size: 15px;
+    line-height: 1.9;
     margin-bottom: 32px;
     padding: 20px;
     background: var(--bg-tertiary);
