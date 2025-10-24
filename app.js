@@ -1031,12 +1031,9 @@ function renderVerseDetail() {
     // Generate JW Library link in read mode
     let referenceHTML = '';
     if (AppState.mode === 'read') {
-        const jwLibraryURL = generateJWLibraryURL(verse.reference);
-        if (jwLibraryURL) {
-            referenceHTML = `<a href="${jwLibraryURL}" class="verse-detail-reference jw-library-link">${verse.reference} 📖</a>`;
-        } else {
-            referenceHTML = `<div class="verse-detail-reference">${verse.reference}</div>`;
-        }
+        // Simply open JW Library app without trying to navigate to specific verse
+        // This prevents Safari from opening with jw.org fallback
+        referenceHTML = `<a href="jwlibrary://" class="verse-detail-reference jw-library-link" onclick="event.preventDefault(); window.location.href='jwlibrary://'; return false;">${verse.reference} 📖</a>`;
     } else {
         referenceHTML = `<div class="verse-detail-reference">${verse.reference}</div>`;
     }
