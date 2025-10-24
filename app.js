@@ -21,6 +21,9 @@ const AppState = {
 document.addEventListener('DOMContentLoaded', async () => {
     console.log('📖 Initialisation de l\'Index Biblique...');
     
+    // Initialize read mode on startup
+    initializeReadMode();
+    
     // Check if GitHub config exists
     if (!GitHubSync.validateConfig()) {
         console.warn('⚠️ Configuration GitHub manquante');
@@ -156,65 +159,86 @@ function clearGitHubConfig() {
 }
 
 // ===== Event Listeners Setup =====
+// Variables to track touch movement for preventing accidental clicks during scroll
+let touchStartY = 0;
+let touchMoved = false;
+
+// Add global touch tracking to prevent accidental clicks during scroll
+document.addEventListener('touchstart', (e) => {
+    touchStartY = e.touches[0].clientY;
+    touchMoved = false;
+}, { passive: true });
+
+document.addEventListener('touchmove', (e) => {
+    if (Math.abs(e.touches[0].clientY - touchStartY) > 10) {
+        touchMoved = true;
+    }
+}, { passive: true });
+
 function setupEventListeners() {
     // Mode toggle - unified handler for desktop and mobile
     const modeToggleBtn = document.getElementById('modeToggle');
-    modeToggleBtn.onclick = toggleMode;
-    modeToggleBtn.ontouchstart = (e) => { e.preventDefault(); toggleMode(); };
+    modeToggleBtn.addEventListener('click', (e) => {
+        if (!touchMoved) toggleMode();
+    });
     
     // Theme toggle
     const themeToggleBtn = document.getElementById('themeToggle');
-    themeToggleBtn.onclick = toggleTheme;
-    themeToggleBtn.ontouchstart = (e) => { e.preventDefault(); toggleTheme(); };
+    themeToggleBtn.addEventListener('click', (e) => {
+        if (!touchMoved) toggleTheme();
+    });
     
     // Sync button
     const syncBtn = document.getElementById('syncBtn');
-    syncBtn.onclick = syncData;
-    syncBtn.ontouchstart = (e) => { e.preventDefault(); syncData(); };
+    syncBtn.addEventListener('click', (e) => {
+        if (!touchMoved) syncData();
+    });
     
     // Settings button
     const settingsBtn = document.getElementById('settingsBtn');
-    settingsBtn.onclick = showSettingsModal;
-    settingsBtn.ontouchstart = (e) => { e.preventDefault(); showSettingsModal(); };
+    settingsBtn.addEventListener('click', (e) => {
+        if (!touchMoved) showSettingsModal();
+    });
     
     // Get started button
     const getStartedBtn = document.getElementById('getStartedBtn');
-    getStartedBtn.onclick = () => openModal('category');
-    getStartedBtn.ontouchstart = (e) => { e.preventDefault(); openModal('category'); };
+    getStartedBtn.addEventListener('click', (e) => {
+        if (!touchMoved) openModal('category');
+    });
     
     // Add category button
     const addCategoryBtn = document.getElementById('addCategoryBtn');
-    addCategoryBtn.onclick = () => openModal('category');
-    addCategoryBtn.ontouchstart = (e) => { e.preventDefault(); openModal('category'); };
+    addCategoryBtn.addEventListener('click', (e) => {
+        if (!touchMoved) openModal('category');
+    });
     
     // Add verse button
     const addVerseBtn = document.getElementById('addVerseBtn');
-    addVerseBtn.onclick = () => openModal('verse');
-    addVerseBtn.ontouchstart = (e) => { e.preventDefault(); openModal('verse'); };
+    addVerseBtn.addEventListener('click', (e) => {
+        if (!touchMoved) openModal('verse');
+    });
     
     // Back to list button
     const backToListBtn = document.getElementById('backToListBtn');
-    backToListBtn.onclick = () => {
-        AppState.currentVerse = null;
-        AppState.currentView = 'list';
-        renderCurrentView();
-    };
-    backToListBtn.ontouchstart = (e) => {
-        e.preventDefault();
-        AppState.currentVerse = null;
-        AppState.currentView = 'list';
-        renderCurrentView();
-    };
+    backToListBtn.addEventListener('click', (e) => {
+        if (!touchMoved) {
+            AppState.currentVerse = null;
+            AppState.currentView = 'list';
+            renderCurrentView();
+        }
+    });
     
     // Delete verse button
     const deleteVerseBtn = document.getElementById('deleteVerseBtn');
-    deleteVerseBtn.onclick = deleteCurrentVerse;
-    deleteVerseBtn.ontouchstart = (e) => { e.preventDefault(); deleteCurrentVerse(); };
+    deleteVerseBtn.addEventListener('click', (e) => {
+        if (!touchMoved) deleteCurrentVerse();
+    });
     
     // Edit verse button
     const editVerseBtn = document.getElementById('editVerseBtn');
-    editVerseBtn.onclick = editCurrentVerse;
-    editVerseBtn.ontouchstart = (e) => { e.preventDefault(); editCurrentVerse(); };
+    editVerseBtn.addEventListener('click', (e) => {
+        if (!touchMoved) editCurrentVerse();
+    });
     
     // Modal close
     document.getElementById('modalClose').addEventListener('click', closeModal);
@@ -224,6 +248,15 @@ function setupEventListeners() {
     }, { passive: false });
     document.getElementById('modal').addEventListener('click', (e) => {
         if (e.target.id === 'modal') closeModal();
+    });
+}
+
+// ===== Mode Initialization =====
+function initializeReadMode() {
+    // Hide all edit-mode elements on startup
+    const editElements = document.querySelectorAll('.hidden-read-mode');
+    editElements.forEach(el => {
+        el.style.display = 'none';
     });
 }
 
@@ -457,6 +490,9 @@ function createCategoryElement(category, level = 0) {
     link.appendChild(nameSpan);
     // Click on whole bar to expand/navigate
 const handleBarClick = (e) => {
+    // Prevent action if user was scrolling
+    if (touchMoved) return;
+    
     // If has children, toggle expansion
     if (hasChildren) {
         const subContainer = div.querySelector('.subcategory-list');
@@ -487,6 +523,7 @@ link.onclick = handleBarClick;
         
         // Use addEventListener instead of onclick for better iOS support
         editBtn.addEventListener('click', (e) => {
+            if (touchMoved) return; // Prevent action if scrolling
             e.stopPropagation();
             e.preventDefault();
             editCategory(category.id, level);
@@ -494,6 +531,7 @@ link.onclick = handleBarClick;
         
         // Add touch support for iOS
         editBtn.addEventListener('touchend', (e) => {
+            if (touchMoved) return; // Prevent action if scrolling
             e.stopPropagation();
             e.preventDefault();
             editCategory(category.id, level);
@@ -510,6 +548,7 @@ link.onclick = handleBarClick;
         expandBtn.textContent = '›';
         
         const handleExpand = (e) => {
+            if (touchMoved) return; // Prevent action if scrolling
             e.stopPropagation();
             e.preventDefault();
             const subContainer = div.querySelector('.subcategory-list');
@@ -651,6 +690,7 @@ function createVerseCard(verse) {
     `;
     
     card.addEventListener('click', () => {
+        if (touchMoved) return; // Prevent action if scrolling
         AppState.currentVerse = verse;
         AppState.currentView = 'detail';
         renderCurrentView();
