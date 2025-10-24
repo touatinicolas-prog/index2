@@ -197,9 +197,29 @@
             }
           ],
           "subcategories_level2": []
+        },
+        {
+          "id": "id-1761334498296-vz7up5eh2",
+          "name": "DP 48",
+          "order": 1,
+          "verses": [
+            {
+              "id": "id-1761334819152-ddsf69a7g",
+              "reference": "« la bonne nouvelle selon Jésus »",
+              "text": "Image 1",
+              "notes": "Episode 2: 24’02",
+              "images": [
+                "https://raw.githubusercontent.com/touatinicolas-prog/index2/main/images/id-1761334817820-w7ubm0nca.jpg"
+              ],
+              "order": 0,
+              "created": "2025-10-24T19:40:19.152Z",
+              "modified": "2025-10-24T19:40:19.152Z"
+            }
+          ],
+          "subcategories_level2": []
         }
       ]
     }
   ],
-  "lastModified": "2025-10-24T19:07:36.323Z"
+  "lastModified": "2025-10-24T19:40:36.555Z"
 }
