@@ -46,22 +46,21 @@
           "verses": [],
           "subcategories_level2": [
             {
-              "id": "id-1761252538296-7klcvtmso",
+              "id": "id-1761287313482-vp3aqhaep",
               "name": "Chap 3",
-              "order": 0,
-              "verses": []
-            },
-            {
-              "id": "id-1761252566708-15rt2l6co",
-              "name": "Chap 3",
-              "order": 1,
-              "verses": []
-            },
-            {
-              "id": "id-1761286906827-ue074xbuz",
-              "name": "chap 3",
               "order": 2,
-              "verses": []
+              "verses": [
+                {
+                  "id": "id-1761287757655-8d440fqfr",
+                  "reference": "Jonas 3-4",
+                  "text": "Jéhovah parla à Jonas une deuxième fois :  2 « Lève-toi, va à Ninive, la grande ville, et proclame-lui le message que je te donne. »Jonas se leva donc et alla à Ninive, comme Jéhovah le lui demandait. Ninive était une très grande ville : il fallait trois jours de marche pour la parcourir.  4 Jonas entra dans la ville et marcha toute une journée en proclamant : « Dans seulement 40 jours, Ninive sera détruite. »",
+                  "notes": "Avec les mois que Jonas à perdu dans sa fuite initiale, les 40 jours de délais offerte a Ninive pour se repentir ont certainement du etre décalé.\n\nPar respect pour sa justice et par considération pour son prophète. Jéhovah est un Dieu patient, souple et merveilleux",
+                  "images": [],
+                  "order": 0,
+                  "created": "2025-10-24T06:35:57.655Z",
+                  "modified": "2025-10-24T06:35:57.655Z"
+                }
+              ]
             }
           ]
         }
