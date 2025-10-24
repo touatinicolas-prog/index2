@@ -1,38 +1,9 @@
 {
   "categories": [
     {
-      "id": "id-1761166998037-mkl4nlrfj",
-      "name": "VP",
-      "order": 0,
-      "verses": [],
-      "subcategories_level1": [
-        {
-          "id": "id-1761194764007-cqb5k6lw7",
-          "name": "Découragement",
-          "order": 0,
-          "verses": [],
-          "subcategories_level2": []
-        },
-        {
-          "id": "id-1761168208032-8wzlysd18",
-          "name": "Couples",
-          "order": 1,
-          "verses": [],
-          "subcategories_level2": []
-        },
-        {
-          "id": "id-1761307198670-e2pvve0hm",
-          "name": "Dueil",
-          "order": 2,
-          "verses": [],
-          "subcategories_level2": []
-        }
-      ]
-    },
-    {
       "id": "id-1761194634022-ynejm8vb1",
       "name": "Perles perso",
-      "order": 1,
+      "order": 0,
       "verses": [],
       "subcategories_level1": [
         {
@@ -84,6 +55,35 @@
               ]
             }
           ]
+        }
+      ]
+    },
+    {
+      "id": "id-1761166998037-mkl4nlrfj",
+      "name": "VP",
+      "order": 1,
+      "verses": [],
+      "subcategories_level1": [
+        {
+          "id": "id-1761194764007-cqb5k6lw7",
+          "name": "Découragement",
+          "order": 0,
+          "verses": [],
+          "subcategories_level2": []
+        },
+        {
+          "id": "id-1761168208032-8wzlysd18",
+          "name": "Couples",
+          "order": 1,
+          "verses": [],
+          "subcategories_level2": []
+        },
+        {
+          "id": "id-1761307198670-e2pvve0hm",
+          "name": "Dueil",
+          "order": 2,
+          "verses": [],
+          "subcategories_level2": []
         }
       ]
     },
@@ -163,5 +163,5 @@
       ]
     }
   ],
-  "lastModified": "2025-10-24T12:24:54.994Z"
+  "lastModified": "2025-10-24T12:30:27.660Z"
 }
