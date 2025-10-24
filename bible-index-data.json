@@ -178,8 +178,16 @@
       "name": "Test",
       "order": 4,
       "verses": [],
-      "subcategories_level1": []
+      "subcategories_level1": [
+        {
+          "id": "id-1761308116677-sbo6v7jph",
+          "name": "Test",
+          "order": 0,
+          "verses": [],
+          "subcategories_level2": []
+        }
+      ]
     }
   ],
-  "lastModified": "2025-10-24T12:11:52.164Z"
+  "lastModified": "2025-10-24T12:15:22.989Z"
 }
