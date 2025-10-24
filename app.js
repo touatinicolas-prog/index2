@@ -1294,13 +1294,31 @@ function generateId() {
 }
 
 function showStatus(message, type) {
-    const status = document.getElementById('syncStatus');
-    status.textContent = message;
-    status.className = `sync-status ${type}`;
-    status.classList.remove('hidden');
+    const container = document.getElementById('toastContainer');
     
+    // Create toast element
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    
+    // Icon based on type
+    let icon = '✅';
+    if (type === 'error') icon = '❌';
+    else if (type === 'info') icon = 'ℹ️';
+    else if (type === 'success') icon = '✅';
+    
+    toast.innerHTML = `
+        <span class="toast-icon">${icon}</span>
+        <span class="toast-message">${message}</span>
+    `;
+    
+    container.appendChild(toast);
+    
+    // Auto-remove after 3 seconds
     setTimeout(() => {
-        status.classList.add('hidden');
+        toast.classList.add('removing');
+        setTimeout(() => {
+            container.removeChild(toast);
+        }, 300); // Wait for animation to complete
     }, 3000);
 }
 
