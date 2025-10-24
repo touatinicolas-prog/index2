@@ -230,11 +230,32 @@
           "id": "id-1761345502390-dlkytmi16",
           "name": "Créateur",
           "order": 0,
-          "verses": [],
+          "verses": [
+            {
+              "id": "id-1761345623906-76m05xezx",
+              "reference": "Heb 3:4",
+              "text": "Celui qui as construit toute chose c’est Dieu",
+              "notes": "Lavoisier: rien ne se perd rien ne se créer…\nDieu a « construit toute chose!",
+              "images": [],
+              "order": 0,
+              "created": "2025-10-24T22:40:23.906Z",
+              "modified": "2025-10-24T22:40:23.906Z"
+            },
+            {
+              "id": "id-1761345703428-cx1vovmb0",
+              "reference": "Isaie 40:26",
+              "text": "Par suite de sa force impressionnante…",
+              "notes": "Il s’est servis de sa colossale énergie… le Big Bang!",
+              "images": [],
+              "order": 1,
+              "created": "2025-10-24T22:41:43.428Z",
+              "modified": "2025-10-24T22:41:43.428Z"
+            }
+          ],
           "subcategories_level2": []
         }
       ]
     }
   ],
-  "lastModified": "2025-10-24T22:38:35.990Z"
+  "lastModified": "2025-10-24T22:41:55.927Z"
 }
