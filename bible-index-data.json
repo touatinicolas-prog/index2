@@ -7,9 +7,30 @@
       "verses": [],
       "subcategories_level1": [
         {
+          "id": "id-1761309097462-cik3hi56t",
+          "name": "Genèse",
+          "order": 0,
+          "verses": [],
+          "subcategories_level2": []
+        },
+        {
+          "id": "id-1761309078768-ie5vpz0ak",
+          "name": "Exode",
+          "order": 1,
+          "verses": [],
+          "subcategories_level2": []
+        },
+        {
+          "id": "id-1761309114540-8rys75nxb",
+          "name": "Lévitique",
+          "order": 2,
+          "verses": [],
+          "subcategories_level2": []
+        },
+        {
           "id": "id-1761252485702-oyvjzoh5p",
           "name": "Jonas",
-          "order": 0,
+          "order": 3,
           "verses": [],
           "subcategories_level2": [
             {
@@ -34,7 +55,7 @@
         {
           "id": "id-1761304755744-9775xeu65",
           "name": "Ecclésiaste",
-          "order": 1,
+          "order": 4,
           "verses": [],
           "subcategories_level2": [
             {
@@ -55,27 +76,6 @@
               ]
             }
           ]
-        },
-        {
-          "id": "id-1761309078768-ie5vpz0ak",
-          "name": "Exode",
-          "order": 2,
-          "verses": [],
-          "subcategories_level2": []
-        },
-        {
-          "id": "id-1761309097462-cik3hi56t",
-          "name": "Genèse",
-          "order": 3,
-          "verses": [],
-          "subcategories_level2": []
-        },
-        {
-          "id": "id-1761309114540-8rys75nxb",
-          "name": "Lévitique",
-          "order": 4,
-          "verses": [],
-          "subcategories_level2": []
         }
       ]
     },
@@ -184,5 +184,5 @@
       ]
     }
   ],
-  "lastModified": "2025-10-24T12:31:58.101Z"
+  "lastModified": "2025-10-24T12:32:40.188Z"
 }
