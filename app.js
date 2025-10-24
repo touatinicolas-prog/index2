@@ -12,8 +12,10 @@ const AppState = {
     autoSyncEnabled: false, // Auto-sync disabled by default
     autoSyncInterval: 5, // minutes (5 or 10)
     autoSyncTimer: null, // Timer ID
+    lastModified: null, // Timestamp of last local modification
     data: {
-        categories: []
+        categories: [],
+        lastModified: null // Timestamp in the data itself
     }
 };
 
@@ -188,6 +190,12 @@ function setupEventListeners() {
         if (!touchMoved) toggleTheme();
     });
     
+    // Save button
+    const saveBtn = document.getElementById('saveBtn');
+    saveBtn.addEventListener('click', (e) => {
+        if (!touchMoved) saveData();
+    });
+    
     // Sync button
     const syncBtn = document.getElementById('syncBtn');
     syncBtn.addEventListener('click', (e) => {
@@ -310,36 +318,107 @@ async function loadDataFromGitHub() {
         
         if (data) {
             AppState.data = data;
+            // Store the GitHub timestamp
+            if (data.lastModified) {
+                AppState.lastModified = data.lastModified;
+            }
             renderCategoryNav();
             showStatus('✅ Données chargées', 'success');
         } else {
             // Initialize with empty structure
-            AppState.data = { categories: [] };
+            const now = new Date().toISOString();
+            AppState.data = { 
+                categories: [],
+                lastModified: now
+            };
+            AppState.lastModified = now;
             showStatus('📝 Nouveau fichier de données créé', 'success');
         }
     } catch (error) {
         console.error('Erreur de chargement:', error);
         showStatus('❌ Erreur de chargement', 'error');
-        AppState.data = { categories: [] };
+        const now = new Date().toISOString();
+        AppState.data = { 
+            categories: [],
+            lastModified: now
+        };
+        AppState.lastModified = now;
     } finally {
         AppState.isLoading = false; // Re-enable auto-save
     }
 }
 
+// Save local data to GitHub (always overwrites)
+async function saveData() {
+    // Skip if we're still loading data
+    if (AppState.isLoading) {
+        console.log('⏭️ Sauvegarde ignorée (chargement en cours)');
+        return;
+    }
+    
+    try {
+        console.log('💾 Sauvegarde des données...', AppState.data);
+        showStatus('⏳ Sauvegarde...', 'info');
+        
+        // Update timestamp before saving
+        const now = new Date().toISOString();
+        AppState.data.lastModified = now;
+        AppState.lastModified = now;
+        
+        await GitHubSync.saveData(AppState.data);
+        AppState.hasUnsavedChanges = false;
+        updateSaveButtonState();
+        showStatus('✅ Sauvegardé sur GitHub', 'success');
+    } catch (error) {
+        console.error('❌ Erreur de sauvegarde:', error);
+        showStatus('❌ Échec de la sauvegarde', 'error');
+    }
+}
+
+// Sync from GitHub with conflict detection
 async function syncData() {
-    // Skip sync if we're still loading data
+    // Skip if we're still loading data
     if (AppState.isLoading) {
         console.log('⏭️ Synchronisation ignorée (chargement en cours)');
         return;
     }
     
     try {
-        console.log('📤 Synchronisation des données...', AppState.data);
+        console.log('🔄 Synchronisation depuis GitHub...');
         showStatus('⏳ Synchronisation...', 'info');
-        await GitHubSync.saveData(AppState.data);
-        AppState.hasUnsavedChanges = false; // Reset unsaved changes flag
-        updateSyncButtonState();
-        showStatus('✅ Synchronisé avec GitHub', 'success');
+        
+        const remoteData = await GitHubSync.fetchData();
+        
+        if (!remoteData) {
+            showStatus('ℹ️ Aucune donnée sur GitHub', 'info');
+            return;
+        }
+        
+        // Check for conflicts
+        const localTimestamp = AppState.data.lastModified ? new Date(AppState.data.lastModified) : new Date(0);
+        const remoteTimestamp = remoteData.lastModified ? new Date(remoteData.lastModified) : new Date(0);
+        
+        // If we have unsaved changes and remote is newer, show conflict modal
+        if (AppState.hasUnsavedChanges && remoteTimestamp > localTimestamp) {
+            showConflictModal(remoteData, localTimestamp, remoteTimestamp);
+        } else if (remoteTimestamp > localTimestamp) {
+            // Remote is newer and we have no local changes - safe to update
+            AppState.data = remoteData;
+            AppState.lastModified = remoteData.lastModified;
+            AppState.hasUnsavedChanges = false;
+            updateSaveButtonState();
+            renderCategoryNav();
+            if (AppState.currentView === 'list') {
+                renderVerseList();
+            }
+            showStatus('✅ Synchronisé depuis GitHub', 'success');
+        } else if (localTimestamp > remoteTimestamp) {
+            // Local is newer
+            showStatus('ℹ️ Vos données locales sont plus récentes', 'info');
+        } else {
+            // Same timestamp
+            showStatus('✅ Déjà à jour', 'success');
+        }
     } catch (error) {
         console.error('❌ Erreur de synchronisation:', error);
         showStatus('❌ Échec de la synchronisation', 'error');
@@ -350,23 +429,118 @@ async function syncData() {
 function markAsUnsaved() {
     if (!AppState.isLoading) {
         AppState.hasUnsavedChanges = true;
-        updateSyncButtonState();
+        // Update local timestamp
+        AppState.data.lastModified = new Date().toISOString();
+        updateSaveButtonState();
     }
 }
 
-// Update sync button visual state
-function updateSyncButtonState() {
-    const syncBtn = document.getElementById('syncBtn');
+// Update save button visual state
+function updateSaveButtonState() {
+    const saveBtn = document.getElementById('saveBtn');
     if (AppState.hasUnsavedChanges) {
-        syncBtn.style.opacity = '1';
-        syncBtn.style.animation = 'pulse 2s infinite';
-        syncBtn.title = 'Modifications non sauvegardées - Cliquez pour synchroniser';
+        saveBtn.style.opacity = '1';
+        saveBtn.style.animation = 'pulse 2s infinite';
+        saveBtn.title = 'Modifications non sauvegardées - Cliquez pour sauvegarder';
     } else {
-        syncBtn.style.opacity = '0.7';
-        syncBtn.style.animation = 'none';
-        syncBtn.title = 'Synchroniser avec GitHub';
+        saveBtn.style.opacity = '0.7';
+        saveBtn.style.animation = 'none';
+        saveBtn.title = 'Sauvegarder sur GitHub';
     }
 }
+
+// Show conflict resolution modal
+function showConflictModal(remoteData, localTimestamp, remoteTimestamp) {
+    const modal = document.getElementById('modal');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalBody = document.getElementById('modalBody');
+    
+    // Store remote data temporarily for conflict resolution
+    window._conflictRemoteData = remoteData;
+    
+    const localDate = localTimestamp.toLocaleString('fr-FR', {
+        year: 'numeric', month: 'long', day: 'numeric',
+        hour: '2-digit', minute: '2-digit'
+    });
+    const remoteDate = remoteTimestamp.toLocaleString('fr-FR', {
+        year: 'numeric', month: 'long', day: 'numeric',
+        hour: '2-digit', minute: '2-digit'
+    });
+    
+    modalTitle.innerHTML = '⚠️ Conflit de synchronisation';
+    modalBody.innerHTML = `
+        <div style="margin-bottom: 24px;">
+            <p style="margin-bottom: 16px; line-height: 1.6;">
+                Des modifications ont été détectées à la fois sur cet appareil et sur GitHub. 
+                Vous devez choisir quelle version conserver :
+            </p>
+            
+            <div style="background: var(--bg-tertiary); padding: 16px; border-radius: 8px; margin-bottom: 12px;">
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                    <span style="font-size: 20px;">📱</span>
+                    <strong>Version locale (cet appareil)</strong>
+                </div>
+                <p style="color: var(--text-secondary); font-size: 14px;">
+                    Dernière modification : ${localDate}
+                </p>
+                <p style="color: var(--text-secondary); font-size: 14px; margin-top: 8px;">
+                    ${AppState.data.categories.length} catégorie(s)
+                </p>
+            </div>
+            
+            <div style="background: var(--bg-tertiary); padding: 16px; border-radius: 8px;">
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                    <span style="font-size: 20px;">☁️</span>
+                    <strong>Version GitHub (autre appareil)</strong>
+                </div>
+                <p style="color: var(--text-secondary); font-size: 14px;">
+                    Dernière modification : ${remoteDate}
+                </p>
+                <p style="color: var(--text-secondary); font-size: 14px; margin-top: 8px;">
+                    ${remoteData.categories.length} catégorie(s)
+                </p>
+            </div>
+        </div>
+        
+        <div class="modal-footer" style="flex-direction: column; gap: 12px;">
+            <button onclick="resolveConflict('local')" class="primary-btn" style="width: 100%;">
+                📱 Garder ma version locale
+            </button>
+            <button onclick="resolveConflict('remote')" class="secondary-btn" style="width: 100%;">
+                ☁️ Utiliser la version GitHub
+            </button>
+            <button onclick="closeModal()" class="secondary-btn" style="width: 100%;">
+                Annuler
+            </button>
+        </div>
+    `;
+    
+    modal.classList.remove('hidden');
+}
+
+// Resolve sync conflict
+window.resolveConflict = async function(choice) {
+    if (choice === 'local') {
+        // Keep local version and overwrite GitHub
+        closeModal();
+        await saveData();
+    } else if (choice === 'remote') {
+        // Use GitHub version
+        const remoteData = window._conflictRemoteData;
+        AppState.data = remoteData;
+        AppState.lastModified = remoteData.lastModified;
+        AppState.hasUnsavedChanges = false;
+        updateSaveButtonState();
+        renderCategoryNav();
+        if (AppState.currentView === 'list') {
+            renderVerseList();
+        }
+        closeModal();
+        showStatus('✅ Version GitHub appliquée', 'success');
+        // Clean up
+        delete window._conflictRemoteData;
+    }
+};
 
 // ===== Rendering Functions =====
 function renderCurrentView() {
