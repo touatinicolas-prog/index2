@@ -219,7 +219,22 @@
           "subcategories_level2": []
         }
       ]
+    },
+    {
+      "id": "id-1761345444494-icriz4obb",
+      "name": "Prédication",
+      "order": 4,
+      "verses": [],
+      "subcategories_level1": [
+        {
+          "id": "id-1761345502390-dlkytmi16",
+          "name": "Créateur",
+          "order": 0,
+          "verses": [],
+          "subcategories_level2": []
+        }
+      ]
     }
   ],
-  "lastModified": "2025-10-24T20:12:11.778Z"
+  "lastModified": "2025-10-24T22:38:35.990Z"
 }
