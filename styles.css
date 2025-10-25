@@ -479,6 +479,11 @@ button, a, .icon-btn, .primary-btn, .secondary-btn, .category-link, .category-ed
     line-height: 1.8;
     margin-bottom: 12px;
     color: var(--text-primary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
 }
 
 .verse-notes-preview {
