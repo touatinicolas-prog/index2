@@ -248,6 +248,34 @@ function setupEventListeners() {
         if (!touchMoved) editCurrentVerse();
     });
     
+    // Search input
+    const searchInput = document.getElementById('searchInput');
+    const clearSearchBtn = document.getElementById('clearSearch');
+    
+    let searchTimeout;
+    searchInput.addEventListener('input', (e) => {
+        const query = e.target.value.trim();
+        
+        // Show/hide clear button
+        if (query.length > 0) {
+            clearSearchBtn.classList.remove('hidden');
+        } else {
+            clearSearchBtn.classList.add('hidden');
+        }
+        
+        // Debounce search
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+            performSearch(query);
+        }, 300);
+    });
+    
+    clearSearchBtn.addEventListener('click', () => {
+        searchInput.value = '';
+        clearSearchBtn.classList.add('hidden');
+        performSearch('');
+    });
+    
     // Modal close
     document.getElementById('modalClose').addEventListener('click', closeModal);
     document.getElementById('modalClose').addEventListener('touchend', (e) => {
@@ -1724,3 +1752,228 @@ function deleteCategory(categoryId, level) {
     markAsUnsaved();
     showStatus('✅ Catégorie supprimée', 'success');
 }
+
+// ===== Search Functionality =====
+let searchResults = [];
+let isSearching = false;
+
+function performSearch(query) {
+    // Reset search if query is empty or less than 3 characters
+    if (!query || query.length < 3) {
+        isSearching = false;
+        searchResults = [];
+        renderCurrentView();
+        return;
+    }
+    
+    isSearching = true;
+    searchResults = [];
+    
+    const searchTerm = query.toLowerCase();
+    
+    // Search through all verses in all categories and subcategories
+    function searchInVerses(verses, categoryPath) {
+        if (!verses) return;
+        
+        verses.forEach(verse => {
+            const reference = (verse.reference || '').toLowerCase();
+            const text = (verse.text || '').toLowerCase();
+            const notes = (verse.notes || '').toLowerCase();
+            
+            // Check if search term matches (even partial match with 3+ chars)
+            if (reference.includes(searchTerm) || 
+                text.includes(searchTerm) || 
+                notes.includes(searchTerm)) {
+                searchResults.push({
+                    verse: verse,
+                    categoryPath: categoryPath,
+                    matchIn: []
+                });
+                
+                // Track where the match was found
+                const result = searchResults[searchResults.length - 1];
+                if (reference.includes(searchTerm)) result.matchIn.push('référence');
+                if (text.includes(searchTerm)) result.matchIn.push('texte');
+                if (notes.includes(searchTerm)) result.matchIn.push('notes');
+            }
+        });
+    }
+    
+    // Iterate through all categories
+    AppState.data.categories.forEach(cat => {
+        // Search in main category verses
+        searchInVerses(cat.verses, [cat.name]);
+        
+        // Search in subcategories level 1
+        if (cat.subcategories_level1) {
+            cat.subcategories_level1.forEach(sub1 => {
+                searchInVerses(sub1.verses, [cat.name, sub1.name]);
+                
+                // Search in subcategories level 2
+                if (sub1.subcategories_level2) {
+                    sub1.subcategories_level2.forEach(sub2 => {
+                        searchInVerses(sub2.verses, [cat.name, sub1.name, sub2.name]);
+                    });
+                }
+            });
+        }
+    });
+    
+    // Render search results
+    renderSearchResults(query);
+}
+
+function renderSearchResults(query) {
+    const verseListView = document.getElementById('verseListView');
+    const verseList = document.getElementById('verseList');
+    const breadcrumb = document.getElementById('breadcrumb');
+    const welcomeScreen = document.getElementById('welcomeScreen');
+    const verseDetailView = document.getElementById('verseDetailView');
+    
+    // Hide other views
+    welcomeScreen.classList.add('hidden');
+    verseDetailView.classList.add('hidden');
+    verseListView.classList.remove('hidden');
+    
+    // Update breadcrumb
+    breadcrumb.innerHTML = `
+        <span style="color: var(--accent-color);">🔍 Recherche: "${query}"</span>
+        <span style="color: var(--text-secondary); margin-left: 8px;">(${searchResults.length} résultat${searchResults.length > 1 ? 's' : ''})</span>
+    `;
+    
+    // Render results
+    if (searchResults.length === 0) {
+        verseList.innerHTML = `
+            <div class="no-results">
+                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <circle cx="11" cy="11" r="8"/>
+                    <path d="m21 21-4.35-4.35"/>
+                </svg>
+                <p style="font-size: 16px; margin-top: 12px;">Aucun résultat pour "${query}"</p>
+                <p style="font-size: 14px; margin-top: 8px;">Essayez avec d'autres mots-clés (min. 3 lettres)</p>
+            </div>
+        `;
+        return;
+    }
+    
+    let html = '';
+    
+    searchResults.forEach(result => {
+        const verse = result.verse;
+        const categoryPath = result.categoryPath.join(' › ');
+        const matchInfo = result.matchIn.join(', ');
+        
+        const created = new Date(verse.created).toLocaleDateString('fr-FR', { 
+            year: 'numeric', month: 'short', day: 'numeric' 
+        });
+        
+        // Highlight search term in text
+        const highlightText = (text) => {
+            if (!text) return '';
+            const regex = new RegExp(`(${escapeRegex(query)})`, 'gi');
+            return text.replace(regex, '<span class="search-highlight">$1</span>');
+        };
+        
+        let textPreview = '';
+        if (verse.text) {
+            const highlighted = highlightText(verse.text);
+            textPreview = `<div class="verse-text" style="-webkit-line-clamp: 2;">${highlighted}</div>`;
+        }
+        
+        let notesPreview = '';
+        if (verse.notes) {
+            const highlighted = highlightText(verse.notes);
+            notesPreview = `<div class="verse-notes-preview">${highlighted}</div>`;
+        }
+        
+        let imagesPreview = '';
+        if (verse.images && verse.images.length > 0) {
+            imagesPreview = `
+                <div class="verse-images-preview">
+                    ${verse.images.slice(0, 3).map(img => 
+                        `<img src="${img}" class="verse-image-thumb" alt="Image">`
+                    ).join('')}
+                    ${verse.images.length > 3 ? `<span style="font-size: 12px; color: var(--text-secondary);">+${verse.images.length - 3}</span>` : ''}
+                </div>
+            `;
+        }
+        
+        html += `
+            <div class="verse-card" onclick="openVerseFromSearch('${verse.id}', '${result.categoryPath.join('|||')}')">
+                <div class="verse-card-header">
+                    <div>
+                        <div class="verse-reference">${highlightText(verse.reference)}</div>
+                        <div style="font-size: 11px; color: var(--text-secondary); margin-top: 4px;">
+                            📂 ${categoryPath}
+                        </div>
+                        <div style="font-size: 11px; color: var(--accent-color); margin-top: 2px;">
+                            ✓ Trouvé dans: ${matchInfo}
+                        </div>
+                    </div>
+                    <span class="verse-date">${created}</span>
+                </div>
+                ${textPreview}
+                ${notesPreview}
+                ${imagesPreview}
+            </div>
+        `;
+    });
+    
+    verseList.innerHTML = html;
+}
+
+function escapeRegex(string) {
+    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function openVerseFromSearch(verseId, categoryPathStr) {
+    if (touchMoved) return;
+    
+    const categoryPath = categoryPathStr.split('|||');
+    
+    // Find the verse by traversing the category path
+    let currentCategory = AppState.data.categories.find(cat => cat.name === categoryPath[0]);
+    if (!currentCategory) return;
+    
+    AppState.currentCategory = currentCategory;
+    AppState.currentSubcategory1 = null;
+    AppState.currentSubcategory2 = null;
+    
+    let verses = null;
+    
+    if (categoryPath.length === 1) {
+        // Verse is in main category
+        verses = currentCategory.verses;
+    } else if (categoryPath.length === 2) {
+        // Verse is in subcategory level 1
+        const sub1 = currentCategory.subcategories_level1?.find(s => s.name === categoryPath[1]);
+        if (sub1) {
+            AppState.currentSubcategory1 = sub1;
+            verses = sub1.verses;
+        }
+    } else if (categoryPath.length === 3) {
+        // Verse is in subcategory level 2
+        const sub1 = currentCategory.subcategories_level1?.find(s => s.name === categoryPath[1]);
+        if (sub1) {
+            AppState.currentSubcategory1 = sub1;
+            const sub2 = sub1.subcategories_level2?.find(s => s.name === categoryPath[2]);
+            if (sub2) {
+                AppState.currentSubcategory2 = sub2;
+                verses = sub2.verses;
+            }
+        }
+    }
+    
+    if (verses) {
+        const verse = verses.find(v => v.id === verseId);
+        if (verse) {
+            AppState.currentVerse = verse;
+            AppState.currentView = 'detail';
+            isSearching = false;
+            renderCurrentView();
+        }
+    }
+}
+
+// Make function globally accessible
+window.openVerseFromSearch = openVerseFromSearch;
