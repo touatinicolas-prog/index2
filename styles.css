@@ -211,6 +211,63 @@ button, a, .icon-btn, .primary-btn, .secondary-btn, .category-link, .category-ed
     background: var(--danger-color);
 }
 
+/* ===== Dropdown Menu ===== */
+.dropdown-menu {
+    position: absolute;
+    top: 70px;
+    right: 24px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    box-shadow: 0 8px 24px var(--shadow);
+    min-width: 250px;
+    z-index: 1001;
+    overflow: hidden;
+}
+
+.dropdown-item {
+    width: 100%;
+    padding: 14px 20px;
+    background: none;
+    border: none;
+    color: var(--text-primary);
+    font-size: 15px;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.dropdown-item:last-child {
+    border-bottom: none;
+}
+
+.dropdown-item:hover {
+    background: var(--bg-tertiary);
+}
+
+.dropdown-item:active {
+    background: var(--accent-color);
+    color: white;
+}
+
+.dropdown-item svg {
+    flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+    .dropdown-menu {
+        right: 16px;
+        top: 140px;
+        left: 16px;
+        min-width: auto;
+    }
+}
+
+
 /* ===== Toast Notifications ===== */
 .toast-container {
     position: fixed;
