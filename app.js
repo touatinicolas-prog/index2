@@ -640,21 +640,48 @@ function renderCategoryNav() {
 async function reorderSubcategories(subList, oldIndex, newIndex) {
     // Find the parent category by traversing up
     const categoryItem = subList.closest('.category-item');
+    if (!categoryItem) return;
+    
     const categoryId = categoryItem.dataset.id;
+    const categoryLevel = parseInt(categoryItem.dataset.level);
     
-    // Find the category in data
-    let parentCategory = AppState.data.categories.find(cat => cat.id === categoryId);
-    
-    if (parentCategory && parentCategory.subcategories_level1) {
-        const [moved] = parentCategory.subcategories_level1.splice(oldIndex, 1);
-        parentCategory.subcategories_level1.splice(newIndex, 0, moved);
+    // Determine if this is level 1 or level 2 subcategories
+    if (categoryLevel === 0) {
+        // This is reordering level 1 subcategories under a main category
+        let parentCategory = AppState.data.categories.find(cat => cat.id === categoryId);
         
-        // Update order property
-        parentCategory.subcategories_level1.forEach((sub, idx) => {
-            sub.order = idx;
-        });
-        
-        markAsUnsaved();
+        if (parentCategory && parentCategory.subcategories_level1) {
+            const [moved] = parentCategory.subcategories_level1.splice(oldIndex, 1);
+            parentCategory.subcategories_level1.splice(newIndex, 0, moved);
+            
+            // Update order property
+            parentCategory.subcategories_level1.forEach((sub, idx) => {
+                sub.order = idx;
+            });
+            
+            markAsUnsaved();
+        }
+    } else if (categoryLevel === 1) {
+        // This is reordering level 2 subcategories under a level 1 subcategory
+        // Find the parent level 1 subcategory
+        for (const mainCat of AppState.data.categories) {
+            if (mainCat.subcategories_level1) {
+                const parentSub1 = mainCat.subcategories_level1.find(sub => sub.id === categoryId);
+                
+                if (parentSub1 && parentSub1.subcategories_level2) {
+                    const [moved] = parentSub1.subcategories_level2.splice(oldIndex, 1);
+                    parentSub1.subcategories_level2.splice(newIndex, 0, moved);
+                    
+                    // Update order property
+                    parentSub1.subcategories_level2.forEach((sub, idx) => {
+                        sub.order = idx;
+                    });
+                    
+                    markAsUnsaved();
+                    return;
+                }
+            }
+        }
     }
 }
 
@@ -662,6 +689,7 @@ function createCategoryElement(category, level = 0) {
     const div = document.createElement('div');
     div.className = 'category-item';
     div.dataset.id = category.id;
+    div.dataset.level = level; // Add level for drag & drop identification
     
     const link = document.createElement('a');
     link.className = 'category-link';
