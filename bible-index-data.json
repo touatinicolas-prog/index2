@@ -106,7 +106,18 @@
           "id": "id-1761194764007-cqb5k6lw7",
           "name": "Découragement",
           "order": 0,
-          "verses": [],
+          "verses": [
+            {
+              "id": "id-1761404570168-03fkkhex0",
+              "reference": "Ps 142:1,2,4",
+              "text": "Regarde à ma droite et vois que personne ne se soucie de moi….",
+              "notes": "Mais David n’était t’il pas accompagné de 600 hommes qui ont laissé leur famille pour le suivre, le protéger et l’encourager ??",
+              "images": [],
+              "order": 0,
+              "created": "2025-10-25T15:02:50.168Z",
+              "modified": "2025-10-25T15:05:28.678Z"
+            }
+          ],
           "subcategories_level2": []
         },
         {
@@ -275,5 +286,5 @@
       "subcategories_level1": []
     }
   ],
-  "lastModified": "2025-10-25T08:24:37.981Z"
+  "lastModified": "2025-10-25T15:05:31.133Z"
 }
