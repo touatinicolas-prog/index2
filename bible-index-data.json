@@ -34,26 +34,9 @@
           "verses": [],
           "subcategories_level2": [
             {
-              "id": "id-1761304766885-9fwijg1vf",
-              "name": "Chap 9",
-              "order": 0,
-              "verses": [
-                {
-                  "id": "id-1761304894322-jwjld676v",
-                  "reference": "Ecc 9:12",
-                  "text": "L’homme ne connaît pas son heure…",
-                  "notes": "vivre avec l’heure de notre mort serait extrêmement angoissant. \n\nEt si la motivation de Jéhovah de ne pas révéler la date de son intervention était en partie pour permettre aux êtres humains qui ne le servent pas de ne pas vivre avec une date angoissant d’une mort éventuelle…\n\nCela on dirait encore très long sur l’immense mort de notre créateur, même pour ceux qui décide de ne pas le servir.",
-                  "images": [],
-                  "order": 0,
-                  "created": "2025-10-24T11:21:34.322Z",
-                  "modified": "2025-10-24T11:21:34.322Z"
-                }
-              ]
-            },
-            {
               "id": "id-1761332034521-omp12pf0z",
               "name": "Chap 6",
-              "order": 1,
+              "order": 0,
               "verses": [
                 {
                   "id": "id-1761332151024-kyp9acr69",
@@ -64,6 +47,23 @@
                   "order": 0,
                   "created": "2025-10-24T18:55:51.024Z",
                   "modified": "2025-10-24T18:55:51.024Z"
+                }
+              ]
+            },
+            {
+              "id": "id-1761304766885-9fwijg1vf",
+              "name": "Chap 9",
+              "order": 1,
+              "verses": [
+                {
+                  "id": "id-1761304894322-jwjld676v",
+                  "reference": "Ecc 9:12",
+                  "text": "L’homme ne connaît pas son heure…",
+                  "notes": "vivre avec l’heure de notre mort serait extrêmement angoissant. \n\nEt si la motivation de Jéhovah de ne pas révéler la date de son intervention était en partie pour permettre aux êtres humains qui ne le servent pas de ne pas vivre avec une date angoissant d’une mort éventuelle…\n\nCela on dirait encore très long sur l’immense mort de notre créateur, même pour ceux qui décide de ne pas le servir.",
+                  "images": [],
+                  "order": 0,
+                  "created": "2025-10-24T11:21:34.322Z",
+                  "modified": "2025-10-24T11:21:34.322Z"
                 }
               ]
             }
@@ -275,5 +275,5 @@
       "subcategories_level1": []
     }
   ],
-  "lastModified": "2025-10-25T08:23:18.251Z"
+  "lastModified": "2025-10-25T08:24:37.981Z"
 }
