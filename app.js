@@ -184,28 +184,57 @@ function setupEventListeners() {
         if (!touchMoved) toggleMode();
     });
     
-    // Theme toggle
-    const themeToggleBtn = document.getElementById('themeToggle');
-    themeToggleBtn.addEventListener('click', (e) => {
-        if (!touchMoved) toggleTheme();
-    });
-    
     // Save button
     const saveBtn = document.getElementById('saveBtn');
     saveBtn.addEventListener('click', (e) => {
         if (!touchMoved) saveData();
     });
     
-    // Sync button
-    const syncBtn = document.getElementById('syncBtn');
-    syncBtn.addEventListener('click', (e) => {
-        if (!touchMoved) syncData();
+    // Menu button - toggle dropdown
+    const menuBtn = document.getElementById('menuBtn');
+    const dropdownMenu = document.getElementById('dropdownMenu');
+    
+    menuBtn.addEventListener('click', (e) => {
+        if (!touchMoved) {
+            e.stopPropagation();
+            dropdownMenu.classList.toggle('hidden');
+        }
     });
     
-    // Settings button
-    const settingsBtn = document.getElementById('settingsBtn');
-    settingsBtn.addEventListener('click', (e) => {
-        if (!touchMoved) showSettingsModal();
+    // Close dropdown when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!dropdownMenu.classList.contains('hidden') && 
+            !menuBtn.contains(e.target) && 
+            !dropdownMenu.contains(e.target)) {
+            dropdownMenu.classList.add('hidden');
+        }
+    });
+    
+    // Settings button in menu
+    const settingsBtnMenu = document.getElementById('settingsBtnMenu');
+    settingsBtnMenu.addEventListener('click', (e) => {
+        if (!touchMoved) {
+            dropdownMenu.classList.add('hidden');
+            showSettingsModal();
+        }
+    });
+    
+    // Sync button in menu
+    const syncBtnMenu = document.getElementById('syncBtnMenu');
+    syncBtnMenu.addEventListener('click', (e) => {
+        if (!touchMoved) {
+            dropdownMenu.classList.add('hidden');
+            syncData();
+        }
+    });
+    
+    // Theme toggle in menu
+    const themeToggleMenu = document.getElementById('themeToggleMenu');
+    themeToggleMenu.addEventListener('click', (e) => {
+        if (!touchMoved) {
+            dropdownMenu.classList.add('hidden');
+            toggleTheme();
+        }
     });
     
     // Get started button
