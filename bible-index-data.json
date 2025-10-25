@@ -255,7 +255,25 @@
           "subcategories_level2": []
         }
       ]
+    },
+    {
+      "id": "id-1761365415397-qizq3fwtb",
+      "name": "Drôle",
+      "order": 5,
+      "verses": [
+        {
+          "id": "id-1761365549296-dmu2pjvbe",
+          "reference": "Ecc 10:6",
+          "text": "la bêtise est placée à de nombreux postes élevés, mais les gens capables restent à des postes inférieurs",
+          "notes": "Quand tu es mauvais dans ce que tu fais, tu passes au poste supérieur, car dans les fait tes actions ont moins d’incidence 🤪",
+          "images": [],
+          "order": 0,
+          "created": "2025-10-25T04:12:29.296Z",
+          "modified": "2025-10-25T04:12:29.296Z"
+        }
+      ],
+      "subcategories_level1": []
     }
   ],
-  "lastModified": "2025-10-25T03:55:47.223Z"
+  "lastModified": "2025-10-25T04:12:40.200Z"
 }
